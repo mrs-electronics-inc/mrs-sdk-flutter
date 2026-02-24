@@ -4,7 +4,8 @@ default:
 
 # Install Flutter and docs dependencies.
 deps:
-    if [ -f pubspec.yaml ]; then flutter pub get; else echo "No pubspec.yaml found at repo root."; fi
+    # TODO: add this as part of spec 1
+    # flutter pub get
     cd docs && npm install
 
 # Set up local development environment and git hooks.
@@ -17,7 +18,8 @@ dev:
 
 # Run Flutter analysis and docs build checks.
 lint:
-    flutter analyze
+    # TODO: add this as part of spec 1
+    # flutter analyze
     cd docs && npm run build
 
 # Run tests.
@@ -26,7 +28,8 @@ test:
 
 # Format Flutter and docs code.
 format:
-    dart format .
+    # TODO: add this as part of spec 1
+    # dart format .
     cd docs && npm run astro -- format
 
 # Run the docs site in development mode.
