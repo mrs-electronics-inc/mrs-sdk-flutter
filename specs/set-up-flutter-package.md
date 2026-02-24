@@ -31,6 +31,9 @@ This spec covers package metadata, repository/package structure expectations, pu
   - `platforms-android-36`
   - `ndk-28-2-13676358`
   - `cmake-3-22-1`
+- Chosen: Nix setup is optional and targeted
+  - Nix docs are for Nix/NixOS users and maintainers, not required for all contributors
+  - Non-Nix developers continue to use standard project setup workflows
 
 ### Publication Target
 
@@ -101,7 +104,7 @@ This spec covers package metadata, repository/package structure expectations, pu
 - [ ] Add `flake.nix` with inputs (`nixpkgs`, `devshell`, `android-nixpkgs`) and overlay-based Android SDK configuration
 - [ ] Add/align `devshell.nix` and ensure flake `devShell` points to it
 - [ ] Ensure Android SDK package set includes: `build-tools-35-0-0`, `cmdline-tools-latest`, `platform-tools`, `platforms-android-31`, `platforms-android-33`, `platforms-android-34`, `platforms-android-35`, `platforms-android-36`, `ndk-28-2-13676358`, `cmake-3-22-1`
-- [ ] Define one canonical Nix validation checklist in contributor docs: `nix flake check`, `nix develop`, `flutter doctor`, `dart pub get`, `just setup`, `just dev`, `just test`
+- [ ] Define one canonical Nix validation checklist in Nix-targeted docs (for Nix/NixOS users and maintainers): `nix flake check`, `nix develop`, `flutter doctor`, `dart pub get`, `just setup`, `just dev`, `just test`
 - [ ] Implement CI steps that run the same Nix validation checklist
 - [ ] Verify the checklist passes end-to-end in a clean environment
 - [ ] Cleanup pass: remove redundant environment setup paths without changing behavior
@@ -157,5 +160,5 @@ This spec covers package metadata, repository/package structure expectations, pu
 - [ ] Ensure docs clearly separate pre-publish checks, dry-run, and real publish steps
 - [ ] Document PR workflow quality gate expectations for lint and formatter pipelines
 - [ ] Document release workflow trigger/gating rules, protected environment usage, and credential requirements
-- [ ] Document Nix flake/dev shell setup and usage for contributors
+- [ ] Document Nix flake/dev shell setup in an optional Nix-targeted section (not part of required setup for all developers)
 - [ ] Add troubleshooting guidance for common publish failures (metadata, score, authentication, dry-run errors) and environment setup failures
