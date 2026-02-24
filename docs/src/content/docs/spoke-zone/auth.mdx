@@ -1,0 +1,23 @@
+---
+title: Spoke.Zone Auth
+description: Device and user auth provider responsibilities.
+---
+
+## Ownership
+
+`SpokeZoneService` owns request execution, headers, retries, and error mapping.
+Auth providers own token lifecycle only.
+
+## Device Auth
+
+`DeviceAuth.login` owns `/loginDevice` token renewal.
+`SpokeZoneService` does not orchestrate device login directly.
+
+## User Auth
+
+`UserAuth.login` owns user-token acquisition and refresh.
+`SpokeZoneService` does not orchestrate user login directly.
+
+## Retry
+
+Auth login flows use the same retry policy as endpoint calls.

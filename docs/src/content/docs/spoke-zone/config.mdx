@@ -1,0 +1,38 @@
+---
+title: Spoke.Zone Config
+description: Configuration modes, base URL rules, and callback contracts.
+---
+
+## Modes
+
+`SpokeZoneService` accepts one `SpokeZoneConfig` built in exactly one mode:
+
+- `SpokeZoneConfig.device(...)`
+- `SpokeZoneConfig.user(...)`
+
+## Base URL
+
+- Default base URL: `https://api.spoke.zone`
+- Config may override base URL for non-production environments
+- All endpoint and auth calls use the same configured base URL
+
+## Callback Contract
+
+Callbacks are asynchronous and invoked on demand during auth/login flows.
+
+- Callbacks may be re-invoked for retries
+- Callback failures propagate into SDK typed errors
+- Callbacks must not return `null`; invalid state should throw
+- Callback caching is provider-owned
+
+Device mode callbacks:
+
+- `cpuId`
+- `uuid`
+- `deviceId`
+- `initialDeviceToken`
+
+User mode callbacks:
+
+- `username`
+- `password`

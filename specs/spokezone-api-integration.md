@@ -31,6 +31,8 @@ The SDK must remain forward-compatible with user-token endpoint families.
 
 ### Configuration and Auth Mode
 
+See: `docs/src/content/docs/spoke-zone/config.mdx`
+
 - Chosen: `SpokeZoneService` always receives one `SpokeZoneConfig`
   - `SpokeZoneConfig.device(...)` for device mode
   - `SpokeZoneConfig.user(...)` for user mode
@@ -45,6 +47,8 @@ The SDK must remain forward-compatible with user-token endpoint families.
   - A single provider instance on a given config generates `x-access-token` for all requests in that mode
 
 ### Auth Provider Contracts
+
+See: `docs/src/content/docs/spoke-zone/auth.mdx`
 
 - Chosen: `DeviceAuth.login` owns `/loginDevice` token renewal flow
   - `SpokeZoneService` does not orchestrate login itself
@@ -91,6 +95,8 @@ The SDK must remain forward-compatible with user-token endpoint families.
 
 ### Error System
 
+See: `docs/src/content/docs/spoke-zone/errors.mdx`
+
 - Chosen: Stable typed SDK error codes as public contract
   - Initial codes: `unauthorized`, `forbidden`, `notFound`, `rateLimited`, `serverError`, `networkError`, `validationError`, `unsupportedAuthMode`, `retryLimitReached`, `unknown`
 - Chosen: Every SDK error includes diagnostics
@@ -122,6 +128,8 @@ Implementation-facing docs for this integration live in:
 - `docs/src/content/docs/spoke-zone/endpoints.mdx`
 
 ## Endpoint Contracts
+
+See: `docs/src/content/docs/spoke-zone/endpoints.mdx`
 
 Source of truth for this section is Spoke.Zone published documentation as of 2026-02-24:
 
