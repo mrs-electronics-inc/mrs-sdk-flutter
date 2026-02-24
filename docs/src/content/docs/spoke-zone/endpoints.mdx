@@ -5,15 +5,6 @@ sidebar:
   order: 5
 ---
 
-Covered endpoints:
-
-- `POST /loginDevice`
-- `POST /api/v2/data-files`
-- `POST /api/v2/data-files/{id}/file`
-- `GET /api/v2/ota-files`
-- `GET /api/v2/ota-files/{id}/file`
-- `GET /api/v2/devices/{id}`
-
 Source of truth for these contracts is Spoke.Zone published documentation: [API docs](https://api.spoke.zone/api-docs) and [Access token docs](https://docs.spoke.zone/developers/general-api-usage/access-tokens/).
 
 ## DeviceAuth.login
@@ -114,12 +105,6 @@ List defaults:
 | Error statuses to map | `400`, `401`, `403`, `404`, `429`, `5xx` |
 
 Note: only documented and explicitly selected fields above are modeled. Additional API fields are intentionally ignored.
-
-## Defaults
-
-- OTA list defaults: `limit=50`, `offset=0`
-- Upload input: fully buffered bytes
-- Download output: raw bytes
 
 ## Retry Policy
 
