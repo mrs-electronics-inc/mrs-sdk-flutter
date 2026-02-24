@@ -111,6 +111,16 @@ The SDK must remain forward-compatible with user-token endpoint families.
   - Client-side contract violations map to `validationError` before network call
   - Retry exhaustion maps to `retryLimitReached` with last failure diagnostics attached
 
+## Internal Docs
+
+Implementation-facing docs for this integration live in:
+
+- `docs/src/content/docs/spoke-zone/index.mdx`
+- `docs/src/content/docs/spoke-zone/config.mdx`
+- `docs/src/content/docs/spoke-zone/auth.mdx`
+- `docs/src/content/docs/spoke-zone/errors.mdx`
+- `docs/src/content/docs/spoke-zone/endpoints.mdx`
+
 ## Endpoint Contracts
 
 Source of truth for this section is Spoke.Zone published documentation as of 2026-02-24:
@@ -247,6 +257,9 @@ Note: only documented and explicitly selected fields above are modeled. Addition
 
 ### Documentation
 
-- [ ] Add API docs for `SpokeZoneConfig.device(...)` and `SpokeZoneConfig.user(...)` with callback requirements
-- [ ] Add docs for `DeviceAuth.login` and `UserAuth.login` ownership and token lifecycle responsibilities
-- [ ] Add docs for endpoint contracts, typed error codes, and fixed retry/backoff defaults
+- [ ] Draft `docs/src/content/docs/spoke-zone/config.mdx` for config modes, base URL rules, and callback contract semantics
+- [ ] Draft `docs/src/content/docs/spoke-zone/auth.mdx` for `DeviceAuth.login` and `UserAuth.login` lifecycle ownership
+- [ ] Draft `docs/src/content/docs/spoke-zone/errors.mdx` for typed error codes, diagnostics, and consumer-observable behavior
+- [ ] Draft `docs/src/content/docs/spoke-zone/endpoints.mdx` for endpoint contracts and query/default semantics
+- [ ] Draft `docs/src/content/docs/spoke-zone/index.mdx` as a hub page linking all Spoke.Zone docs
+- [ ] Update docs discoverability entry points to include the Spoke.Zone doc hub
