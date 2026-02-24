@@ -5,7 +5,7 @@ author: Addison Emig
 creation_date: 2026-02-24
 ---
 
-# Set up Flutter package on pub.dev
+# Set Up Flutter Package on pub.dev
 
 Define the work required to prepare, validate, and publish this package on `pub.dev` with a repeatable release workflow.
 
