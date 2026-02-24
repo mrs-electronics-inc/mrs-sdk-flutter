@@ -44,7 +44,7 @@ Source of truth for these contracts is Spoke.Zone published documentation as of 
 | Success body (`user` fields used by SDK auth flow) | `username`, `user_id`, `user_role`, `customer_id`, `customer_role`, `oem_id`, `reset_required`, `customer_prefix`, `is_mobile_user`, `prefix`, `mqtt_permission` |
 | Error statuses to map | `401` (missing username/password or invalid credentials), `403` (account locked), `429`, `5xx` |
 
-## dataFiles.create
+## DataFiles.create
 
 `POST /api/v2/data-files`
 
@@ -56,7 +56,7 @@ Source of truth for these contracts is Spoke.Zone published documentation as of 
 | Success body (guaranteed fields) | `id` (number) |
 | Error statuses to map | `400`, `401`, `403`, `429`, `5xx` |
 
-## dataFiles.upload
+## DataFiles.upload
 
 `POST /api/v2/data-files/{id}/file`
 
@@ -75,7 +75,7 @@ Upload semantics:
 - SDK does not provide chunked upload in this scope
 - SDK retries per global retry policy; caller controls higher-level concurrency
 
-## otaFiles.list
+## OtaFiles.list
 
 `GET /api/v2/ota-files`
 
@@ -92,7 +92,7 @@ List defaults:
 - When omitted by caller: `limit=50`, `offset=0`
 - Caller-provided query values override defaults
 
-## otaFiles.download
+## OtaFiles.download
 
 `GET /api/v2/ota-files/{id}/file`
 
@@ -104,7 +104,7 @@ List defaults:
 | Success body | binary file content returned as bytes |
 | Error statuses to map | `400`, `401`, `403`, `429`, `5xx` |
 
-## devices.get
+## Devices.get
 
 `GET /api/v2/devices/{id}`
 
