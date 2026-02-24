@@ -41,6 +41,7 @@ See: `docs/src/content/docs/spoke-zone/config.mdx`
   - Default base URL is `https://api.spoke.zone`
   - Config supports explicit base URL override for non-production environments
   - All endpoint and auth calls use the same configured base URL
+  - SDK does not provision environment credentials; host applications provide secrets via config callbacks
 - Chosen: No auth scope parameter in API
   - Mode is selected by which named constructor built the config
 - Chosen: One shared auth interface type implemented by both device and user auth providers
@@ -72,6 +73,7 @@ See: `docs/src/content/docs/spoke-zone/auth.mdx`
   - Callback failures propagate into SDK auth/error handling (they are not swallowed)
   - Callbacks must not return `null`; null-like states are represented as thrown errors
   - Callback implementations may cache values, but cache freshness is provider-owned
+  - Callback execution uses the same operation timeout budget as the requesting auth flow
 
 ### Data and Download Semantics
 
@@ -239,6 +241,7 @@ Note: only documented and explicitly selected fields above are modeled. Addition
 ### Service Shape
 
 - [ ] Add tests first asserting root `SpokeZoneService` exposes `devices`, `dataFiles`, and `otaFiles` namespaces
+- [ ] Add tests first for shared HTTP pipeline behavior (header injection, retry orchestration, and error mapping middleware)
 - [ ] Implement root service and namespaced clients to make service-shape tests pass
 - [ ] Cleanup pass: simplify service wiring and shared request setup without changing behavior
 
