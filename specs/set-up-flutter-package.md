@@ -111,7 +111,10 @@ This spec covers package metadata, repository/package structure expectations, pu
 
 ### Package Metadata and Layout
 
-- [ ] Add checks first for required pub.dev metadata fields in `pubspec.yaml` and supporting files
+- [ ] Define a metadata acceptance checklist with explicit pass criteria:
+  - `pubspec.yaml` contains `name`, `version`, `description`, `homepage` or `repository`, SDK constraints, dependency constraints, `documentation`, and `issue_tracker`
+  - `README.md`, `CHANGELOG.md`, and `LICENSE` exist at package root
+  - `example/` app exists and runs package usage path
 - [ ] Ensure package metadata is complete and publishable (`name`, `version`, `description`, `homepage`/`repository`, SDK constraints, dependency constraints, `documentation`, `issue_tracker`)
 - [ ] Ensure required support files are present and updated (`README.md`, `CHANGELOG.md`, `LICENSE`)
 - [ ] Ensure Flutter `example/` app is present and valid for package usage demonstration
@@ -119,14 +122,20 @@ This spec covers package metadata, repository/package structure expectations, pu
 
 ### Publish Readiness
 
-- [ ] Add checks first for publish-readiness expectations (analysis, test, lint, dry-run success)
+- [ ] Define publish-readiness checks with explicit commands and pass criteria:
+  - `just lint` exits `0`
+  - `just test` exits `0`
+  - `dart pub publish --dry-run` from package root exits `0`
 - [ ] Define and validate pre-publish verification flow using repository recipes
 - [ ] Define and validate `dart pub publish --dry-run` workflow from the package root
 - [ ] Cleanup pass: simplify readiness workflow guidance without changing behavior
 
 ### PR Workflows
 
-- [ ] Add checks first for PR workflow expectations (quality gates run on pull requests via reusable workflow)
+- [ ] Define PR workflow acceptance checks with explicit pass criteria:
+  - Workflow trigger is `pull_request`
+  - PR workflow calls the reusable quality-gates workflow
+  - Any failing gate causes the PR workflow to fail
 - [ ] Define reusable quality-gates workflow/job (Ubuntu runner) shared by PR and release workflows, with inline comments explaining commands and failure behavior
 - [ ] Implement quality-gate command steps (no `just`): `dart format --set-exit-if-changed .`, `flutter analyze`, `flutter test`, `npm --prefix docs run lint`, `npm --prefix docs run format:check` with inline comments for each gate purpose
 - [ ] Implement PR workflow that calls reusable quality-gates workflow, with inline comments for trigger and required-check intent
@@ -135,7 +144,11 @@ This spec covers package metadata, repository/package structure expectations, pu
 
 ### Release Workflows
 
-- [ ] Add checks first for release workflow expectations (tag trigger only, required gates, publish permissions)
+- [ ] Define release workflow acceptance checks with explicit pass criteria:
+  - Trigger is `push` tags matching `vX.Y.Z` only
+  - Release workflow runs `quality_gates` before any publish jobs
+  - Tag version must match `pubspec.yaml` version or workflow fails before publish
+  - `publish` job uses GitHub Environment `pubdev-release` and secret-backed auth
 - [ ] Add `.github/workflows/publish-pubdev.yml` with tag-based release trigger only (`push` tags matching `vX.Y.Z`), with inline comments documenting trigger constraints
 - [ ] Define and implement release deployment workflow for `pub.dev` publish from release tags
 - [ ] Ensure release workflow calls reusable quality-gates workflow before any publish steps, with inline comments on gate ordering
@@ -150,7 +163,10 @@ This spec covers package metadata, repository/package structure expectations, pu
 
 ### Release Process
 
-- [ ] Add checks first for release versioning/changelog requirements
+- [ ] Define release-process acceptance checks with explicit pass criteria:
+  - `pubspec.yaml` version is incremented for each release
+  - `CHANGELOG.md` includes an entry for the exact releasing version
+  - Git tag `vX.Y.Z` equals the releasing `pubspec.yaml` version
 - [ ] Define version bump and changelog update process for each release
 - [ ] Define release-to-deploy handoff steps (including git tag/version reference) that trigger CI deployment
 - [ ] Define post-publish traceability steps for published versions and deployment records
