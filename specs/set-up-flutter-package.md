@@ -65,7 +65,7 @@ This spec covers package metadata, repository/package structure expectations, pu
   - CI must run formatter checks and fail when formatting drift is detected
   - Publish workflow depends on green quality gates
 - Chosen: Add a CI/CD deployment pipeline for package publication
-  - Deployment is triggered from a controlled release flow (tag/release/manual dispatch)
+  - Deployment is triggered by release tags only
   - Deployment requires successful quality gates and publish dry-run checks
   - Deployment publishes to `pub.dev` using CI-managed credentials/secrets
 - Chosen: Implement deployment as a dedicated publish workflow with explicit gates
