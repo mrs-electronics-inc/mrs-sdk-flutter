@@ -18,6 +18,10 @@ export default defineConfig({
 					label: "Getting Started",
 					autogenerate: { directory: "getting-started" },
 				},
+				{
+					label: "Spoke.Zone",
+					autogenerate: { directory: "spoke-zone" },
+				},
 			],
 		}),
 	],
