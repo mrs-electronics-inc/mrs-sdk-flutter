@@ -37,16 +37,11 @@ See: `docs/src/content/docs/spoke-zone/config.mdx`
   - `SpokeZoneConfig.device(...)` for device mode
   - `SpokeZoneConfig.user(...)` for user mode
   - Exactly one mode is valid per config instance
-- Chosen: Base URL and environment are explicit config concerns
-  - Default base URL is `https://api.spoke.zone`
-  - Additional supported base URL hosts: `beta.api.spoke.zone`, `api.mrscloudconnect.com`, `beta.api.mrscloudconnect.com`
-  - Config supports explicit base URL override for non-production environments
-  - All endpoint and auth calls use the same configured base URL
-  - SDK does not provision environment credentials; host applications provide secrets via config callbacks
 - Chosen: No auth scope parameter in API
   - Mode is selected by which named constructor built the config
 - Chosen: One shared auth interface type implemented by both device and user auth providers
   - A single provider instance on a given config generates `x-access-token` for all requests in that mode
+- Chosen: Base URL hosts, callback semantics, and environment rules are documented in the config docs page and treated as canonical reference during implementation.
 
 ### Auth Provider Contracts
 
@@ -58,23 +53,10 @@ See: `docs/src/content/docs/spoke-zone/auth.mdx`
 - Chosen: `UserAuth.login` owns user token acquisition and renewal flow
   - `SpokeZoneService` does not orchestrate user login itself
   - User auth implementation handles token lifecycle internally
-- Chosen: `SpokeZoneConfig.device(...)` requires async callbacks for
-  - `cpuId`
-  - `uuid`
-  - `deviceId`
-  - `initialDeviceToken`
-- Chosen: `SpokeZoneConfig.user(...)` requires async callbacks for
-  - `username`
-  - `password`
 - Chosen: Shared request pipeline ownership is centralized in `SpokeZoneService`
   - Request serialization, headers, retry/backoff, and error mapping are service-owned
   - Auth providers are responsible only for token lifecycle and credential callbacks
-- Chosen: Credential/identity callback contract is strict
-  - Callbacks are invoked on-demand during auth and may be re-invoked for retries
-  - Callback failures propagate into SDK auth/error handling (they are not swallowed)
-  - Callbacks must not return `null`; null-like states are represented as thrown errors
-  - Callback implementations may cache values, but cache freshness is provider-owned
-  - Callback execution uses the same operation timeout budget as the requesting auth flow
+- Chosen: Exact callback requirements and behavior are documented in the auth/config docs pages and treated as canonical reference during implementation.
 
 ### Data and Download Semantics
 
@@ -95,6 +77,7 @@ See: `docs/src/content/docs/spoke-zone/auth.mdx`
 - Chosen: Backoff strategy abstraction
   - Define a backoff interface with one default implementation
   - Keep call sites stable if strategy changes later
+- Chosen: Endpoint-level retry details live in the endpoint docs page and are treated as canonical reference during implementation.
 
 ### Error System
 
@@ -102,23 +85,7 @@ See: `docs/src/content/docs/spoke-zone/errors.mdx`
 
 - Chosen: Stable typed SDK error codes as public contract
   - Initial codes: `unauthorized`, `forbidden`, `notFound`, `rateLimited`, `serverError`, `networkError`, `validationError`, `unsupportedAuthMode`, `retryLimitReached`, `unknown`
-- Chosen: Every SDK error includes diagnostics
-  - `endpoint`
-  - `httpStatus` when present
-  - bounded response-body snippet
-- Chosen: SDK exposes a single public exception/error shape for all failures
-  - `code`: typed error code
-  - `message`: SDK-provided summary
-  - `endpoint`: relative endpoint path
-  - `httpStatus`: nullable status code
-  - `responseSnippet`: bounded response fragment when present
-  - `retryAttempt`: nullable attempt index for retry-related failures
-  - `retryAfter`: nullable delay for rate-limited/retry flows
-- Chosen: Consumer-observable behavior is deterministic
-  - Public methods throw SDK-typed exceptions only (never raw HTTP/client exceptions)
-  - Transport/timeout exceptions map to `networkError` with `httpStatus = null`
-  - Client-side contract violations map to `validationError` before network call
-  - Retry exhaustion maps to `retryLimitReached` with last failure diagnostics attached
+- Chosen: SDK uses one typed public error surface with deterministic mapping behavior; full field-level/error-mapping reference is maintained in the errors docs page.
 
 ## Internal Docs
 
