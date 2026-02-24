@@ -19,7 +19,9 @@ Source of truth for these contracts is Spoke.Zone published documentation as of 
 - API docs: https://api.spoke.zone/api-docs
 - Access token docs: https://docs.spoke.zone/developers/general-api-usage/access-tokens/
 
-## `POST /loginDevice` (DeviceAuth.login)
+## `DeviceAuth.login`
+
+HTTP endpoint: `POST /loginDevice`
 
 | Item | Contract |
 | --- | --- |
@@ -29,7 +31,9 @@ Source of truth for these contracts is Spoke.Zone published documentation as of 
 | Success body (guaranteed fields) | `token` (string) |
 | Error statuses to map | `400`, `401`, `403`, `429`, `5xx` |
 
-## `UserAuth.login` (user authentication flow)
+## `UserAuth.login`
+
+HTTP endpoint: user-auth login endpoint (provider-owned flow)
 
 | Item | Contract |
 | --- | --- |
@@ -38,7 +42,9 @@ Source of truth for these contracts is Spoke.Zone published documentation as of 
 | Trigger conditions | Initial user-token acquisition and subsequent refresh/reauth as needed |
 | Error statuses to map | `400`, `401`, `403`, `429`, `5xx` |
 
-## `POST /api/v2/data-files` (dataFiles.create)
+## `dataFiles.create`
+
+HTTP endpoint: `POST /api/v2/data-files`
 
 | Item | Contract |
 | --- | --- |
@@ -48,7 +54,9 @@ Source of truth for these contracts is Spoke.Zone published documentation as of 
 | Success body (guaranteed fields) | `id` (number) |
 | Error statuses to map | `400`, `401`, `403`, `429`, `5xx` |
 
-## `POST /api/v2/data-files/{id}/file` (dataFiles.upload)
+## `dataFiles.upload`
+
+HTTP endpoint: `POST /api/v2/data-files/{id}/file`
 
 | Item | Contract |
 | --- | --- |
@@ -65,7 +73,9 @@ Upload semantics:
 - SDK does not provide chunked upload in this scope
 - SDK retries per global retry policy; caller controls higher-level concurrency
 
-## `GET /api/v2/ota-files` (otaFiles.list)
+## `otaFiles.list`
+
+HTTP endpoint: `GET /api/v2/ota-files`
 
 | Item | Contract |
 | --- | --- |
@@ -80,7 +90,9 @@ List defaults:
 - When omitted by caller: `limit=50`, `offset=0`
 - Caller-provided query values override defaults
 
-## `GET /api/v2/ota-files/{id}/file` (otaFiles.download)
+## `otaFiles.download`
+
+HTTP endpoint: `GET /api/v2/ota-files/{id}/file`
 
 | Item | Contract |
 | --- | --- |
@@ -90,7 +102,9 @@ List defaults:
 | Success body | binary file content returned as bytes |
 | Error statuses to map | `400`, `401`, `403`, `429`, `5xx` |
 
-## `GET /api/v2/devices/{id}` (devices.get)
+## `devices.get`
+
+HTTP endpoint: `GET /api/v2/devices/{id}`
 
 | Item | Contract |
 | --- | --- |
