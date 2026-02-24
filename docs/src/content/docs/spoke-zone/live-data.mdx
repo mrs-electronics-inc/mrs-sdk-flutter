@@ -23,26 +23,40 @@ This page documents the SDK-facing MQTT live-data contracts for `SpokeZone.liveD
   - `registerLocationBroadcast({required Future<Coordinates?> Function() locationProvider}) -> LiveDataRegistration`
   - `registerSoftwareVersionsBroadcast({required Future<Map<String, String>?> Function() versionsProvider}) -> LiveDataRegistration`
 
+## Publish Behavior
+
+- `publishJson` is non-throwing and returns `Future<bool>`.
+  - `true` means publish succeeded.
+  - `false` means not delivered (for example disconnected and reconnect not yet successful).
+- One-off `publishJson` failures do not expose additional global diagnostics in the public API.
+
 ## Connection Configuration
 
 - MQTT settings come from `SpokeZoneConfig`:
   - `mqttHost`
   - `mqttPort`
   - `mqttUseTls`
-- Defaults:
-  - `mqttHost = io.spoke.zone`
-  - `mqttPort = 8883`
-  - `mqttUseTls = true`
-- Testing-only unencrypted mode:
-  - `mqttPort = 1883`
-  - `mqttUseTls = false`
+  - Defaults:
+    - `mqttHost = io.spoke.zone`
+    - `mqttPort = 8883`
+    - `mqttUseTls = true`
+  - Testing-only unencrypted mode:
+    - `mqttPort = 1883`
+    - `mqttUseTls = false`
 
 ## Fixed Topic Conventions
 
-- Location: `mrs/d/<device-id>/mon/location`
-- Software versions: `mrs/d/<device-id>/mon/versions`
-- Location payload is generated from `Coordinates` and serialized as `{lat, lon}`.
-- Software versions payload is flat `Map<String, String>` (`module -> version`).
+- Location:
+  - Topic: `mrs/d/<device-id>/mon/location`
+  - Payload: generated from `Coordinates` and serialized as `{lat, lon}`
+- Software versions:
+  - Topic: `mrs/d/<device-id>/mon/versions`
+  - Payload: flat `Map<String, String>` (`module -> version`)
+
+## Helper Intervals
+
+- `registerLocationBroadcast(...)` default interval: every 15 seconds.
+- `registerSoftwareVersionsBroadcast(...)` default interval: every 60 seconds.
 
 ## Periodic Scheduling
 
@@ -52,13 +66,13 @@ This page documents the SDK-facing MQTT live-data contracts for `SpokeZone.liveD
 - Periodic jobs run only after `connect()`.
 - Jobs pause on `disconnect()` and resume on later `connect()`.
 - Registration cancellation stops only that registration.
+- Periodic publish failures do not throw to callers; status is updated per registration.
 
 ## Registration Status
 
-Each registration exposes minimal status:
-
-- States: `idle`, `running`, `failed`, `canceled`
-- Fields: `lastSuccessAt`, `consecutiveFailures`
+- Each registration exposes minimal status:
+  - States: `idle`, `running`, `failed`, `canceled`
+  - Fields: `lastSuccessAt`, `consecutiveFailures`
 
 ## Backoff and Auth
 
