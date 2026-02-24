@@ -10,6 +10,7 @@ This repository contains the MRS SDK for Flutter and docs in `docs/`. Docs are d
 - Use specture specs and skill for implementing big changes
 - Write spec task items as concrete, verifiable actions with explicit acceptance criteria
 - Keep workflow implementation details in spec/workflow files, not public docs pages
+- Use conventional commit format for all commit messages (for example `docs: ...`, `feat: ...`, `fix: ...`)
 
 ### Ask First (pause for approval)
 
