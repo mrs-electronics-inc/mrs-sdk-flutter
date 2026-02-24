@@ -1,5 +1,3 @@
-set shell := ["bash", "-cu"]
-
 # Show available recipes.
 default:
     @just --list
@@ -31,14 +29,6 @@ format:
     dart format .
     cd docs && npm run astro -- format
 
-# Clean Flutter build artifacts.
-clean:
-    flutter clean
-
 # Run the docs site in development mode.
 run-docs:
     cd docs && npm run dev
-
-# Run repository checks.
-check:
-    pre-commit run --all-files
