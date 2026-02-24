@@ -92,11 +92,24 @@ The SDK must remain forward-compatible with user-token endpoint families.
 ### Error System
 
 - Chosen: Stable typed SDK error codes as public contract
-  - Initial codes: `unauthorized`, `forbidden`, `notFound`, `rateLimited`, `serverError`, `networkError`, `validationError`, `unsupportedAuthMode`
+  - Initial codes: `unauthorized`, `forbidden`, `notFound`, `rateLimited`, `serverError`, `networkError`, `validationError`, `unsupportedAuthMode`, `retryLimitReached`, `unknown`
 - Chosen: Every SDK error includes diagnostics
   - `endpoint`
   - `httpStatus` when present
   - bounded response-body snippet
+- Chosen: SDK exposes a single public exception/error shape for all failures
+  - `code`: typed error code
+  - `message`: SDK-provided summary
+  - `endpoint`: relative endpoint path
+  - `httpStatus`: nullable status code
+  - `responseSnippet`: bounded response fragment when present
+  - `retryAttempt`: nullable attempt index for retry-related failures
+  - `retryAfter`: nullable delay for rate-limited/retry flows
+- Chosen: Consumer-observable behavior is deterministic
+  - Public methods throw SDK-typed exceptions only (never raw HTTP/client exceptions)
+  - Transport/timeout exceptions map to `networkError` with `httpStatus = null`
+  - Client-side contract violations map to `validationError` before network call
+  - Retry exhaustion maps to `retryLimitReached` with last failure diagnostics attached
 
 ## Endpoint Contracts
 
@@ -226,7 +239,9 @@ Note: only documented and explicitly selected fields above are modeled. Addition
 - [ ] Add tests first for retry policy: transport errors + `429` + `5xx` with delay sequence `15s -> 30s -> 60s`
 - [ ] Add tests first for non-retriable behavior on `4xx` other than `429`
 - [ ] Add tests first for backoff abstraction behavior via interface + default implementation
-- [ ] Add tests first for typed error code mapping and diagnostic context (`endpoint`, `httpStatus`, bounded response snippet)
+- [ ] Add tests first for typed error code mapping and diagnostic context (`endpoint`, `httpStatus`, bounded response snippet, retry metadata)
+- [ ] Add tests first that public APIs throw only SDK-typed exceptions (no raw HTTP/client exceptions leak)
+- [ ] Add tests first for client-side `validationError` mapping before request dispatch
 - [ ] Implement retry/backoff and uniform error mapping to make reliability tests pass
 - [ ] Cleanup pass: centralize retry and error mapping policies into shared components without changing behavior
 
