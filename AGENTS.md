@@ -8,14 +8,17 @@ This repository contains the MRS SDK for Flutter and docs in `docs/`. Docs are d
 
 - Use red/green TDD for implementing new features
 - Use specture specs and skill for implementing big changes
+- Write spec task items as concrete, verifiable actions with explicit acceptance criteria
+- Keep workflow implementation details in spec/workflow files, not public docs pages
 
 ### Ask First (pause for approval)
 
-Nothing yet
+- Delete branches or perform other repo-history cleanup actions
+- Add or expand public docs content
 
 ### Never Do (hard stop)
 
-Nothing yet
+- Leave placeholder task wording in specs (for example `add checks first` or vague cleanup-only tasks)
 
 ## Developer Commands
 
