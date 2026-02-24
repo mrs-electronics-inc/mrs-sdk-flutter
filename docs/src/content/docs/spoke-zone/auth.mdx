@@ -10,17 +10,44 @@ sidebar:
 `SpokeZoneService` owns request execution, headers, retries, and error mapping.
 Auth providers own token lifecycle only.
 
-## Device Auth
+## Shared Behavior
+
+- Auth providers are invoked by `SpokeZoneService` when a valid `x-access-token` is required.
+- Login and token-renew flows use the same retry policy as endpoint calls.
+- Retry policy: transport errors, `429`, and `5xx` with delays `15s`, `30s`, `60s`.
+- Non-`429` `4xx` responses are not retried.
+
+## DeviceAuth.login
 
 `DeviceAuth.login` owns `/loginDevice` token renewal.
 `SpokeZoneService` does not orchestrate device login directly.
 
-## User Auth
+`POST /loginDevice`
+
+Request fields:
+
+- `token`
+- `cpu_id`
+- `uuid`
+
+Success outcomes:
+
+- `200`: token still valid
+- `201`: renewed token returned
+
+## UserAuth.login
 
 `UserAuth.login` owns user-token acquisition and refresh.
 It uses `POST /login`.
 `SpokeZoneService` does not orchestrate user login directly.
 
-## Retry
+`POST /login`
 
-Auth login flows use the same retry policy as endpoint calls.
+Request fields:
+
+- `username`
+- `password`
+
+Success outcome:
+
+- `200`: token payload with `token`, `expires`, and `user`
