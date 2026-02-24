@@ -169,5 +169,12 @@ Source of truth for these contracts is Spoke.Zone published documentation: [API 
 - `modelId` (number)
 - `modelName` (string, mapped from API field `name`)
 - `lastOnline` (`DateTime?`, null when missing/invalid)
-- `lastLocation` (`{ latitude: double, longitude: double }?`, null when either coordinate is missing)
+- `lastLocation` (`Coordinates?`, null when either coordinate is missing)
 - `softwareVersions` (`Map<String, String>`, empty map when missing/null)
+
+## Shared Models
+
+### Coordinates
+
+- `latitude` (`double`)
+- `longitude` (`double`)

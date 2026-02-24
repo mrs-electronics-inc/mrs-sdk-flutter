@@ -131,6 +131,7 @@ All request/response, default/query, and endpoint-specific error mapping details
 ### Endpoint Behavior
 
 - [ ] Add tests first for `devices.get(id)` typed mapping: `name -> modelName`, `lastOnline` parse-to-null on missing/invalid, `lastLocation` null when either coordinate missing, and `softwareVersions` defaulting to empty map
+- [ ] Add tests first for shared `Coordinates` model usage in `devices.get(id)` (`lastLocation` typed as `Coordinates?` when both values are present)
 - [ ] Add tests first for `dataFiles.create(type)` using allowed type values and `id` extraction
 - [ ] Add tests first for `dataFiles.upload(id, content)` multipart construction from raw bytes
 - [ ] Add tests first for `otaFiles.list(...)` query handling and typed item mapping
@@ -143,6 +144,7 @@ All request/response, default/query, and endpoint-specific error mapping details
 - [ ] Add tests first for retry policy: transport errors + `429` + `5xx` with delay sequence `15s -> 30s -> 60s`
 - [ ] Add tests first for non-retriable behavior on `4xx` other than `429`
 - [ ] Add tests first for backoff abstraction behavior via interface + default implementation
+- [ ] Implement shared backoff helper types (`BackoffStrategy` interface and default `FixedDelayBackoffStrategy`) and wire them into retry orchestration
 - [ ] Add tests first for typed error code mapping and diagnostic context (`endpoint`, `httpStatus`, bounded response snippet, retry metadata)
 - [ ] Add tests first that public APIs throw only SDK-typed exceptions (no raw HTTP/client exceptions leak)
 - [ ] Add tests first for client-side `validationError` mapping before request dispatch

@@ -1,0 +1,51 @@
+---
+title: Live Data
+description: MQTT live-data contracts for Spoke.Zone integration.
+sidebar:
+  order: 7
+---
+
+This page documents the SDK-facing MQTT live-data contracts for `SpokeZone.liveData`.
+
+## Scope
+
+- Current implemented scope is publish-focused.
+- Subscription APIs are planned but not part of the current implementation contract.
+
+## API Surface
+
+- `connect() -> Future<void>`
+- `disconnect() -> Future<void>`
+- `isConnected` (observable connection state)
+- `publishJson({required String topic, required Map<String, dynamic> payload}) -> Future<bool>`
+- `registerPeriodicBroadcast({required String topic, required Duration interval, required Future<Map<String, dynamic>?> Function() payloadProvider}) -> LiveDataRegistration`
+- Fixed-topic helpers:
+  - `registerLocationBroadcast({required Future<Coordinates?> Function() locationProvider}) -> LiveDataRegistration`
+  - `registerSoftwareVersionsBroadcast({required Future<Map<String, dynamic>?> Function() payloadProvider}) -> LiveDataRegistration`
+
+## Fixed Topic Conventions
+
+- Location: `mrs/d/<device-id>/mon/location`
+- Software versions: `mrs/d/<device-id>/mon/versions`
+- Location payload is generated from `Coordinates`.
+
+## Periodic Scheduling
+
+- Callbacks are async and nullable (`null` skips the tick).
+- `registerLocationBroadcast` uses nullable `Coordinates` from `locationProvider`.
+- First publish happens on the first interval tick.
+- Periodic jobs run only after `connect()`.
+- Jobs pause on `disconnect()` and resume on later `connect()`.
+- Registration cancellation stops only that registration.
+
+## Registration Status
+
+Each registration exposes status and diagnostics:
+
+- States: `idle`, `running`, `failed`, `canceled`
+- Fields: `lastAttemptAt`, `lastSuccessAt`, `consecutiveFailures`, `lastError`, `lastPublished`
+
+## Backoff and Auth
+
+- Reconnect behavior uses shared `BackoffStrategy` with default `FixedDelayBackoffStrategy` defined in `specs/spokezone-api-integration.md`.
+- Connect/reconnect requests the current token from the active `SpokeZone` auth provider.
