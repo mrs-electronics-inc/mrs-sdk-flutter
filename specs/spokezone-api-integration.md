@@ -150,9 +150,9 @@ All request/response, default/query, and endpoint-specific error mapping details
 
 ### Documentation
 
-- [ ] Update `docs/src/content/docs/spoke-zone/config.mdx` so config modes, base URL rules, and callback contracts match implementation behavior
-- [ ] Update `docs/src/content/docs/spoke-zone/auth.mdx` so `DeviceAuth.login` and `UserAuth.login` lifecycle ownership matches implementation behavior
-- [ ] Update `docs/src/content/docs/spoke-zone/errors.mdx` so typed error codes, diagnostics, and consumer-observable behavior match implementation behavior
-- [ ] Update `docs/src/content/docs/spoke-zone/endpoints.mdx` so endpoint contracts and query/default semantics match implementation behavior
-- [ ] Update `docs/src/content/docs/spoke-zone/index.mdx` hub links/content to match implemented Spoke.Zone docs structure
-- [ ] Update docs discoverability entry points to include the Spoke.Zone doc hub
+- [ ] Update `docs/src/content/docs/spoke-zone/config.mdx` as the canonical source for config modes, base URL rules, and callback contract semantics
+- [ ] Update `docs/src/content/docs/spoke-zone/auth.mdx` as the canonical source for `DeviceAuth.login` and `UserAuth.login` lifecycle ownership
+- [ ] Update `docs/src/content/docs/spoke-zone/errors.mdx` as the canonical source for typed error codes, diagnostics, and consumer-observable behavior
+- [ ] Update `docs/src/content/docs/spoke-zone/endpoints.mdx` as the canonical source for endpoint contracts and query/default semantics
+- [ ] Update `docs/src/content/docs/spoke-zone/index.mdx` as the canonical hub that links to the four canonical pages above (without duplicating their contract content)
+- [ ] Update discoverability entry points (`docs/src/content/docs/index.mdx` and `docs/astro.config.mjs`) to include the Spoke.Zone doc hub
