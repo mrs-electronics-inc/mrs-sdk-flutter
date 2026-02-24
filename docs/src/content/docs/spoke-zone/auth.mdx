@@ -18,6 +18,7 @@ Auth providers own token lifecycle only.
 ## User Auth
 
 `UserAuth.login` owns user-token acquisition and refresh.
+It uses `POST /login`.
 `SpokeZoneService` does not orchestrate user login directly.
 
 ## Retry
