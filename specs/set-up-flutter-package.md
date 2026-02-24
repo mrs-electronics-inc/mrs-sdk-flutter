@@ -84,6 +84,10 @@ This spec covers package metadata, repository/package structure expectations, pu
 - Chosen: GitHub release prerequisites are explicit
   - Maintainers must configure `pubdev-release` environment with required reviewer approval
   - Maintainers must set `PUB_DEV_PUBLISH_TOKEN` in repository/environment secrets before first publish
+- References:
+  - GitHub Actions environments: https://docs.github.com/actions/deployment/targeting-different-environments/using-environments-for-deployment
+  - Managing environments for deployment: https://docs.github.com/repositories/configuring-branches-and-merges-in-your-repository/managing-environments-for-deployment
+  - Encrypted secrets in GitHub Actions: https://docs.github.com/actions/security-guides/encrypted-secrets
 
 ### Publishing Workflow
 
