@@ -98,12 +98,12 @@ This spec covers package metadata, repository/package structure expectations, pu
 
 ### Nix Flake Setup
 
-- [ ] Define Nix acceptance checks in CI workflows and contributor docs (`nix flake check`, `nix develop`, `flutter doctor`, `dart pub get`, `just setup`, `just dev`, `just test`)
 - [ ] Add `flake.nix` with inputs (`nixpkgs`, `devshell`, `android-nixpkgs`) and overlay-based Android SDK configuration
-- [ ] Add/align `devshell.nix` integration and verify `devShell` wiring from flake outputs
-- [ ] Ensure dev shell supports repository workflows: `just setup`, `just dev`, and `just test`
-- [ ] Add Nix-shell acceptance checks for `flutter doctor` and `dart pub get`
+- [ ] Add/align `devshell.nix` and ensure flake `devShell` points to it
 - [ ] Ensure Android SDK package set includes: `build-tools-35-0-0`, `cmdline-tools-latest`, `platform-tools`, `platforms-android-31`, `platforms-android-33`, `platforms-android-34`, `platforms-android-35`, `platforms-android-36`, `ndk-28-2-13676358`, `cmake-3-22-1`
+- [ ] Define one canonical Nix validation checklist in contributor docs: `nix flake check`, `nix develop`, `flutter doctor`, `dart pub get`, `just setup`, `just dev`, `just test`
+- [ ] Implement CI steps that run the same Nix validation checklist
+- [ ] Verify the checklist passes end-to-end in a clean environment
 - [ ] Cleanup pass: remove redundant environment setup paths without changing behavior
 
 ### Package Metadata and Layout
