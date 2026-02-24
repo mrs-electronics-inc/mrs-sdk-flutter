@@ -17,23 +17,14 @@ This spec covers package metadata, repository/package structure expectations, pu
 
 - Chosen: Add a Nix flake-based dev environment for reproducible tooling setup
   - Include flake inputs for `nixpkgs`, `devshell`, and `android-nixpkgs`
-  - Provide Android SDK tooling via overlay configuration
   - Expose a `devShell` entry that imports `devshell.nix`
-  - Dev shell must support repository `just` workflows (`just setup`, `just dev`, `just test`)
-- Chosen: Use an Android SDK package set aligned with the requested baseline
-  - `build-tools-35-0-0`
-  - `cmdline-tools-latest`
-  - `platform-tools`
-  - `platforms-android-31`
-  - `platforms-android-33`
-  - `platforms-android-34`
-  - `platforms-android-35`
-  - `platforms-android-36`
-  - `ndk-28-2-13676358`
-  - `cmake-3-22-1`
 - Chosen: Nix setup is optional and targeted
   - Nix docs are for Nix/NixOS users and maintainers, not required for all contributors
   - Non-Nix developers continue to use standard project setup workflows
+  - No Nix verification workflow is required in CI/CD for this scope
+- Chosen: Nix inputs are pinned for reproducibility
+  - `flake.lock` is committed and treated as the authoritative pin set
+  - `flake.nix` retains readable input definitions while lockfile controls exact revisions
 
 ### Publication Target
 
@@ -61,9 +52,16 @@ This spec covers package metadata, repository/package structure expectations, pu
 ### CI/CD Workflows
 
 - Chosen: Add CI/CD pipelines to enforce linting and formatting on every change
-  - CI must run linter checks using repository recipes
-  - CI must run formatter checks and fail when formatting drift is detected
+  - CI runs direct commands (not `just`) to avoid extra tool bootstrap in workflows
   - Publish workflow depends on green quality gates
+- Chosen: Define quality-gate checks once and reuse across PR and release workflows
+  - Reusable workflow/job runs on Ubuntu
+  - Quality gates include:
+  - `dart format --set-exit-if-changed .`
+  - `flutter analyze`
+  - `flutter test`
+  - `npm --prefix docs run lint`
+  - `npm --prefix docs run format:check`
 - Chosen: Add a CI/CD deployment pipeline for package publication
   - Deployment is triggered by release tags only
   - Deployment requires successful quality gates and publish dry-run checks
@@ -71,16 +69,21 @@ This spec covers package metadata, repository/package structure expectations, pu
 - Chosen: Implement deployment as a dedicated publish workflow with explicit gates
   - Workflow file: `.github/workflows/publish-pubdev.yml`
   - Triggers:
-    - `push` tag matching release pattern (for example `v*.*.*`)
+    - `push` tags matching `vX.Y.Z` only (no prerelease suffixes)
   - Job order:
     - `quality_gates` (lint/format/test verification)
+    - `tag_version_check` (verify git tag version equals `pubspec.yaml` version)
     - `dry_run_publish` (`dart pub publish --dry-run`)
     - `publish` (real publish) only after prior jobs succeed
-  - `publish` job runs in a protected GitHub Environment (for example `pubdev-release`) requiring approval
+  - `tag_version_check` failure stops the workflow before `dry_run_publish` and `publish`
+  - `publish` job runs in GitHub Environment `pubdev-release` with exactly one maintainer approval
 - Chosen: Define credential handling contract for CI publish
   - Store token in GitHub Actions secret (for example `PUB_DEV_PUBLISH_TOKEN`)
   - Configure Dart publish auth in CI via `dart pub token add https://pub.dev --env-var PUB_DEV_PUBLISH_TOKEN`
   - Never store pub.dev credentials in repository files
+- Chosen: GitHub release prerequisites are explicit
+  - Maintainers must configure `pubdev-release` environment with required reviewer approval
+  - Maintainers must set `PUB_DEV_PUBLISH_TOKEN` in repository/environment secrets before first publish
 
 ### Publishing Workflow
 
@@ -93,9 +96,9 @@ This spec covers package metadata, repository/package structure expectations, pu
 
 ### Documentation Ownership
 
-- Chosen: Release instructions are documented in project docs and point to executable commands/recipes
-  - Avoid hidden maintainer knowledge
-  - Keep onboarding and release process maintainable
+- Chosen: CI/CD workflow files are the canonical maintainer source of truth
+  - Workflow files and related release config files must be heavily commented
+  - Avoid duplicate process documentation that can drift from executable automation
 
 ## Task List
 
@@ -103,10 +106,7 @@ This spec covers package metadata, repository/package structure expectations, pu
 
 - [ ] Add `flake.nix` with inputs (`nixpkgs`, `devshell`, `android-nixpkgs`) and overlay-based Android SDK configuration
 - [ ] Add/align `devshell.nix` and ensure flake `devShell` points to it
-- [ ] Ensure Android SDK package set includes: `build-tools-35-0-0`, `cmdline-tools-latest`, `platform-tools`, `platforms-android-31`, `platforms-android-33`, `platforms-android-34`, `platforms-android-35`, `platforms-android-36`, `ndk-28-2-13676358`, `cmake-3-22-1`
-- [ ] Define one canonical Nix validation checklist in Nix-targeted docs (for Nix/NixOS users and maintainers): `nix flake check`, `nix develop`, `flutter doctor`, `dart pub get`, `just setup`, `just dev`, `just test`
-- [ ] Implement CI steps that run the same Nix validation checklist
-- [ ] Verify the checklist passes end-to-end in a clean environment
+- [ ] Ensure `flake.lock` is committed and used as the authoritative input pin set
 - [ ] Cleanup pass: remove redundant environment setup paths without changing behavior
 
 ### Package Metadata and Layout
@@ -126,24 +126,26 @@ This spec covers package metadata, repository/package structure expectations, pu
 
 ### PR Workflows
 
-- [ ] Add checks first for PR workflow expectations (lint and formatter checks required on pull requests)
-- [ ] Define and implement PR linter workflow using repository recipes
-- [ ] Define and implement PR formatter workflow as verification (fail on unformatted changes)
-- [ ] Define and implement PR test workflow using repository recipes (`just test`)
+- [ ] Add checks first for PR workflow expectations (quality gates run on pull requests via reusable workflow)
+- [ ] Define reusable quality-gates workflow/job (Ubuntu runner) shared by PR and release workflows
+- [ ] Implement quality-gate command steps (no `just`): `dart format --set-exit-if-changed .`, `flutter analyze`, `flutter test`, `npm --prefix docs run lint`, `npm --prefix docs run format:check`
+- [ ] Implement PR workflow that calls reusable quality-gates workflow
 - [ ] Ensure PR workflow blocks merge when required quality checks fail
 - [ ] Cleanup pass: simplify PR workflows without changing enforcement behavior
 
 ### Release Workflows
 
 - [ ] Add checks first for release workflow expectations (tag trigger only, required gates, publish permissions)
-- [ ] Add `.github/workflows/publish-pubdev.yml` with tag-based release trigger only (`push` tags matching release pattern)
+- [ ] Add `.github/workflows/publish-pubdev.yml` with tag-based release trigger only (`push` tags matching `vX.Y.Z`)
 - [ ] Define and implement release deployment workflow for `pub.dev` publish from release tags
-- [ ] Ensure release workflow requires successful lint/format/test quality gates and `dart pub publish --dry-run` before publish
+- [ ] Ensure release workflow calls reusable quality-gates workflow before any publish steps
 - [ ] Ensure release quality gates include a check that git tag version matches `pubspec.yaml` version
-- [ ] Ensure release workflow uses explicit job dependencies: `quality_gates` -> `dry_run_publish` -> `publish`
-- [ ] Ensure publish job executes in protected deployment environment with approval gate
+- [ ] Ensure tag/version mismatch fails workflow before `dry_run_publish` and `publish`
+- [ ] Ensure release workflow uses explicit job dependencies: `quality_gates` -> `tag_version_check` -> `dry_run_publish` -> `publish`
+- [ ] Ensure publish job executes in GitHub Environment `pubdev-release` with one maintainer approval
 - [ ] Ensure release workflow uses secure credential management for `pub.dev` publishing
 - [ ] Ensure CI publish auth is configured with `dart pub token add https://pub.dev --env-var PUB_DEV_PUBLISH_TOKEN`
+- [ ] Add setup prerequisites for maintainers: configure `pubdev-release` environment and `PUB_DEV_PUBLISH_TOKEN` secret
 - [ ] Cleanup pass: simplify release workflows without changing enforcement behavior
 
 ### Release Process
@@ -154,11 +156,8 @@ This spec covers package metadata, repository/package structure expectations, pu
 - [ ] Define post-publish traceability steps for published versions and deployment records
 - [ ] Cleanup pass: streamline release steps without changing behavior
 
-### Documentation
+### Workflow Comments
 
-- [ ] Update docs with a canonical `pub.dev` publishing guide for maintainers
-- [ ] Ensure docs clearly separate pre-publish checks, dry-run, and real publish steps
-- [ ] Document PR workflow quality gate expectations for lint and formatter pipelines
-- [ ] Document release workflow trigger/gating rules, protected environment usage, and credential requirements
-- [ ] Document Nix flake/dev shell setup in an optional Nix-targeted section (not part of required setup for all developers)
-- [ ] Add troubleshooting guidance for common publish failures (metadata, score, authentication, dry-run errors) and environment setup failures
+- [ ] Add clear inline comments in PR and release workflow files explaining trigger, gate order, and failure behavior
+- [ ] Add clear inline comments for version/tag parity checks and publish safeguards
+- [ ] Add clear inline comments describing publish credential setup requirements and secret usage
