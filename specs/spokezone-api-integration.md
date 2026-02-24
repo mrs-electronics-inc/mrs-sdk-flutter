@@ -268,9 +268,9 @@ Note: only documented and explicitly selected fields above are modeled. Addition
 
 ### Documentation
 
-- [ ] Draft `docs/src/content/docs/spoke-zone/config.mdx` for config modes, base URL rules, and callback contract semantics
-- [ ] Draft `docs/src/content/docs/spoke-zone/auth.mdx` for `DeviceAuth.login` and `UserAuth.login` lifecycle ownership
-- [ ] Draft `docs/src/content/docs/spoke-zone/errors.mdx` for typed error codes, diagnostics, and consumer-observable behavior
-- [ ] Draft `docs/src/content/docs/spoke-zone/endpoints.mdx` for endpoint contracts and query/default semantics
-- [ ] Draft `docs/src/content/docs/spoke-zone/index.mdx` as a hub page linking all Spoke.Zone docs
+- [ ] Update `docs/src/content/docs/spoke-zone/config.mdx` so config modes, base URL rules, and callback contracts match implementation behavior
+- [ ] Update `docs/src/content/docs/spoke-zone/auth.mdx` so `DeviceAuth.login` and `UserAuth.login` lifecycle ownership matches implementation behavior
+- [ ] Update `docs/src/content/docs/spoke-zone/errors.mdx` so typed error codes, diagnostics, and consumer-observable behavior match implementation behavior
+- [ ] Update `docs/src/content/docs/spoke-zone/endpoints.mdx` so endpoint contracts and query/default semantics match implementation behavior
+- [ ] Update `docs/src/content/docs/spoke-zone/index.mdx` hub links/content to match implemented Spoke.Zone docs structure
 - [ ] Update docs discoverability entry points to include the Spoke.Zone doc hub
