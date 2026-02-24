@@ -2,6 +2,21 @@
 
 This repository contains the MRS SDK for Flutter and docs in `docs/`. Docs are deployed at `https://flutter.mrs-electronics.dev`.
 
+## Rules
+
+### Always Do (no asking)
+
+- Use red/green TDD for implementing new features
+- Use specture specs and skill for implementing big changes
+
+### Ask First (pause for approval)
+
+Nothing yet
+
+### Never Do (hard stop)
+
+Nothing yet
+
 ## Developer Commands
 
 ALWAYS use `just` recipes from the repository root for development tasks.
