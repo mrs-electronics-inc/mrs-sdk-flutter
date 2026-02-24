@@ -24,8 +24,12 @@ Source of truth for these contracts is Spoke.Zone published documentation: [API 
 | Auth header | none |
 | Request body | JSON object with `token` (string), `cpu_id` (string), `uuid` (string) |
 | Success status | `200` or `201` |
-| Success body | `200`: `{ status, message }`; `201`: `{ token }` |
 | Error statuses to map | `400`, `401`, `403`, `429`, `5xx` |
+
+### Success body
+
+- `200`: `{ status, message }`
+- `201`: `{ token }`
 
 ## UserAuth.login
 
@@ -36,8 +40,14 @@ Source of truth for these contracts is Spoke.Zone published documentation: [API 
 | Auth header | none |
 | Request body | JSON object with `username` (string) and `password` (string) |
 | Success status | `200` |
-| Success body | `token` (string), `expires` (number), `user` object (`username`, `user_id`, `user_role`, `customer_id`, `customer_role`, `oem_id`, `reset_required`, `customer_prefix`, `is_mobile_user`, `prefix`, `mqtt_permission`) |
 | Error statuses to map | `401` (missing username/password or invalid credentials), `403` (account locked), `429`, `5xx` |
+
+### Success body
+
+- `token` (string)
+- `expires` (number)
+- `user` object:
+- `username`, `user_id`, `user_role`, `customer_id`, `customer_role`, `oem_id`, `reset_required`, `customer_prefix`, `is_mobile_user`, `prefix`, `mqtt_permission`
 
 ## DataFiles.create
 
@@ -48,8 +58,11 @@ Source of truth for these contracts is Spoke.Zone published documentation: [API 
 | Auth header | `x-access-token: <token>` |
 | Request body | JSON object with `type` (string enum: `log`, `event`, `gps`, `debug`, `journal`, `dmesg`, `txt`) |
 | Success status | `200` |
-| Success body | `id` (number) |
 | Error statuses to map | `400`, `401`, `403`, `429`, `5xx` |
+
+### Success body
+
+- `id` (number)
 
 ## DataFiles.upload
 
@@ -78,8 +91,12 @@ Upload semantics:
 | Auth header | `x-access-token: <token>` |
 | Query params | Supports documented pagination/search/sort/filter params (`searchTerm`, `searchFields`, `sort`, `sortOrder`, `limit`, `offset`) |
 | Success status | `200` |
-| Success body | list of items with `id` (number), `modelId` (number), `moduleId` (number), `module` (string), `version` (string), `fileLocation` (string), `isActive` (boolean), `createdDate` (string), `releaseNotes` (string) |
 | Error statuses to map | `400`, `401`, `403`, `429`, `5xx` |
+
+### Success body
+
+- list of items with:
+- `id` (number), `modelId` (number), `moduleId` (number), `module` (string), `version` (string), `fileLocation` (string), `isActive` (boolean), `createdDate` (string), `releaseNotes` (string)
 
 List defaults:
 
@@ -95,8 +112,11 @@ List defaults:
 | Auth header | `x-access-token: <token>` |
 | Path params | `id` (number) |
 | Success status | `200` |
-| Success body | binary file content returned as bytes |
 | Error statuses to map | `400`, `401`, `403`, `429`, `5xx` |
+
+### Success body
+
+- binary file content returned as bytes
 
 ## Devices.get
 
@@ -107,7 +127,17 @@ List defaults:
 | Auth header | `x-access-token: <token>` |
 | Path params | `id` (number) |
 | Success status | `200` |
-| Success body | `id` (number), `identifier` (string), `serialNumber` (string), `modelId` (number), `modelName` (string, mapped from API field `name`), `lastOnline` (`DateTime?`, null when missing/invalid), `lastLocation` (`{ latitude: double, longitude: double }?`, null when either coordinate is missing), `softwareVersions` (`Map<String, String>`, empty map when missing/null) |
 | Error statuses to map | `400`, `401`, `403`, `404`, `429`, `5xx` |
+
+### Success body
+
+- `id` (number)
+- `identifier` (string)
+- `serialNumber` (string)
+- `modelId` (number)
+- `modelName` (string, mapped from API field `name`)
+- `lastOnline` (`DateTime?`, null when missing/invalid)
+- `lastLocation` (`{ latitude: double, longitude: double }?`, null when either coordinate is missing)
+- `softwareVersions` (`Map<String, String>`, empty map when missing/null)
 
 Note: only documented and explicitly selected fields above are modeled. Additional API fields are intentionally ignored.
