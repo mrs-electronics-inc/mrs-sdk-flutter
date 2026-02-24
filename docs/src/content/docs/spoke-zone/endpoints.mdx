@@ -14,6 +14,94 @@ Covered endpoints:
 - `GET /api/v2/ota-files/{id}/file`
 - `GET /api/v2/devices/{id}`
 
+Source of truth for these contracts is Spoke.Zone published documentation as of 2026-02-24:
+
+- API docs: https://api.spoke.zone/api-docs
+- Access token docs: https://docs.spoke.zone/developers/general-api-usage/access-tokens/
+
+## `POST /loginDevice` (DeviceAuth.login)
+
+| Item | Contract |
+| --- | --- |
+| Auth header | none |
+| Request body | JSON object with `token` (string), `cpu_id` (string), `uuid` (string) |
+| Success status | `200` or `201` |
+| Success body (guaranteed fields) | `token` (string) |
+| Error statuses to map | `400`, `401`, `403`, `429`, `5xx` |
+
+## `UserAuth.login` (user authentication flow)
+
+| Item | Contract |
+| --- | --- |
+| Responsibility | Obtain and refresh user `x-access-token` from `username` and `password` |
+| Service behavior | `SpokeZoneService` consumes tokens from `UserAuth` and does not call login endpoints directly |
+| Trigger conditions | Initial user-token acquisition and subsequent refresh/reauth as needed |
+| Error statuses to map | `400`, `401`, `403`, `429`, `5xx` |
+
+## `POST /api/v2/data-files` (dataFiles.create)
+
+| Item | Contract |
+| --- | --- |
+| Auth header | `x-access-token: <token>` |
+| Request body | JSON object with `type` (string enum: `log`, `event`, `gps`, `debug`, `journal`, `dmesg`, `txt`) |
+| Success status | `200` |
+| Success body (guaranteed fields) | `id` (number) |
+| Error statuses to map | `400`, `401`, `403`, `429`, `5xx` |
+
+## `POST /api/v2/data-files/{id}/file` (dataFiles.upload)
+
+| Item | Contract |
+| --- | --- |
+| Auth header | `x-access-token: <token>` |
+| Path params | `id` (number) |
+| Request body | `multipart/form-data` with `files` (binary) populated from raw bytes |
+| Success status | `200` |
+| Success body (guaranteed fields) | none required by SDK |
+| Error statuses to map | `400`, `401`, `403`, `429`, `5xx` |
+
+Upload semantics:
+
+- Input is fully buffered bytes (`Uint8List`), encoded as multipart field `files`
+- SDK does not provide chunked upload in this scope
+- SDK retries per global retry policy; caller controls higher-level concurrency
+
+## `GET /api/v2/ota-files` (otaFiles.list)
+
+| Item | Contract |
+| --- | --- |
+| Auth header | `x-access-token: <token>` |
+| Query params | Supports documented pagination/search/sort/filter params (`searchTerm`, `searchFields`, `sort`, `sortOrder`, `limit`, `offset`) |
+| Success status | `200` |
+| Success body (guaranteed fields per item) | `id` (number), `modelId` (number), `moduleId` (number), `module` (string), `version` (string), `fileLocation` (string), `isActive` (boolean), `createdDate` (string), `releaseNotes` (string) |
+| Error statuses to map | `400`, `401`, `403`, `429`, `5xx` |
+
+List defaults:
+
+- When omitted by caller: `limit=50`, `offset=0`
+- Caller-provided query values override defaults
+
+## `GET /api/v2/ota-files/{id}/file` (otaFiles.download)
+
+| Item | Contract |
+| --- | --- |
+| Auth header | `x-access-token: <token>` |
+| Path params | `id` (number) |
+| Success status | `200` |
+| Success body | binary file content returned as bytes |
+| Error statuses to map | `400`, `401`, `403`, `429`, `5xx` |
+
+## `GET /api/v2/devices/{id}` (devices.get)
+
+| Item | Contract |
+| --- | --- |
+| Auth header | `x-access-token: <token>` |
+| Path params | `id` (number) |
+| Success status | `200` |
+| Success body (SDK model mapping) | `id` (number), `identifier` (string), `serialNumber` (string), `modelId` (number), `modelName` (string, mapped from API field `name`), `lastOnline` (`DateTime?`, null when missing/invalid), `lastLocation` (`{ latitude: double, longitude: double }?`, null when either coordinate is missing), `softwareVersions` (`Map<String, String>`, empty map when missing/null) |
+| Error statuses to map | `400`, `401`, `403`, `404`, `429`, `5xx` |
+
+Note: only documented and explicitly selected fields above are modeled. Additional API fields are intentionally ignored.
+
 ## Defaults
 
 - OTA list defaults: `limit=50`, `offset=0`
