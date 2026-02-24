@@ -15,18 +15,25 @@ Source of truth for these contracts is Spoke.Zone published documentation: [API 
 - Retry delays are fixed: `15s`, then `30s`, then `60s`
 - If all retries fail, surface a typed SDK error for retry exhaustion with last-attempt diagnostics
 
+## Authentication
+
+- `DeviceAuth.login` and `UserAuth.login` use no auth header.
+- All other endpoints on this page require `x-access-token: <token>`.
+
 ## DeviceAuth.login
 
 `POST /loginDevice`
 
 | Item | Contract |
 | --- | --- |
-| Auth header | none |
-| Request body | JSON object with `token` (string), `cpu_id` (string), `uuid` (string) |
 | Success status | `200` or `201` |
 | Error statuses to map | `400`, `401`, `403`, `429`, `5xx` |
 
-### Success body
+### Request Body
+
+- JSON object with `token` (string), `cpu_id` (string), `uuid` (string)
+
+### Success Body
 
 - `200`: `{ status, message }`
 - `201`: `{ token }`
@@ -37,12 +44,14 @@ Source of truth for these contracts is Spoke.Zone published documentation: [API 
 
 | Item | Contract |
 | --- | --- |
-| Auth header | none |
-| Request body | JSON object with `username` (string) and `password` (string) |
 | Success status | `200` |
 | Error statuses to map | `401` (missing username/password or invalid credentials), `403` (account locked), `429`, `5xx` |
 
-### Success body
+### Request Body
+
+- JSON object with `username` (string) and `password` (string)
+
+### Success Body
 
 - `token` (string)
 - `expires` (number)
@@ -55,12 +64,14 @@ Source of truth for these contracts is Spoke.Zone published documentation: [API 
 
 | Item | Contract |
 | --- | --- |
-| Auth header | `x-access-token: <token>` |
-| Request body | JSON object with `type` (string enum: `log`, `event`, `gps`, `debug`, `journal`, `dmesg`, `txt`) |
 | Success status | `200` |
 | Error statuses to map | `400`, `401`, `403`, `429`, `5xx` |
 
-### Success body
+### Request Body
+
+- JSON object with `type` (string enum: `log`, `event`, `gps`, `debug`, `journal`, `dmesg`, `txt`)
+
+### Success Body
 
 - `id` (number)
 
@@ -70,13 +81,18 @@ Source of truth for these contracts is Spoke.Zone published documentation: [API 
 
 | Item | Contract |
 | --- | --- |
-| Auth header | `x-access-token: <token>` |
-| Path params | `id` (number) |
-| Request body | `multipart/form-data` with `files` (binary) populated from raw bytes |
 | Success status | `200` |
 | Error statuses to map | `400`, `401`, `403`, `429`, `5xx` |
 
-Upload semantics:
+### Path Parameters
+
+- `id` (number)
+
+### Request Body
+
+- `multipart/form-data` with `files` (binary) populated from raw bytes
+
+### Upload Semantics
 
 - Input is fully buffered bytes (`Uint8List`), encoded as multipart field `files`
 - SDK does not provide chunked upload in this scope
@@ -88,17 +104,19 @@ Upload semantics:
 
 | Item | Contract |
 | --- | --- |
-| Auth header | `x-access-token: <token>` |
-| Query params | Supports documented pagination/search/sort/filter params (`searchTerm`, `searchFields`, `sort`, `sortOrder`, `limit`, `offset`) |
 | Success status | `200` |
 | Error statuses to map | `400`, `401`, `403`, `429`, `5xx` |
 
-### Success body
+### Query Parameters
+
+- Supports documented pagination/search/sort/filter params (`searchTerm`, `searchFields`, `sort`, `sortOrder`, `limit`, `offset`)
+
+### Success Body
 
 - list of items with:
 - `id` (number), `modelId` (number), `moduleId` (number), `module` (string), `version` (string), `fileLocation` (string), `isActive` (boolean), `createdDate` (string), `releaseNotes` (string)
 
-List defaults:
+### List Defaults
 
 - When omitted by caller: `limit=50`, `offset=0`
 - Caller-provided query values override defaults
@@ -109,12 +127,14 @@ List defaults:
 
 | Item | Contract |
 | --- | --- |
-| Auth header | `x-access-token: <token>` |
-| Path params | `id` (number) |
 | Success status | `200` |
 | Error statuses to map | `400`, `401`, `403`, `429`, `5xx` |
 
-### Success body
+### Path Parameters
+
+- `id` (number)
+
+### Success Body
 
 - binary file content returned as bytes
 
@@ -124,12 +144,14 @@ List defaults:
 
 | Item | Contract |
 | --- | --- |
-| Auth header | `x-access-token: <token>` |
-| Path params | `id` (number) |
 | Success status | `200` |
 | Error statuses to map | `400`, `401`, `403`, `404`, `429`, `5xx` |
 
-### Success body
+### Path Parameters
+
+- `id` (number)
+
+### Success Body
 
 - `id` (number)
 - `identifier` (string)
