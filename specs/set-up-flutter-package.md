@@ -127,25 +127,25 @@ This spec covers package metadata, repository/package structure expectations, pu
 ### PR Workflows
 
 - [ ] Add checks first for PR workflow expectations (quality gates run on pull requests via reusable workflow)
-- [ ] Define reusable quality-gates workflow/job (Ubuntu runner) shared by PR and release workflows
-- [ ] Implement quality-gate command steps (no `just`): `dart format --set-exit-if-changed .`, `flutter analyze`, `flutter test`, `npm --prefix docs run lint`, `npm --prefix docs run format:check`
-- [ ] Implement PR workflow that calls reusable quality-gates workflow
+- [ ] Define reusable quality-gates workflow/job (Ubuntu runner) shared by PR and release workflows, with inline comments explaining commands and failure behavior
+- [ ] Implement quality-gate command steps (no `just`): `dart format --set-exit-if-changed .`, `flutter analyze`, `flutter test`, `npm --prefix docs run lint`, `npm --prefix docs run format:check` with inline comments for each gate purpose
+- [ ] Implement PR workflow that calls reusable quality-gates workflow, with inline comments for trigger and required-check intent
 - [ ] Ensure PR workflow blocks merge when required quality checks fail
 - [ ] Cleanup pass: simplify PR workflows without changing enforcement behavior
 
 ### Release Workflows
 
 - [ ] Add checks first for release workflow expectations (tag trigger only, required gates, publish permissions)
-- [ ] Add `.github/workflows/publish-pubdev.yml` with tag-based release trigger only (`push` tags matching `vX.Y.Z`)
+- [ ] Add `.github/workflows/publish-pubdev.yml` with tag-based release trigger only (`push` tags matching `vX.Y.Z`), with inline comments documenting trigger constraints
 - [ ] Define and implement release deployment workflow for `pub.dev` publish from release tags
-- [ ] Ensure release workflow calls reusable quality-gates workflow before any publish steps
-- [ ] Ensure release quality gates include a check that git tag version matches `pubspec.yaml` version
+- [ ] Ensure release workflow calls reusable quality-gates workflow before any publish steps, with inline comments on gate ordering
+- [ ] Ensure release quality gates include a check that git tag version matches `pubspec.yaml` version, with inline comments on mismatch failure behavior
 - [ ] Ensure tag/version mismatch fails workflow before `dry_run_publish` and `publish`
 - [ ] Ensure release workflow uses explicit job dependencies: `quality_gates` -> `tag_version_check` -> `dry_run_publish` -> `publish`
 - [ ] Ensure publish job executes in GitHub Environment `pubdev-release` with one maintainer approval
 - [ ] Ensure release workflow uses secure credential management for `pub.dev` publishing
-- [ ] Ensure CI publish auth is configured with `dart pub token add https://pub.dev --env-var PUB_DEV_PUBLISH_TOKEN`
-- [ ] Add setup prerequisites for maintainers: configure `pubdev-release` environment and `PUB_DEV_PUBLISH_TOKEN` secret
+- [ ] Ensure CI publish auth is configured with `dart pub token add https://pub.dev --env-var PUB_DEV_PUBLISH_TOKEN`, with inline comments on secret usage and safety
+- [ ] Add setup prerequisites for maintainers: configure `pubdev-release` environment and `PUB_DEV_PUBLISH_TOKEN` secret, with inline comments in workflow for required setup
 - [ ] Cleanup pass: simplify release workflows without changing enforcement behavior
 
 ### Release Process
@@ -155,9 +155,3 @@ This spec covers package metadata, repository/package structure expectations, pu
 - [ ] Define release-to-deploy handoff steps (including git tag/version reference) that trigger CI deployment
 - [ ] Define post-publish traceability steps for published versions and deployment records
 - [ ] Cleanup pass: streamline release steps without changing behavior
-
-### Workflow Comments
-
-- [ ] Add clear inline comments in PR and release workflow files explaining trigger, gate order, and failure behavior
-- [ ] Add clear inline comments for version/tag parity checks and publish safeguards
-- [ ] Add clear inline comments describing publish credential setup requirements and secret usage
