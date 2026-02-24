@@ -19,6 +19,7 @@ This spec covers package metadata, repository/package structure expectations, pu
   - Include flake inputs for `nixpkgs`, `devshell`, and `android-nixpkgs`
   - Provide Android SDK tooling via overlay configuration
   - Expose a `devShell` entry that imports `devshell.nix`
+  - Dev shell must support repository `just` workflows (`just setup`, `just dev`, `just test`)
 - Chosen: Use an Android SDK package set aligned with the requested baseline
   - `build-tools-35-0-0`
   - `cmdline-tools-latest`
@@ -42,6 +43,10 @@ This spec covers package metadata, repository/package structure expectations, pu
 - Chosen: `pubspec.yaml` is the authoritative package metadata source
   - Name, version, description, homepage/repository, environment constraints, and dependencies are defined there
   - Release docs must reflect `pubspec.yaml` fields and not duplicate conflicting metadata
+- Chosen: Pub.dev readiness requires complete metadata and package-support files
+  - Required files include `README.md`, `CHANGELOG.md`, and `LICENSE`
+  - Flutter package readiness includes an `example/` app for usage validation
+  - Recommended `pubspec.yaml` metadata includes `documentation` and `issue_tracker`
 
 ### Release Validation Workflow
 
@@ -96,13 +101,17 @@ This spec covers package metadata, repository/package structure expectations, pu
 - [ ] Add checks first for Nix environment expectations (flake evaluation, dev shell entry, required tool availability)
 - [ ] Add `flake.nix` with inputs (`nixpkgs`, `devshell`, `android-nixpkgs`) and overlay-based Android SDK configuration
 - [ ] Add/align `devshell.nix` integration and verify `devShell` wiring from flake outputs
+- [ ] Ensure dev shell supports repository workflows: `just setup`, `just dev`, and `just test`
+- [ ] Add Nix-shell acceptance checks for `flutter doctor` and `dart pub get`
 - [ ] Ensure Android SDK package set includes: `build-tools-35-0-0`, `cmdline-tools-latest`, `platform-tools`, `platforms-android-31`, `platforms-android-33`, `platforms-android-34`, `platforms-android-35`, `platforms-android-36`, `ndk-28-2-13676358`, `cmake-3-22-1`
 - [ ] Cleanup pass: remove redundant environment setup paths without changing behavior
 
 ### Package Metadata and Layout
 
 - [ ] Add checks first for required pub.dev metadata fields in `pubspec.yaml` and supporting files
-- [ ] Ensure package metadata is complete and publishable (`name`, `version`, `description`, `homepage`/`repository`, SDK constraints, license/readme/changelog presence)
+- [ ] Ensure package metadata is complete and publishable (`name`, `version`, `description`, `homepage`/`repository`, SDK constraints, dependency constraints, `documentation`, `issue_tracker`)
+- [ ] Ensure required support files are present and updated (`README.md`, `CHANGELOG.md`, `LICENSE`)
+- [ ] Ensure Flutter `example/` app is present and valid for package usage demonstration
 - [ ] Cleanup pass: remove conflicting or duplicated package metadata without changing behavior
 
 ### Publish Readiness
@@ -117,6 +126,7 @@ This spec covers package metadata, repository/package structure expectations, pu
 - [ ] Add checks first for PR workflow expectations (lint and formatter checks required on pull requests)
 - [ ] Define and implement PR linter workflow using repository recipes
 - [ ] Define and implement PR formatter workflow as verification (fail on unformatted changes)
+- [ ] Define and implement PR test workflow using repository recipes (`just test`)
 - [ ] Ensure PR workflow blocks merge when required quality checks fail
 - [ ] Cleanup pass: simplify PR workflows without changing enforcement behavior
 
@@ -125,7 +135,7 @@ This spec covers package metadata, repository/package structure expectations, pu
 - [ ] Add checks first for release workflow expectations (tag trigger only, required gates, publish permissions)
 - [ ] Add `.github/workflows/publish-pubdev.yml` with tag-based release trigger only (`push` tags matching release pattern)
 - [ ] Define and implement release deployment workflow for `pub.dev` publish from release tags
-- [ ] Ensure release workflow requires successful quality gates and `dart pub publish --dry-run` before publish
+- [ ] Ensure release workflow requires successful lint/format/test quality gates and `dart pub publish --dry-run` before publish
 - [ ] Ensure release quality gates include a check that git tag version matches `pubspec.yaml` version
 - [ ] Ensure release workflow uses explicit job dependencies: `quality_gates` -> `dry_run_publish` -> `publish`
 - [ ] Ensure publish job executes in protected deployment environment with approval gate
