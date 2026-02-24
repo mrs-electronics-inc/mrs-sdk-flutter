@@ -98,7 +98,7 @@ This spec covers package metadata, repository/package structure expectations, pu
 
 ### Nix Flake Setup
 
-- [ ] Add checks first for Nix environment expectations (flake evaluation, dev shell entry, required tool availability)
+- [ ] Define Nix acceptance checks in CI workflows and contributor docs (`nix flake check`, `nix develop`, `flutter doctor`, `dart pub get`, `just setup`, `just dev`, `just test`)
 - [ ] Add `flake.nix` with inputs (`nixpkgs`, `devshell`, `android-nixpkgs`) and overlay-based Android SDK configuration
 - [ ] Add/align `devshell.nix` integration and verify `devShell` wiring from flake outputs
 - [ ] Ensure dev shell supports repository workflows: `just setup`, `just dev`, and `just test`
