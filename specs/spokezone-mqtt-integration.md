@@ -18,7 +18,7 @@ This integration builds on [Spoke.Zone API Integration](spokezone-api-integratio
 - Chosen: Add `SpokeZone.liveData` with type `LiveData`
   - Keeps MQTT behavior colocated with the existing `SpokeZone` root service
   - Avoids introducing a second top-level service object
-- Chosen: V1 is publish-only (no subscribe API)
+- Chosen: Current scope is publish-focused (no subscribe API yet)
   - Keep the public API focused while preserving internal flexibility for future subscriptions
 
 ### Auth and Service Integration
@@ -28,6 +28,13 @@ This integration builds on [Spoke.Zone API Integration](spokezone-api-integratio
   - Token acquisition for connect/reconnect asks the auth provider for the current token
 - Chosen: Reconnect uses the same shared backoff helper types defined in [Spoke.Zone API Integration](spokezone-api-integration.md): `BackoffStrategy` + default `FixedDelayBackoffStrategy`
   - Ensures one retry/backoff strategy system across HTTP and MQTT concerns
+
+### MQTT Configuration
+
+- Chosen: MQTT connection settings are owned by `SpokeZoneConfig`
+  - `mqttHost`, `mqttPort`, `mqttUseTls`
+  - Defaults: `mqttHost = io.spoke.zone`, `mqttPort = 8883`, `mqttUseTls = true`
+- Chosen: Unencrypted MQTT (`mqttPort = 1883`, `mqttUseTls = false`) is supported for testing only
 
 ### Connection Lifecycle and State
 
@@ -44,14 +51,18 @@ This integration builds on [Spoke.Zone API Integration](spokezone-api-integratio
   - `true` means publish succeeded
   - `false` means not delivered (for example disconnected and reconnect not yet successful)
   - Callers decide strictness by handling the boolean return value
+- Chosen: one-off `publishJson` failures do not expose additional global diagnostics in public API
 - Chosen: periodic publishing failures do not throw into loop callers
-  - Scheduler continues running and reports failure through status/logging surfaces
+  - Scheduler continues running and reports failure through per-registration status
 
 ### Fixed Topics and Helpers
 
 - Chosen: Keep fixed SDK topic conventions for predefined Spoke.Zone messages
   - Location topic: `mrs/d/<device-id>/mon/location`
   - Software versions topic: `mrs/d/<device-id>/mon/versions`
+- Chosen: Fixed-topic payload contracts are explicit
+  - Location helper accepts `Coordinates` and serializes MQTT payload as `{lat, lon}`
+  - Software versions helper accepts flat `Map<String, String>` (`module -> version`)
 - Chosen: Expose both generic and convenience registration APIs
   - Generic periodic registration supports any custom topic string
   - Helper methods exist for location and software-version broadcasting using fixed topics and SDK default intervals
@@ -70,10 +81,9 @@ This integration builds on [Spoke.Zone API Integration](spokezone-api-integratio
 
 ### Per-Registration Observability
 
-- Chosen: Per-registration status is required in V1
-- Chosen: Status model includes both lifecycle state and diagnostics
+- Chosen: Per-registration status uses a minimal contract
   - States: `idle`, `running`, `failed`, `canceled`
-  - Fields: `lastAttemptAt`, `lastSuccessAt`, `consecutiveFailures`, `lastError`, `lastPublished`
+  - Fields: `lastSuccessAt`, `consecutiveFailures`
 - Chosen: Cancel transitions status to terminal `canceled`
 
 ## Task List
@@ -82,6 +92,7 @@ This integration builds on [Spoke.Zone API Integration](spokezone-api-integratio
 
 - [ ] Add tests first for `SpokeZone.liveData` exposure and type contract.
 - [ ] Add tests first for `LiveData` lifecycle API (`connect`, `disconnect`, `isConnected`) and initial disconnected state.
+- [ ] Add tests first for MQTT config defaults and overrides via `SpokeZoneConfig` (`mqttHost`, `mqttPort`, `mqttUseTls`), including test-only unencrypted mode.
 - [ ] Implement `SpokeZone.liveData` and lifecycle API wiring to satisfy tests.
 
 ### Auth and Connection Behavior
@@ -94,23 +105,22 @@ This integration builds on [Spoke.Zone API Integration](spokezone-api-integratio
 
 - [ ] Add tests first for `publishJson(topic, payload)` success/failure boolean semantics.
 - [ ] Add tests first for payload validation and serialization behavior.
-- [ ] Implement `publishJson` behavior and typed error mapping.
+- [ ] Implement `publishJson` behavior with non-throwing boolean outcomes.
 
 ### Periodic Broadcasting
 
 - [ ] Add tests first for generic periodic registration API with custom topic strings and async nullable callbacks.
 - [ ] Add tests first for scheduler timing semantics.
 - [ ] Add tests first for cancellation and resume semantics.
-- [ ] Add tests first for `registerLocationBroadcast(...)` fixed topic and default interval behavior.
-- [ ] Add tests first for `registerSoftwareVersionsBroadcast(...)` fixed topic and default interval behavior.
+- [ ] Add tests first for `registerLocationBroadcast(...)` fixed topic, default interval behavior, and `Coordinates -> {lat, lon}` payload serialization.
+- [ ] Add tests first for `registerSoftwareVersionsBroadcast(...)` fixed topic, default interval behavior, and flat `Map<String, String>` payload contract.
 - [ ] Implement generic periodic scheduler and registration handles.
 - [ ] Implement helper registration methods using the generic periodic scheduler.
 
-### Per-Registration Status and Diagnostics
+### Per-Registration Status
 
-- [ ] Add tests first for required status fields and state transitions per registration.
-- [ ] Add tests first for diagnostic field updates on success/failure.
-- [ ] Implement status/diagnostic tracking surface on registration handles.
+- [ ] Add tests first for minimal status fields and state transitions per registration (`state`, `lastSuccessAt`, `consecutiveFailures`).
+- [ ] Implement minimal status tracking surface on registration handles.
 
 ### Documentation
 

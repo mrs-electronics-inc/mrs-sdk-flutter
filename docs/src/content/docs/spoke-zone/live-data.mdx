@@ -21,13 +21,28 @@ This page documents the SDK-facing MQTT live-data contracts for `SpokeZone.liveD
 - `registerPeriodicBroadcast({required String topic, required Duration interval, required Future<Map<String, dynamic>?> Function() payloadProvider}) -> LiveDataRegistration`
 - Fixed-topic helpers:
   - `registerLocationBroadcast({required Future<Coordinates?> Function() locationProvider}) -> LiveDataRegistration`
-  - `registerSoftwareVersionsBroadcast({required Future<Map<String, dynamic>?> Function() payloadProvider}) -> LiveDataRegistration`
+  - `registerSoftwareVersionsBroadcast({required Future<Map<String, String>?> Function() versionsProvider}) -> LiveDataRegistration`
+
+## Connection Configuration
+
+- MQTT settings come from `SpokeZoneConfig`:
+  - `mqttHost`
+  - `mqttPort`
+  - `mqttUseTls`
+- Defaults:
+  - `mqttHost = io.spoke.zone`
+  - `mqttPort = 8883`
+  - `mqttUseTls = true`
+- Testing-only unencrypted mode:
+  - `mqttPort = 1883`
+  - `mqttUseTls = false`
 
 ## Fixed Topic Conventions
 
 - Location: `mrs/d/<device-id>/mon/location`
 - Software versions: `mrs/d/<device-id>/mon/versions`
-- Location payload is generated from `Coordinates`.
+- Location payload is generated from `Coordinates` and serialized as `{lat, lon}`.
+- Software versions payload is flat `Map<String, String>` (`module -> version`).
 
 ## Periodic Scheduling
 
@@ -40,10 +55,10 @@ This page documents the SDK-facing MQTT live-data contracts for `SpokeZone.liveD
 
 ## Registration Status
 
-Each registration exposes status and diagnostics:
+Each registration exposes minimal status:
 
 - States: `idle`, `running`, `failed`, `canceled`
-- Fields: `lastAttemptAt`, `lastSuccessAt`, `consecutiveFailures`, `lastError`, `lastPublished`
+- Fields: `lastSuccessAt`, `consecutiveFailures`
 
 ## Backoff and Auth
 
