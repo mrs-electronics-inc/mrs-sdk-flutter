@@ -39,6 +39,7 @@ See: `docs/src/content/docs/spoke-zone/config.mdx`
   - Exactly one mode is valid per config instance
 - Chosen: Base URL and environment are explicit config concerns
   - Default base URL is `https://api.spoke.zone`
+  - Additional supported base URL hosts: `beta.api.spoke.zone`, `api.mrscloudconnect.com`, `beta.api.mrscloudconnect.com`
   - Config supports explicit base URL override for non-production environments
   - All endpoint and auth calls use the same configured base URL
   - SDK does not provision environment credentials; host applications provide secrets via config callbacks
