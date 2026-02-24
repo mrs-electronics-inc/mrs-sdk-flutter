@@ -107,7 +107,8 @@ This spec covers package metadata, repository/package structure expectations, pu
 - [ ] Add `flake.nix` with inputs (`nixpkgs`, `devshell`, `android-nixpkgs`) and overlay-based Android SDK configuration
 - [ ] Add/align `devshell.nix` and ensure flake `devShell` points to it
 - [ ] Ensure `flake.lock` is committed and used as the authoritative input pin set
-- [ ] Cleanup pass: remove redundant environment setup paths without changing behavior
+- [ ] Remove redundant or conflicting Nix environment definitions (single canonical `flake.nix` + `devshell.nix` path only)
+- [ ] Verify Nix docs scope remains explicit (`optional for Nix users/maintainers`) and does not block non-Nix contributors
 
 ### Package Metadata and Layout
 
@@ -118,7 +119,8 @@ This spec covers package metadata, repository/package structure expectations, pu
 - [ ] Ensure package metadata is complete and publishable (`name`, `version`, `description`, `homepage`/`repository`, SDK constraints, dependency constraints, `documentation`, `issue_tracker`)
 - [ ] Ensure required support files are present and updated (`README.md`, `CHANGELOG.md`, `LICENSE`)
 - [ ] Ensure Flutter `example/` app is present and valid for package usage demonstration
-- [ ] Cleanup pass: remove conflicting or duplicated package metadata without changing behavior
+- [ ] Remove duplicated metadata definitions across files so `pubspec.yaml` remains the single metadata source of truth
+- [ ] Verify README/CHANGELOG wording does not restate conflicting package metadata values
 
 ### Publish Readiness
 
@@ -128,7 +130,8 @@ This spec covers package metadata, repository/package structure expectations, pu
   - `dart pub publish --dry-run` from package root exits `0`
 - [ ] Define and validate pre-publish verification flow using repository recipes
 - [ ] Define and validate `dart pub publish --dry-run` workflow from the package root
-- [ ] Cleanup pass: simplify readiness workflow guidance without changing behavior
+- [ ] Consolidate publish-readiness guidance into one ordered checklist (lint -> test -> dry-run) with no duplicate steps
+- [ ] Verify all readiness commands are written exactly once and match repository tooling expectations
 
 ### PR Workflows
 
@@ -140,7 +143,8 @@ This spec covers package metadata, repository/package structure expectations, pu
 - [ ] Implement quality-gate command steps (no `just`): `dart format --set-exit-if-changed .`, `flutter analyze`, `flutter test`, `npm --prefix docs run lint`, `npm --prefix docs run format:check` with inline comments for each gate purpose
 - [ ] Implement PR workflow that calls reusable quality-gates workflow, with inline comments for trigger and required-check intent
 - [ ] Ensure PR workflow blocks merge when required quality checks fail
-- [ ] Cleanup pass: simplify PR workflows without changing enforcement behavior
+- [ ] Remove duplicated gate definitions between PR and release workflows (quality gates defined once and reused)
+- [ ] Verify workflow comments describe intent and failure behavior for each PR gate without duplicating external docs
 
 ### Release Workflows
 
@@ -159,7 +163,8 @@ This spec covers package metadata, repository/package structure expectations, pu
 - [ ] Ensure release workflow uses secure credential management for `pub.dev` publishing
 - [ ] Ensure CI publish auth is configured with `dart pub token add https://pub.dev --env-var PUB_DEV_PUBLISH_TOKEN`, with inline comments on secret usage and safety
 - [ ] Add setup prerequisites for maintainers: configure `pubdev-release` environment and `PUB_DEV_PUBLISH_TOKEN` secret, with inline comments in workflow for required setup
-- [ ] Cleanup pass: simplify release workflows without changing enforcement behavior
+- [ ] Remove duplicated publish logic so release flow remains a single ordered path: `quality_gates` -> `tag_version_check` -> `dry_run_publish` -> `publish`
+- [ ] Verify release workflow comments cover environment protection, secret usage, and failure conditions at each gate
 
 ### Release Process
 
@@ -170,4 +175,5 @@ This spec covers package metadata, repository/package structure expectations, pu
 - [ ] Define version bump and changelog update process for each release
 - [ ] Define release-to-deploy handoff steps (including git tag/version reference) that trigger CI deployment
 - [ ] Define post-publish traceability steps for published versions and deployment records
-- [ ] Cleanup pass: streamline release steps without changing behavior
+- [ ] Remove duplicate release instructions across spec/docs so executable workflow files remain canonical for maintainers
+- [ ] Verify release-process steps are strictly ordered and map directly to CI jobs and tag-trigger behavior
