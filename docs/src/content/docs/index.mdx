@@ -1,0 +1,33 @@
+---
+title: Docs Template
+description: Add your description here.
+template: splash
+hero:
+  tagline: Add your description here.
+  image:
+    file: ../../assets/MRS-Logo.png
+  actions:
+    - text: Getting Started
+      link: /getting-started/example
+      icon: right-arrow
+---
+
+import { Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
+
+## Useful Links
+
+Replace these with project-specific links.
+
+<CardGrid stagger>
+	<Card title="Some Title Here" icon="seti:json">
+		<LinkCard title="example link" href="https://github.com/mrs-electronics-inc/bots" />
+		<LinkCard title="another" href="https://github.com/mrs-electronics-inc/mrs-sdk-qt" />
+		<LinkCard title="third" href="https://github.com/mrs-electronics-inc/time-tracker" />
+	</Card>
+	<Card title="Other Title Here" icon="open-book">
+		<LinkCard title="NeuralPlex" href="https://neuralplex.dev" />
+		<LinkCard title="MConn" href="https://mconn.dev" />
+		<LinkCard title="Applics Studio" href="https://applics.dev" />
+		<LinkCard title="Spoke Zone" href="https://docs.spoke.zone" />
+	</Card>
+</CardGrid>
