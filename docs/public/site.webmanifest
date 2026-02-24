@@ -1,6 +1,6 @@
 {
-    "name": "MRS Developers",
-    "short_name": "MRS Devs",
+    "name": "MRS Flutter SDK Documentation",
+    "short_name": "MRS Flutter SDK",
     "icons": [
         {
             "src": "/web-app-manifest-192x192.png",
