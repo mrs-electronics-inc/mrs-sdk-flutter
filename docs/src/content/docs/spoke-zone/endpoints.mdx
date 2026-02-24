@@ -2,18 +2,10 @@
 title: Endpoint Contracts
 description: Request/response contracts used by the SDK.
 sidebar:
-  order: 5
+  order: 6
 ---
 
 Source of truth for these contracts is Spoke.Zone published documentation: [API docs](https://api.spoke.zone/api-docs) and [Access token docs](https://docs.spoke.zone/developers/general-api-usage/access-tokens/).
-
-## Retry Policy
-
-- Applies to all auth and endpoint calls on this page
-- Retry on transport errors, `429`, and `5xx`
-- Do not retry `4xx` responses other than `429`
-- Retry delays are fixed: `15s`, then `30s`, then `60s`
-- If all retries fail, surface a typed SDK error for retry exhaustion with last-attempt diagnostics
 
 ## Authentication
 

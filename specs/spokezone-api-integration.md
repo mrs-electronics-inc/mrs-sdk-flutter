@@ -77,7 +77,7 @@ See: `docs/src/content/docs/spoke-zone/auth.mdx`
 - Chosen: Backoff strategy abstraction
   - Define a backoff interface with one default implementation
   - Keep call sites stable if strategy changes later
-- Chosen: Endpoint-level retry details live in the endpoint docs page and are treated as canonical reference during implementation.
+- Chosen: Retry policy details live in the retry docs page and are treated as canonical reference during implementation.
 
 ### Error System
 
@@ -95,6 +95,7 @@ Implementation-facing docs for this integration live in:
 - `docs/src/content/docs/spoke-zone/config.mdx`
 - `docs/src/content/docs/spoke-zone/auth.mdx`
 - `docs/src/content/docs/spoke-zone/errors.mdx`
+- `docs/src/content/docs/spoke-zone/retry.mdx`
 - `docs/src/content/docs/spoke-zone/endpoints.mdx`
 
 ## Endpoint Contracts
@@ -153,6 +154,7 @@ All request/response, default/query, and endpoint-specific error mapping details
 - [ ] Update `docs/src/content/docs/spoke-zone/config.mdx` as the canonical source for config modes, base URL rules, and callback contract semantics
 - [ ] Update `docs/src/content/docs/spoke-zone/auth.mdx` as the canonical source for `DeviceAuth.login` and `UserAuth.login` lifecycle ownership
 - [ ] Update `docs/src/content/docs/spoke-zone/errors.mdx` as the canonical source for typed error codes, diagnostics, and consumer-observable behavior
+- [ ] Update `docs/src/content/docs/spoke-zone/retry.mdx` as the canonical source for retry policy and backoff behavior
 - [ ] Update `docs/src/content/docs/spoke-zone/endpoints.mdx` as the canonical source for endpoint contracts and query/default semantics
-- [ ] Update `docs/src/content/docs/spoke-zone/index.mdx` as the canonical hub that links to the four canonical pages above (without duplicating their contract content)
+- [ ] Update `docs/src/content/docs/spoke-zone/index.mdx` as the canonical hub that links to the five canonical pages above (without duplicating their contract content)
 - [ ] Update discoverability entry points (`docs/src/content/docs/index.mdx` and `docs/astro.config.mjs`) to include the Spoke.Zone doc hub
