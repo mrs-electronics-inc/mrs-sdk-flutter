@@ -11,8 +11,7 @@ export default defineConfig({
 			plugins: [],
 			title: 'MRS Flutter SDK',
 			social: [
-				{ icon: 'github', label: 'GitHub', href: 'https://github.com/mrs-electronics-inc' },
-				{ icon: 'gitlab', label: 'GitLab', href: 'https://gitlab.com/mrs-electronics' },
+				{ icon: 'github', label: 'GitHub', href: 'https://github.com/mrs-electronics-inc/mrs-sdk-flutter' },
 			],
 			sidebar: [
 				{
