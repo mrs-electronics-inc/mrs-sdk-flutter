@@ -7,6 +7,14 @@ sidebar:
 
 Source of truth for these contracts is Spoke.Zone published documentation: [API docs](https://api.spoke.zone/api-docs) and [Access token docs](https://docs.spoke.zone/developers/general-api-usage/access-tokens/).
 
+## Retry Policy
+
+- Applies to all auth and endpoint calls on this page
+- Retry on transport errors, `429`, and `5xx`
+- Do not retry `4xx` responses other than `429`
+- Retry delays are fixed: `15s`, then `30s`, then `60s`
+- If all retries fail, surface a typed SDK error for retry exhaustion with last-attempt diagnostics
+
 ## DeviceAuth.login
 
 `POST /loginDevice`
@@ -105,9 +113,3 @@ List defaults:
 | Error statuses to map | `400`, `401`, `403`, `404`, `429`, `5xx` |
 
 Note: only documented and explicitly selected fields above are modeled. Additional API fields are intentionally ignored.
-
-## Retry Policy
-
-- Retry transport errors, `429`, and `5xx`
-- Delay schedule: `15s`, `30s`, `60s`
-- No retry for other `4xx`
