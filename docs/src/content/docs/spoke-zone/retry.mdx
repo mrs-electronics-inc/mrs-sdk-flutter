@@ -1,0 +1,22 @@
+---
+title: Retry
+description: Retry policy and backoff behavior for Spoke.Zone auth and endpoint calls.
+sidebar:
+  order: 4
+---
+
+## Policy
+
+- Applies to all auth and endpoint calls in the Spoke.Zone client.
+- Retry on transport errors, `429`, and `5xx`.
+- Do not retry `4xx` responses other than `429`.
+
+## Backoff
+
+- Fixed delay schedule: `15s`, then `30s`, then `60s`.
+- Same schedule applies to `DeviceAuth.login` and `UserAuth.login`.
+
+## Exhaustion
+
+- If all retries fail, surface a typed SDK error for retry exhaustion.
+- Include last-attempt diagnostics in the surfaced error.
