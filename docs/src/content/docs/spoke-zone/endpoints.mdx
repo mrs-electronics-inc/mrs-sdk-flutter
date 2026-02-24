@@ -37,10 +37,12 @@ Source of truth for these contracts is Spoke.Zone published documentation as of 
 
 | Item | Contract |
 | --- | --- |
-| Responsibility | Obtain and refresh user `x-access-token` from `username` and `password` |
-| Service behavior | `SpokeZoneService` consumes tokens from `UserAuth` and does not call login endpoints directly |
-| Trigger conditions | Initial user-token acquisition and subsequent refresh/reauth as needed |
-| Error statuses to map | `400`, `401`, `403`, `429`, `5xx` |
+| Auth header | none |
+| Request body | JSON object with `username` (string) and `password` (string) |
+| Success status | `200` |
+| Success body (guaranteed fields) | `token` (string), `expires` (number), `user` (object) |
+| Success body (`user` fields used by SDK auth flow) | `username`, `user_id`, `user_role`, `customer_id`, `customer_role`, `oem_id`, `reset_required`, `customer_prefix`, `is_mobile_user`, `prefix`, `mqtt_permission` |
+| Error statuses to map | `401` (missing username/password or invalid credentials), `403` (account locked), `429`, `5xx` |
 
 ## dataFiles.create
 
