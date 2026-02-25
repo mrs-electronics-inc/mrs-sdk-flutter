@@ -99,7 +99,7 @@ This integration builds on [Spoke.Zone API Integration](spokezone-api-integratio
 
 - [ ] Add tests first that connect/reconnect asks the active `SpokeZone` auth provider for the current token.
 - [ ] Add tests first for reconnect behavior using shared `BackoffStrategy` and default `FixedDelayBackoffStrategy`.
-- [ ] Implement auth-driven connect/reconnect behavior and shared `BackoffStrategy`/`FixedDelayBackoffStrategy` integration.
+- [ ] Implement auth-driven connect/reconnect behavior using shared `BackoffStrategy` and `FixedDelayBackoffStrategy` types from API integration (no MQTT-specific duplicate backoff types).
 
 ### Publish Contract
 
@@ -110,8 +110,8 @@ This integration builds on [Spoke.Zone API Integration](spokezone-api-integratio
 ### Periodic Broadcasting
 
 - [ ] Add tests first for generic periodic registration API with custom topic strings and async nullable callbacks.
-- [ ] Add tests first for scheduler timing semantics.
-- [ ] Add tests first for cancellation and resume semantics.
+- [ ] Add tests first for scheduler timing semantics: no immediate publish on registration, first publish on first interval tick, and subsequent publishes on configured cadence.
+- [ ] Add tests first for cancellation/resume semantics: cancel stops only that registration, `disconnect()` pauses active registrations, and later `connect()` resumes uncanceled registrations.
 - [ ] Add tests first for `registerLocationBroadcast(...)` fixed topic, default interval behavior, and `Coordinates -> {lat, lon}` payload serialization.
 - [ ] Add tests first for `registerSoftwareVersionsBroadcast(...)` fixed topic, default interval behavior, and flat `Map<String, String>` payload contract.
 - [ ] Implement generic periodic scheduler and registration handles.

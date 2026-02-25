@@ -110,9 +110,9 @@ This spec covers package metadata, repository/package structure expectations, pu
 
 - [ ] Add `flake.nix` with inputs (`nixpkgs`, `devshell`, `android-nixpkgs`) and overlay-based Android SDK configuration
 - [ ] Add/align `devshell.nix` and ensure flake `devShell` points to it
-- [ ] Ensure `flake.lock` is committed and used as the authoritative input pin set
+- [ ] Commit `flake.lock` and verify `flake.nix` input pins are resolved exclusively from the lockfile
 - [ ] Remove redundant or conflicting Nix environment definitions (single canonical `flake.nix` + `devshell.nix` path only)
-- [ ] Verify Nix docs scope remains explicit (`optional for Nix users/maintainers`) and does not block non-Nix contributors
+- [ ] Update Nix setup guidance to explicitly state Nix is optional for users/maintainers and non-Nix contributors use standard project setup
 
 ### Package Metadata and Layout
 
@@ -127,8 +127,8 @@ This spec covers package metadata, repository/package structure expectations, pu
 - [ ] Re-enable `flutter analyze` in `just lint`
 - [ ] Re-enable `dart format .` in `just format`
 - [ ] Define and validate the pre-publish readiness flow using repository recipes: `just lint` -> `just test` -> `dart pub publish --dry-run` (from package root), all exit `0`
-- [ ] Keep one ordered publish-readiness checklist (`lint` -> `test` -> `dry-run`) with no duplicate steps
-- [ ] Ensure each readiness command appears once and matches repository tooling expectations
+- [ ] Keep one ordered publish-readiness checklist (`lint` -> `test` -> `dry-run`) and remove duplicate checklist blocks from release docs/workflow comments
+- [ ] Ensure the readiness commands appear exactly once in the canonical checklist and match repository tooling expectations
 
 ### PR Workflows
 
@@ -137,7 +137,7 @@ This spec covers package metadata, repository/package structure expectations, pu
 - [ ] Implement PR workflow that calls reusable quality-gates workflow, with inline comments for trigger and required-check intent
 - [ ] Configure PR checks so any failing required quality gate results in a failed PR workflow status
 - [ ] Keep quality-gate definitions in one reusable workflow and remove duplicated gate definitions from PR/release workflows
-- [ ] Ensure PR workflow comments state gate intent and failure behavior without duplicating external docs
+- [ ] Add inline comments to each PR quality-gate step that state gate intent and failure behavior without duplicating external docs
 
 ### Release Workflows
 
@@ -150,12 +150,12 @@ This spec covers package metadata, repository/package structure expectations, pu
 - [ ] Configure secure `pub.dev` publish auth in release workflow using `PUB_DEV_PUBLISH_TOKEN` and `dart pub token add https://pub.dev --env-var PUB_DEV_PUBLISH_TOKEN`, with inline comments on secret handling
 - [ ] Document maintainer setup prerequisites in workflow comments: configure `pubdev-release` environment and `PUB_DEV_PUBLISH_TOKEN` secret
 - [ ] Keep one ordered publish path in release workflow: `quality_gates` -> `tag_version_check` -> `dry_run_publish` -> `publish`
-- [ ] Ensure release workflow comments cover environment protection, secret usage, and failure conditions at each gate
+- [ ] Add inline comments for each release gate that describe environment protection, secret usage, and failure conditions
 
 ### Release Process
 
-- [ ] Document version-bump and changelog-update steps for each release
-- [ ] Document release-to-deploy handoff steps (including git tag/version reference) that trigger CI deployment
-- [ ] Document post-publish traceability steps for published versions and deployment records
-- [ ] Ensure no release instructions are duplicated across spec/docs by keeping executable steps only in workflow files and leaving docs to link/reference those files
-- [ ] Order release-process steps so they map directly to CI jobs and tag-trigger behavior
+- [ ] Add one release-process checklist in maintainers docs covering version bump and changelog update before tagging
+- [ ] Add release-to-deploy handoff steps in maintainers docs, including `vX.Y.Z` tag creation and push trigger expectations
+- [ ] Add post-publish traceability steps in maintainers docs for published version verification and deployment record links
+- [ ] Remove duplicate release instructions from other docs pages and replace them with links to the canonical workflow files/checklist
+- [ ] Ensure release-process checklist order matches CI job order and tag-trigger behavior exactly
