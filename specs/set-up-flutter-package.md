@@ -134,8 +134,7 @@ This spec covers package metadata, repository/package structure expectations, pu
   - `just lint` exits `0`
   - `just test` exits `0`
   - `dart pub publish --dry-run` from package root exits `0`
-- [ ] Define and validate pre-publish verification flow using repository recipes
-- [ ] Define and validate `dart pub publish --dry-run` workflow from the package root
+- [ ] Define and validate the pre-publish readiness flow using repository recipes: `just lint` -> `just test` -> `dart pub publish --dry-run` (from package root), all exit `0`
 - [ ] Consolidate publish-readiness guidance into one ordered checklist (lint -> test -> dry-run) with no duplicate steps
 - [ ] Verify all readiness commands are written exactly once and match repository tooling expectations
 
@@ -159,15 +158,13 @@ This spec covers package metadata, repository/package structure expectations, pu
   - Release workflow runs `quality_gates` before any publish jobs
   - Tag version must match `pubspec.yaml` version or workflow fails before publish
   - `publish` job uses GitHub Environment `pubdev-release` and secret-backed auth
-- [ ] Add `.github/workflows/publish-pubdev.yml` with tag-based release trigger only (`push` tags matching `vX.Y.Z`), with inline comments documenting trigger constraints
-- [ ] Define and implement release deployment workflow for `pub.dev` publish from release tags
+- [ ] Add and implement `.github/workflows/publish-pubdev.yml` for tag-triggered (`push` tags `vX.Y.Z`) `pub.dev` deployment, with inline comments documenting trigger constraints
 - [ ] Ensure release workflow calls reusable quality-gates workflow before any publish steps, with inline comments on gate ordering
 - [ ] Ensure release quality gates include a check that git tag version matches `pubspec.yaml` version, with inline comments on mismatch failure behavior
 - [ ] Ensure tag/version mismatch fails workflow before `dry_run_publish` and `publish`
 - [ ] Ensure release workflow uses explicit job dependencies: `quality_gates` -> `tag_version_check` -> `dry_run_publish` -> `publish`
 - [ ] Ensure publish job executes in GitHub Environment `pubdev-release` with one maintainer approval
-- [ ] Ensure release workflow uses secure credential management for `pub.dev` publishing
-- [ ] Ensure CI publish auth is configured with `dart pub token add https://pub.dev --env-var PUB_DEV_PUBLISH_TOKEN`, with inline comments on secret usage and safety
+- [ ] Configure secure `pub.dev` publish auth in release workflow using `PUB_DEV_PUBLISH_TOKEN` and `dart pub token add https://pub.dev --env-var PUB_DEV_PUBLISH_TOKEN`, with inline comments on secret handling
 - [ ] Add setup prerequisites for maintainers: configure `pubdev-release` environment and `PUB_DEV_PUBLISH_TOKEN` secret, with inline comments in workflow for required setup
 - [ ] Remove duplicated publish logic so release flow remains a single ordered path: `quality_gates` -> `tag_version_check` -> `dry_run_publish` -> `publish`
 - [ ] Verify release workflow comments cover environment protection, secret usage, and failure conditions at each gate
@@ -181,5 +178,5 @@ This spec covers package metadata, repository/package structure expectations, pu
 - [ ] Define version bump and changelog update process for each release
 - [ ] Define release-to-deploy handoff steps (including git tag/version reference) that trigger CI deployment
 - [ ] Define post-publish traceability steps for published versions and deployment records
-- [ ] Remove duplicate release instructions across spec/docs so executable workflow files remain canonical for maintainers
+- [ ] Ensure no release instructions are duplicated across spec/docs by keeping executable steps only in workflow files and leaving docs to link/reference those files
 - [ ] Verify release-process steps are strictly ordered and map directly to CI jobs and tag-trigger behavior
