@@ -111,7 +111,7 @@ All request/response, default/query, and endpoint-specific error mapping details
 - [ ] Add tests first for `SpokeZoneConfig.device(...)` and `SpokeZoneConfig.user(...)` construction rules (exactly one auth mode per config)
 - [ ] Add tests first for shared auth interface usage in both modes and `x-access-token` request decoration
 - [ ] Implement config and auth mode plumbing to make foundation tests pass
-- [ ] Cleanup pass: improve config/auth API clarity and structure without changing behavior
+- [ ] Refactor config/auth construction for readability while preserving behavior; verify foundation tests remain green
 
 ### Device and User Auth
 
@@ -119,14 +119,14 @@ All request/response, default/query, and endpoint-specific error mapping details
 - [ ] Add tests first for `UserAuth.login` credential callback handling (`username`, `password`) and token lifecycle entry points
 - [ ] Add tests first for `UserAuth.login` failure mapping and retry behavior parity with `DeviceAuth.login`
 - [ ] Implement auth providers and callbacks to make auth tests pass
-- [ ] Cleanup pass: align auth lifecycle flow and remove duplicated token-handling logic without changing behavior
+- [ ] Remove duplicated token-handling logic by extracting shared auth lifecycle helpers; verify auth tests remain green
 
 ### Service Shape
 
 - [ ] Add tests first asserting root `SpokeZoneService` exposes `devices`, `dataFiles`, and `otaFiles` namespaces
 - [ ] Add tests first for shared HTTP pipeline behavior (header injection, retry orchestration, and error mapping middleware)
 - [ ] Implement root service and namespaced clients to make service-shape tests pass
-- [ ] Cleanup pass: simplify service wiring and shared request setup without changing behavior
+- [ ] Simplify service wiring by extracting shared request setup into one internal helper; verify service-shape tests remain green
 
 ### Endpoint Behavior
 
@@ -137,7 +137,7 @@ All request/response, default/query, and endpoint-specific error mapping details
 - [ ] Add tests first for `otaFiles.list(...)` query handling and typed item mapping
 - [ ] Add tests first for `otaFiles.download(id)` byte-return behavior
 - [ ] Implement endpoint clients to make endpoint tests pass
-- [ ] Cleanup pass: extract shared request/response helpers without changing behavior
+- [ ] Extract shared request/response helpers used by `devices`, `dataFiles`, and `otaFiles`; verify endpoint-behavior tests remain green
 
 ### Reliability and Errors
 
@@ -149,14 +149,14 @@ All request/response, default/query, and endpoint-specific error mapping details
 - [ ] Add tests first that public APIs throw only SDK-typed exceptions (no raw HTTP/client exceptions leak)
 - [ ] Add tests first for client-side `validationError` mapping before request dispatch
 - [ ] Implement retry/backoff and uniform error mapping to make reliability tests pass
-- [ ] Cleanup pass: centralize retry and error mapping policies into shared components without changing behavior
+- [ ] Centralize retry and error-mapping policy wiring into shared internal components; verify reliability/error tests remain green
 
 ### Documentation
 
-- [ ] Update `docs/src/content/docs/spoke-zone/config.mdx` as the canonical source for config modes, base URL rules, and callback contract semantics
-- [ ] Update `docs/src/content/docs/spoke-zone/auth.mdx` as the canonical source for `DeviceAuth.login` and `UserAuth.login` lifecycle ownership
-- [ ] Update `docs/src/content/docs/spoke-zone/errors.mdx` as the canonical source for typed error codes, diagnostics, and consumer-observable behavior
-- [ ] Update `docs/src/content/docs/spoke-zone/retry.mdx` as the canonical source for retry policy and backoff behavior
-- [ ] Update `docs/src/content/docs/spoke-zone/endpoints.mdx` as the canonical source for endpoint contracts and query/default semantics
-- [ ] Update `docs/src/content/docs/spoke-zone/index.mdx` as the canonical hub that links to the five canonical pages above (without duplicating their contract content)
-- [ ] Update discoverability entry points (`docs/src/content/docs/index.mdx` and `docs/astro.config.mjs`) to include the Spoke.Zone doc hub
+- [ ] Update `docs/src/content/docs/spoke-zone/config.mdx` to document config mode constructors, base URL host rules, and callback semantics for both auth modes
+- [ ] Update `docs/src/content/docs/spoke-zone/auth.mdx` to document `DeviceAuth.login` and `UserAuth.login` lifecycle ownership and callback contracts
+- [ ] Update `docs/src/content/docs/spoke-zone/errors.mdx` to list all public SDK error codes and their mapping/diagnostic behavior
+- [ ] Update `docs/src/content/docs/spoke-zone/retry.mdx` to document retryable status classes, non-retryable classes, and `15s -> 30s -> 60s` delay sequence
+- [ ] Update `docs/src/content/docs/spoke-zone/endpoints.mdx` with request/response contracts for `devices.get`, `dataFiles.create`, `dataFiles.upload`, `otaFiles.list`, and `otaFiles.download`
+- [ ] Update `docs/src/content/docs/spoke-zone/index.mdx` to link to config/auth/errors/retry/endpoints pages and avoid duplicating endpoint contracts
+- [ ] Update `docs/src/content/docs/index.mdx` and `docs/astro.config.mjs` so Spoke.Zone docs are listed in site navigation and docs index
