@@ -1,0 +1,180 @@
+---
+title: Endpoint Contracts
+description: Request/response contracts used by the SDK.
+sidebar:
+  order: 6
+---
+
+Source of truth for these contracts is Spoke.Zone published documentation: [API docs](https://api.spoke.zone/api-docs) and [Access token docs](https://docs.spoke.zone/developers/general-api-usage/access-tokens/).
+
+## Authentication
+
+- `DeviceAuth.login` and `UserAuth.login` use no auth header.
+- All other endpoints on this page require `x-access-token: <token>`.
+
+## DeviceAuth.login
+
+`POST /loginDevice`
+
+| Item | Contract |
+| --- | --- |
+| Success status | `200` or `201` |
+| Error statuses to map | `400`, `401`, `403`, `429`, `5xx` |
+
+### Request Body
+
+- JSON object with `token` (string), `cpu_id` (string), `uuid` (string)
+
+### Success Body
+
+- `200`: `{ status, message }`
+- `201`: `{ token }`
+
+## UserAuth.login
+
+`POST /login`
+
+| Item | Contract |
+| --- | --- |
+| Success status | `200` |
+| Error statuses to map | `401` (missing username/password or invalid credentials), `403` (account locked), `429`, `5xx` |
+
+### Request Body
+
+- JSON object with `username` (string) and `password` (string)
+
+### Success Body
+
+- `token` (string)
+- `expires` (number)
+- `user` object:
+  - `username`
+  - `user_id`
+  - `user_role`
+  - `customer_id`
+  - `customer_role`
+  - `oem_id`
+  - `reset_required`
+  - `customer_prefix`
+  - `is_mobile_user`
+  - `prefix`
+  - `mqtt_permission`
+
+## DataFiles.create
+
+`POST /api/v2/data-files`
+
+| Item | Contract |
+| --- | --- |
+| Success status | `200` |
+| Error statuses to map | `400`, `401`, `403`, `429`, `5xx` |
+
+### Request Body
+
+- JSON object with `type` (string enum: `log`, `event`, `gps`, `debug`, `journal`, `dmesg`, `txt`)
+
+### Success Body
+
+- `id` (number)
+
+## DataFiles.upload
+
+`POST /api/v2/data-files/{id}/file`
+
+| Item | Contract |
+| --- | --- |
+| Success status | `200` |
+| Error statuses to map | `400`, `401`, `403`, `429`, `5xx` |
+
+### Path Parameters
+
+- `id` (number)
+
+### Request Body
+
+- `multipart/form-data` with `files` (binary) populated from raw bytes
+
+### Upload Semantics
+
+- Input is fully buffered bytes (`Uint8List`), encoded as multipart field `files`
+- SDK does not provide chunked upload in this scope
+- SDK retries per global retry policy; caller controls higher-level concurrency
+
+## OtaFiles.list
+
+`GET /api/v2/ota-files`
+
+| Item | Contract |
+| --- | --- |
+| Success status | `200` |
+| Error statuses to map | `400`, `401`, `403`, `429`, `5xx` |
+
+### Query Parameters
+
+- Supports documented pagination/search/sort/filter params (`searchTerm`, `searchFields`, `sort`, `sortOrder`, `limit`, `offset`)
+
+### Success Body
+
+- list of items with:
+  - `id` (number)
+  - `modelId` (number)
+  - `moduleId` (number)
+  - `module` (string)
+  - `version` (string)
+  - `fileLocation` (string)
+  - `isActive` (boolean)
+  - `createdDate` (string)
+  - `releaseNotes` (string)
+
+### List Defaults
+
+- When omitted by caller: `limit=50`, `offset=0`
+- Caller-provided query values override defaults
+
+## OtaFiles.download
+
+`GET /api/v2/ota-files/{id}/file`
+
+| Item | Contract |
+| --- | --- |
+| Success status | `200` |
+| Error statuses to map | `400`, `401`, `403`, `429`, `5xx` |
+
+### Path Parameters
+
+- `id` (number)
+
+### Success Body
+
+- binary file content returned as bytes
+
+## Devices.get
+
+`GET /api/v2/devices/{id}`
+
+| Item | Contract |
+| --- | --- |
+| Success status | `200` |
+| Error statuses to map | `400`, `401`, `403`, `404`, `429`, `5xx` |
+
+### Path Parameters
+
+- `id` (number)
+
+### Success Body
+
+- `id` (number)
+- `identifier` (string)
+- `serialNumber` (string)
+- `modelId` (number)
+- `modelName` (string, mapped from API field `name`)
+- `lastOnline` (`DateTime?`, null when missing/invalid)
+- `lastLocation` (`Coordinates?`, null when either coordinate is missing)
+- `softwareVersions` (`Map<String, String>`, empty map when missing/null)
+
+## Shared Models
+
+### Coordinates
+
+- `latitude` (`double`)
+- `longitude` (`double`)

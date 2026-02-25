@@ -1,0 +1,37 @@
+---
+title: Errors
+description: Typed error contract and retry observability.
+sidebar:
+  order: 5
+---
+
+All failures surface as SDK-typed errors. Raw HTTP/client exceptions are not leaked from public APIs.
+
+## Error Codes
+
+- `unauthorized`
+- `forbidden`
+- `notFound`
+- `rateLimited`
+- `serverError`
+- `networkError`
+- `validationError`
+- `unsupportedAuthMode`
+- `retryLimitReached`
+- `unknown`
+
+## Error Fields
+
+- `code`
+- `message`
+- `endpoint`
+- `httpStatus` (nullable)
+- `responseSnippet`
+- `retryAttempt` (nullable)
+- `retryAfter` (nullable)
+
+## Mapping Rules
+
+- Transport/timeout failures map to `networkError`
+- Client-side contract failures map to `validationError` before request dispatch
+- Retry exhaustion maps to `retryLimitReached`
