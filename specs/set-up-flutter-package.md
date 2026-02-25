@@ -1,8 +1,10 @@
 ---
 number: 1
-status: draft
+status: approved
 author: Addison Emig
 creation_date: 2026-02-24
+approved_by: Addison Emig
+approval_date: 2026-02-25
 ---
 
 # Set Up Flutter Package on pub.dev
