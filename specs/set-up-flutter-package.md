@@ -122,12 +122,14 @@ This spec covers package metadata, repository/package structure expectations, pu
   - `example/` app exists and runs package usage path
 - [ ] Ensure package metadata is complete and publishable (`name`, `version`, `description`, `homepage`/`repository`, SDK constraints, dependency constraints, `documentation`, `issue_tracker`)
 - [ ] Ensure required support files are present and updated (`README.md`, `CHANGELOG.md`, `LICENSE`)
-- [ ] Ensure Flutter `example/` app is present and valid for package usage demonstration
 - [ ] Remove duplicated metadata definitions across files so `pubspec.yaml` remains the single metadata source of truth
 - [ ] Verify README/CHANGELOG wording does not restate conflicting package metadata values
 
 ### Publish Readiness
 
+- [ ] Re-enable `flutter pub get` in `just deps`
+- [ ] Re-enable `flutter analyze` in `just lint`
+- [ ] Re-enable `dart format .` in `just format`
 - [ ] Define publish-readiness checks with explicit commands and pass criteria:
   - `just lint` exits `0`
   - `just test` exits `0`
