@@ -124,7 +124,8 @@ This integration builds on [Spoke.Zone API Integration](spokezone-api-integratio
 
 ### Documentation
 
-- [ ] Update the Spoke.Zone docs index and related pages to include the Live Data contract page in the canonical Spoke.Zone docs set.
-- [ ] Fill `docs/src/content/docs/spoke-zone/live-data.mdx` with finalized public API signatures that match the implemented `SpokeZone.liveData` surface.
-- [ ] Fill `docs/src/content/docs/spoke-zone/live-data.mdx` with finalized periodic registration semantics, default helper intervals, fixed topic conventions, and typed `Coordinates` usage for location broadcasting.
-- [ ] Fill `docs/src/content/docs/spoke-zone/live-data.mdx` with finalized per-registration status state/field contracts and reconnect/auth behavior using shared `BackoffStrategy` and `FixedDelayBackoffStrategy`.
+- [ ] Update `docs/src/content/docs/index.mdx` and `docs/astro.config.mjs` so the Spoke.Zone docs set includes `spoke-zone/live-data` in docs navigation and index listings.
+- [ ] Update `docs/src/content/docs/spoke-zone/index.mdx` to link to `live-data.mdx` as part of the canonical Spoke.Zone docs set.
+- [ ] Update `docs/src/content/docs/spoke-zone/live-data.mdx` with the implemented `SpokeZone.liveData` public API signatures: lifecycle methods (`connect`, `disconnect`, `isConnected`), `publishJson`, generic periodic registration, and helper registrations.
+- [ ] Update `docs/src/content/docs/spoke-zone/live-data.mdx` with periodic registration behavior: async-nullable callback contract, first-publish-on-first-tick timing, cancellation semantics, reconnect resume behavior, default helper intervals, and fixed topics.
+- [ ] Update `docs/src/content/docs/spoke-zone/live-data.mdx` with per-registration status contract (`idle`, `running`, `failed`, `canceled`; `lastSuccessAt`; `consecutiveFailures`) and auth/reconnect behavior using shared `BackoffStrategy` and `FixedDelayBackoffStrategy`.

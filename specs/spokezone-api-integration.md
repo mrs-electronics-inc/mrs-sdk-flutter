@@ -22,7 +22,7 @@ The SDK must remain forward-compatible with user-token endpoint families.
 
 ### Public API Shape
 
-- Chosen: One root `SpokeZoneService` with capability namespaces
+- Chosen: One root `SpokeZone` with capability namespaces
   - Public API: `spokeZone.devices.get(...)`, `spokeZone.dataFiles.create(...)`, `spokeZone.dataFiles.upload(...)`, `spokeZone.otaFiles.list(...)`, `spokeZone.otaFiles.download(...)`
   - Keeps API discoverable and scalable as endpoint families grow
 - Considered: Single flat service with all methods
@@ -33,7 +33,7 @@ The SDK must remain forward-compatible with user-token endpoint families.
 
 See: `docs/src/content/docs/spoke-zone/config.mdx`
 
-- Chosen: `SpokeZoneService` always receives one `SpokeZoneConfig`
+- Chosen: `SpokeZone` always receives one `SpokeZoneConfig`
   - `SpokeZoneConfig.device(...)` for device mode
   - `SpokeZoneConfig.user(...)` for user mode
   - Exactly one mode is valid per config instance
@@ -48,12 +48,12 @@ See: `docs/src/content/docs/spoke-zone/config.mdx`
 See: `docs/src/content/docs/spoke-zone/auth.mdx`
 
 - Chosen: `DeviceAuth.login` owns `/loginDevice` token renewal flow
-  - `SpokeZoneService` does not orchestrate login itself
+  - `SpokeZone` does not orchestrate login itself
   - Device auth implementation handles token lifecycle internally
 - Chosen: `UserAuth.login` owns user token acquisition and renewal flow
-  - `SpokeZoneService` does not orchestrate user login itself
+  - `SpokeZone` does not orchestrate user login itself
   - User auth implementation handles token lifecycle internally
-- Chosen: Shared request pipeline ownership is centralized in `SpokeZoneService`
+- Chosen: Shared request pipeline ownership is centralized in `SpokeZone`
   - Request serialization, headers, retry/backoff, and error mapping are service-owned
   - Auth providers are responsible only for token lifecycle and credential callbacks
 - Chosen: Exact callback requirements and behavior are documented in the auth/config docs pages and treated as canonical reference during implementation.
@@ -123,7 +123,7 @@ All request/response, default/query, and endpoint-specific error mapping details
 
 ### Service Shape
 
-- [ ] Add tests first asserting root `SpokeZoneService` exposes `devices`, `dataFiles`, and `otaFiles` namespaces
+- [ ] Add tests first asserting root `SpokeZone` exposes `devices`, `dataFiles`, and `otaFiles` namespaces
 - [ ] Add tests first for shared HTTP pipeline behavior (header injection, retry orchestration, and error mapping middleware)
 - [ ] Implement root service and namespaced clients to make service-shape tests pass
 - [ ] Simplify service wiring by extracting shared request setup into one internal helper; verify service-shape tests remain green
