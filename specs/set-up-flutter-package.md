@@ -116,67 +116,46 @@ This spec covers package metadata, repository/package structure expectations, pu
 
 ### Package Metadata and Layout
 
-- [ ] Define a metadata acceptance checklist with explicit pass criteria:
-  - `pubspec.yaml` contains `name`, `version`, `description`, `homepage` or `repository`, SDK constraints, dependency constraints, `documentation`, and `issue_tracker`
-  - `README.md`, `CHANGELOG.md`, and `LICENSE` exist at package root
-  - `example/` app exists and runs package usage path
-- [ ] Ensure package metadata is complete and publishable (`name`, `version`, `description`, `homepage`/`repository`, SDK constraints, dependency constraints, `documentation`, `issue_tracker`)
-- [ ] Ensure required support files are present and updated (`README.md`, `CHANGELOG.md`, `LICENSE`)
-- [ ] Remove duplicated metadata definitions across files so `pubspec.yaml` remains the single metadata source of truth
-- [ ] Verify README/CHANGELOG wording does not restate conflicting package metadata values
+- [ ] Update `pubspec.yaml` so publish metadata is complete: `name`, `version`, `description`, `homepage`/`repository`, SDK constraints, dependency constraints, `documentation`, and `issue_tracker`
+- [ ] Ensure package-support files exist and are release-ready at package root: `README.md`, `CHANGELOG.md`, and `LICENSE`
+- [ ] Remove duplicate package-metadata values from non-`pubspec.yaml` files so `pubspec.yaml` is the only metadata source
+- [ ] Confirm `README.md` and `CHANGELOG.md` do not contain metadata values that conflict with `pubspec.yaml`
 
 ### Publish Readiness
 
 - [ ] Re-enable `flutter pub get` in `just deps`
 - [ ] Re-enable `flutter analyze` in `just lint`
 - [ ] Re-enable `dart format .` in `just format`
-- [ ] Define publish-readiness checks with explicit commands and pass criteria:
-  - `just lint` exits `0`
-  - `just test` exits `0`
-  - `dart pub publish --dry-run` from package root exits `0`
 - [ ] Define and validate the pre-publish readiness flow using repository recipes: `just lint` -> `just test` -> `dart pub publish --dry-run` (from package root), all exit `0`
-- [ ] Consolidate publish-readiness guidance into one ordered checklist (lint -> test -> dry-run) with no duplicate steps
-- [ ] Verify all readiness commands are written exactly once and match repository tooling expectations
+- [ ] Keep one ordered publish-readiness checklist (`lint` -> `test` -> `dry-run`) with no duplicate steps
+- [ ] Ensure each readiness command appears once and matches repository tooling expectations
 
 ### PR Workflows
 
-- [ ] Define PR workflow acceptance checks with explicit pass criteria:
-  - Workflow trigger is `pull_request`
-  - PR workflow calls the reusable quality-gates workflow
-  - Any failing gate causes the PR workflow to fail
-- [ ] Define reusable quality-gates workflow/job (Ubuntu runner) shared by PR and release workflows, with inline comments explaining commands and failure behavior
+- [ ] Add a reusable quality-gates workflow/job (Ubuntu runner) shared by PR and release workflows, with inline comments explaining commands and failure behavior
 - [ ] Implement quality-gate command steps (no `just`): `dart format --set-exit-if-changed .`, `flutter analyze`, `flutter test`, `npm --prefix docs run lint`, `npm --prefix docs run format:check` with inline comments for each gate purpose
 - [ ] Implement PR workflow that calls reusable quality-gates workflow, with inline comments for trigger and required-check intent
-- [ ] Ensure PR workflow blocks merge when required quality checks fail
-- [ ] Remove duplicated gate definitions between PR and release workflows (quality gates defined once and reused)
-- [ ] Verify workflow comments describe intent and failure behavior for each PR gate without duplicating external docs
+- [ ] Configure PR checks so any failing required quality gate results in a failed PR workflow status
+- [ ] Keep quality-gate definitions in one reusable workflow and remove duplicated gate definitions from PR/release workflows
+- [ ] Ensure PR workflow comments state gate intent and failure behavior without duplicating external docs
 
 ### Release Workflows
 
-- [ ] Define release workflow acceptance checks with explicit pass criteria:
-  - Trigger is `push` tags matching `vX.Y.Z` only
-  - Release workflow runs `quality_gates` before any publish jobs
-  - Tag version must match `pubspec.yaml` version or workflow fails before publish
-  - `publish` job uses GitHub Environment `pubdev-release` and secret-backed auth
 - [ ] Add and implement `.github/workflows/publish-pubdev.yml` for tag-triggered (`push` tags `vX.Y.Z`) `pub.dev` deployment, with inline comments documenting trigger constraints
-- [ ] Ensure release workflow calls reusable quality-gates workflow before any publish steps, with inline comments on gate ordering
-- [ ] Ensure release quality gates include a check that git tag version matches `pubspec.yaml` version, with inline comments on mismatch failure behavior
-- [ ] Ensure tag/version mismatch fails workflow before `dry_run_publish` and `publish`
-- [ ] Ensure release workflow uses explicit job dependencies: `quality_gates` -> `tag_version_check` -> `dry_run_publish` -> `publish`
-- [ ] Ensure publish job executes in GitHub Environment `pubdev-release` with one maintainer approval
+- [ ] Configure release workflow to run the reusable quality-gates workflow before any publish steps, with inline comments on gate ordering
+- [ ] Add a `tag_version_check` gate that compares git tag version to `pubspec.yaml` version, with inline comments on mismatch failure behavior
+- [ ] Configure dependencies so tag/version mismatch fails before `dry_run_publish` and `publish`
+- [ ] Set explicit job dependencies: `quality_gates` -> `tag_version_check` -> `dry_run_publish` -> `publish`
+- [ ] Configure `publish` job to run in GitHub Environment `pubdev-release` with one maintainer approval
 - [ ] Configure secure `pub.dev` publish auth in release workflow using `PUB_DEV_PUBLISH_TOKEN` and `dart pub token add https://pub.dev --env-var PUB_DEV_PUBLISH_TOKEN`, with inline comments on secret handling
-- [ ] Add setup prerequisites for maintainers: configure `pubdev-release` environment and `PUB_DEV_PUBLISH_TOKEN` secret, with inline comments in workflow for required setup
-- [ ] Remove duplicated publish logic so release flow remains a single ordered path: `quality_gates` -> `tag_version_check` -> `dry_run_publish` -> `publish`
-- [ ] Verify release workflow comments cover environment protection, secret usage, and failure conditions at each gate
+- [ ] Document maintainer setup prerequisites in workflow comments: configure `pubdev-release` environment and `PUB_DEV_PUBLISH_TOKEN` secret
+- [ ] Keep one ordered publish path in release workflow: `quality_gates` -> `tag_version_check` -> `dry_run_publish` -> `publish`
+- [ ] Ensure release workflow comments cover environment protection, secret usage, and failure conditions at each gate
 
 ### Release Process
 
-- [ ] Define release-process acceptance checks with explicit pass criteria:
-  - `pubspec.yaml` version is incremented for each release
-  - `CHANGELOG.md` includes an entry for the exact releasing version
-  - Git tag `vX.Y.Z` equals the releasing `pubspec.yaml` version
-- [ ] Define version bump and changelog update process for each release
-- [ ] Define release-to-deploy handoff steps (including git tag/version reference) that trigger CI deployment
-- [ ] Define post-publish traceability steps for published versions and deployment records
+- [ ] Document version-bump and changelog-update steps for each release
+- [ ] Document release-to-deploy handoff steps (including git tag/version reference) that trigger CI deployment
+- [ ] Document post-publish traceability steps for published versions and deployment records
 - [ ] Ensure no release instructions are duplicated across spec/docs by keeping executable steps only in workflow files and leaving docs to link/reference those files
-- [ ] Verify release-process steps are strictly ordered and map directly to CI jobs and tag-trigger behavior
+- [ ] Order release-process steps so they map directly to CI jobs and tag-trigger behavior
