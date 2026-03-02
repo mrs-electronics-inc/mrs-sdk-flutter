@@ -11,7 +11,7 @@ approval_date: 2026-02-25
 
 Add first-class MQTT live-data support to the Flutter SDK by extending `SpokeZone` with `liveData`.
 
-This integration builds on [Spoke.Zone API Integration](spokezone-api-integration.md) and must work with whichever auth mode the `SpokeZone` instance is using. The initial scope is publish-focused and supports one-off JSON publishes plus scheduled periodic publishing for device telemetry.
+This integration builds on [Spoke.Zone API Integration](spokezone-api-integration.md) and must work with whichever auth mode the `SpokeZone` instance is using. The current scope is publish-focused and supports one-off JSON publishes plus scheduled periodic publishing for device telemetry.
 
 ## Design Decisions
 
@@ -53,6 +53,9 @@ This integration builds on [Spoke.Zone API Integration](spokezone-api-integratio
   - `true` means publish succeeded
   - `false` means not delivered (for example disconnected and reconnect not yet successful)
   - Callers decide strictness by handling the boolean return value
+- Chosen: publish APIs support MQTT retained messages
+  - `publishJson(...)` includes a retained-message option
+  - Periodic helpers can publish retained messages when configured
 - Chosen: one-off `publishJson` failures do not expose additional global diagnostics in public API
 - Chosen: periodic publishing failures do not throw into loop callers
   - Scheduler continues running and reports failure through per-registration status
@@ -106,6 +109,7 @@ This integration builds on [Spoke.Zone API Integration](spokezone-api-integratio
 ### Publish Contract
 
 - [ ] Add tests first for `publishJson(topic, payload)` success/failure boolean semantics.
+- [ ] Add tests first for retained-message behavior in `publishJson(...)`.
 - [ ] Add tests first for payload validation and serialization behavior.
 - [ ] Implement `publishJson` behavior with non-throwing boolean outcomes.
 
@@ -129,5 +133,5 @@ This integration builds on [Spoke.Zone API Integration](spokezone-api-integratio
 - [ ] Update `docs/src/content/docs/index.mdx` and `docs/astro.config.mjs` so the Spoke.Zone docs set includes `spoke-zone/live-data` in docs navigation and index listings.
 - [ ] Update `docs/src/content/docs/spoke-zone/index.mdx` to link to `live-data.mdx` as part of the canonical Spoke.Zone docs set.
 - [ ] Update `docs/src/content/docs/spoke-zone/live-data.mdx` with the implemented `SpokeZone.liveData` public API signatures: lifecycle methods (`connect`, `disconnect`, `isConnected`), `publishJson`, generic periodic registration, and helper registrations.
-- [ ] Update `docs/src/content/docs/spoke-zone/live-data.mdx` with periodic registration behavior: async-nullable callback contract, first-publish-on-first-tick timing, cancellation semantics, reconnect resume behavior, default helper intervals, and fixed topics.
+- [ ] Update `docs/src/content/docs/spoke-zone/live-data.mdx` with periodic registration behavior: async-nullable callback contract, first-publish-on-first-tick timing, cancellation semantics, reconnect resume behavior, retained-message options, default helper intervals, and fixed topics.
 - [ ] Update `docs/src/content/docs/spoke-zone/live-data.mdx` with per-registration status contract (`idle`, `running`, `failed`, `canceled`; `lastSuccessAt`; `consecutiveFailures`) and auth/reconnect behavior using shared `BackoffStrategy` and `FixedDelayBackoffStrategy`.
