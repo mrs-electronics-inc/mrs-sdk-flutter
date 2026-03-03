@@ -568,6 +568,26 @@ void main() {
         throwsA(isA<SpokeZoneException>()),
       );
     });
+
+    test('maps validationError before request dispatch', () async {
+      final client = _QueuedClient();
+      final zone = SpokeZone(
+        config: SpokeZoneConfig.device(deviceAuth: _deviceCallbacks()),
+        httpClient: client,
+      );
+
+      await expectLater(
+        zone.dataFiles.create('invalid'),
+        throwsA(
+          isA<SpokeZoneException>().having(
+            (e) => e.code,
+            'code',
+            SpokeZoneErrorCode.validationError,
+          ),
+        ),
+      );
+      expect(client.requests, isEmpty);
+    });
   });
 }
 
