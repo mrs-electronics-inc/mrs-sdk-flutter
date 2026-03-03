@@ -132,7 +132,7 @@ All request/response, default/query, and endpoint-specific error mapping details
 
 ### Endpoint Behavior
 
-- [ ] Add tests first for `devices.get(id)` typed mapping: `name -> modelName`, `lastOnline` parse-to-null on missing/invalid, `lastLocation` null when either coordinate missing, and `softwareVersions` defaulting to empty map
+- [x] Add tests first for `devices.get(id)` typed mapping: `name -> modelName`, `lastOnline` parse-to-null on missing/invalid, `lastLocation` null when either coordinate missing, and `softwareVersions` defaulting to empty map
 - [ ] Add tests first for shared `Coordinates` model usage in `devices.get(id)` (`lastLocation` typed as `Coordinates?` when both values are present)
 - [ ] Add tests first for `dataFiles.create(type)` using allowed type values and `id` extraction
 - [ ] Add tests first for `dataFiles.upload(id, content)` multipart construction from raw bytes

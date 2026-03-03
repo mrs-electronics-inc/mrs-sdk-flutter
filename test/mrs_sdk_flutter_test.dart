@@ -248,6 +248,32 @@ void main() {
       );
     });
   });
+
+  group('Endpoint behavior', () {
+    test('devices.get maps fields and defaults optional values', () async {
+      final client = _QueuedClient();
+      client.enqueueJson(201, {'token': 'device-token'});
+      client.enqueueJson(200, {
+        'id': 8,
+        'identifier': 'd-8',
+        'serialNumber': 'SN-8',
+        'modelId': 9,
+        'name': 'Model Nine',
+        'lastOnline': 'not-a-date',
+      });
+
+      final zone = SpokeZone(
+        config: SpokeZoneConfig.device(deviceAuth: _deviceCallbacks()),
+        httpClient: client,
+      );
+
+      final device = await zone.devices.get(8);
+      expect(device.modelName, 'Model Nine');
+      expect(device.lastOnline, isNull);
+      expect(device.lastLocation, isNull);
+      expect(device.softwareVersions, isEmpty);
+    });
+  });
 }
 
 DeviceAuthCallbacks _deviceCallbacks() {
