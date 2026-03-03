@@ -125,12 +125,12 @@ This spec covers package metadata, repository/package structure expectations, pu
 
 ### Publish Readiness
 
-- [ ] Re-enable `flutter pub get` in `just deps`
-- [ ] Re-enable `flutter analyze` in `just lint`
-- [ ] Re-enable `dart format .` in `just format`
-- [ ] Define and validate the pre-publish readiness flow using repository recipes: `just lint` -> `just test` -> `dart pub publish --dry-run` (from package root), all exit `0`
-- [ ] Keep one ordered publish-readiness checklist (`lint` -> `test` -> `dry-run`) and remove duplicate checklist blocks from release docs/workflow comments
-- [ ] Ensure the readiness commands appear exactly once in the canonical checklist and match repository tooling expectations
+- [x] Re-enable `flutter pub get` in `just deps`
+- [x] Re-enable `flutter analyze` in `just lint`
+- [x] Re-enable `dart format .` in `just format`
+- [x] Define and validate the pre-publish readiness flow using repository recipes: `just lint` -> `just test` -> `flutter pub publish --dry-run` (from package root), all exit `0`
+- [x] Keep one ordered publish-readiness checklist (`lint` -> `test` -> `dry-run`) and remove duplicate checklist blocks from release docs/workflow comments
+- [x] Ensure the readiness commands appear exactly once in the canonical checklist and match repository tooling expectations
 
 ### PR Workflows
 

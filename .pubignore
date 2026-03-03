@@ -1,0 +1,14 @@
+.agents/
+.bots/
+.github/
+docs/
+specs/
+build/
+
+.envrc
+devshell.nix
+flake.lock
+flake.nix
+justfile
+AGENTS.md
+*.iml
