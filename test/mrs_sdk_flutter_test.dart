@@ -153,6 +153,45 @@ void main() {
       expect(await auth.getAccessToken(), 'user-token');
       expect(client.requests, hasLength(1));
     });
+
+    test('UserAuth.login applies retry parity and failure mapping', () async {
+      final client = _QueuedClient();
+      client.enqueueJson(500, {'error': 'server'});
+      client.enqueueJson(429, {'error': 'rate'});
+      client.enqueueJson(200, {
+        'token': 'ok-token',
+        'expires': 1,
+        'user': {'username': 'u'},
+      });
+
+      final auth = UserAuth(
+        baseUri: Uri.parse('https://api.spoke.zone'),
+        callbacks: _userCallbacks(),
+        httpClient: client,
+      );
+
+      expect(await auth.login(), 'ok-token');
+      expect(client.requests, hasLength(3));
+
+      final terminalClient = _QueuedClient();
+      terminalClient.enqueueJson(403, {'error': 'forbidden'});
+      final terminal = UserAuth(
+        baseUri: Uri.parse('https://api.spoke.zone'),
+        callbacks: _userCallbacks(),
+        httpClient: terminalClient,
+      );
+
+      await expectLater(
+        terminal.login(),
+        throwsA(
+          isA<SpokeZoneException>().having(
+            (e) => e.code,
+            'code',
+            SpokeZoneErrorCode.forbidden,
+          ),
+        ),
+      );
+    });
   });
 }
 
