@@ -1,0 +1,12 @@
+name: PR Quality Gates
+
+on:
+  pull_request:
+    # Trigger intent: enforce quality gates for every PR update that can change code/docs.
+    # Required-check intent: this workflow status is branch-protection ready.
+    types: [opened, reopened, synchronize]
+
+jobs:
+  quality_gates:
+    # Reuse the canonical quality-gates workflow to keep gate logic in one place.
+    uses: ./.github/workflows/quality-gates.yml
