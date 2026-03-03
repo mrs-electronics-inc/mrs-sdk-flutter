@@ -114,7 +114,7 @@ This spec covers package metadata, repository/package structure expectations, pu
 - [x] Add/align `devshell.nix` and ensure flake `devShell` points to it
 - [x] Commit `flake.lock` and verify `flake.nix` input pins are resolved exclusively from the lockfile
 - [x] Remove redundant or conflicting Nix environment definitions (single canonical `flake.nix` + `devshell.nix` path only)
-- [ ] Update Nix setup guidance to explicitly state Nix is optional for users/maintainers and non-Nix contributors use standard project setup
+- [x] Update Nix setup guidance to explicitly state Nix is optional for users/maintainers and non-Nix contributors use standard project setup
 
 ### Package Metadata and Layout
 
