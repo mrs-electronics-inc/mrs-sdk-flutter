@@ -113,7 +113,7 @@ All request/response, default/query, and endpoint-specific error mapping details
 - [x] Add tests first for `SpokeZoneConfig.device(...)` and `SpokeZoneConfig.user(...)` construction rules (exactly one auth mode per config)
 - [x] Add tests first for shared auth interface usage in both modes and `x-access-token` request decoration
 - [x] Implement config and auth mode plumbing to make foundation tests pass
-- [ ] Refactor config/auth construction for readability while preserving behavior; verify foundation tests remain green
+- [x] Refactor config/auth construction for readability while preserving behavior; verify foundation tests remain green
 
 ### Device and User Auth
 

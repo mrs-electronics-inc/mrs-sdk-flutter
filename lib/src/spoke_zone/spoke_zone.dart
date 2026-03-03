@@ -86,18 +86,7 @@ class UserAuth implements AccessTokenProvider {
 
 class SpokeZone {
   SpokeZone({required this.config, required this.httpClient}) {
-    final auth = switch (config.authMode) {
-      SpokeZoneAuthMode.device => DeviceAuth(
-          baseUri: config.baseUri,
-          callbacks: config.deviceAuth!,
-          httpClient: httpClient,
-        ),
-      SpokeZoneAuthMode.user => UserAuth(
-          baseUri: config.baseUri,
-          callbacks: config.userAuth!,
-          httpClient: httpClient,
-        ),
-    };
+    final auth = _buildAuthProvider(config: config, httpClient: httpClient);
 
     devices = DevicesClient(httpClient: httpClient, baseUri: config.baseUri, auth: auth);
     otaFiles = OtaFilesClient(httpClient: httpClient, baseUri: config.baseUri, auth: auth);
@@ -109,6 +98,24 @@ class SpokeZone {
   late final DevicesClient devices;
   late final OtaFilesClient otaFiles;
   late final DataFilesClient dataFiles;
+
+  static AccessTokenProvider _buildAuthProvider({
+    required SpokeZoneConfig config,
+    required http.Client httpClient,
+  }) {
+    return switch (config.authMode) {
+      SpokeZoneAuthMode.device => DeviceAuth(
+          baseUri: config.baseUri,
+          callbacks: config.deviceAuth!,
+          httpClient: httpClient,
+        ),
+      SpokeZoneAuthMode.user => UserAuth(
+          baseUri: config.baseUri,
+          callbacks: config.userAuth!,
+          httpClient: httpClient,
+        ),
+    };
+  }
 }
 
 class DevicesClient {
