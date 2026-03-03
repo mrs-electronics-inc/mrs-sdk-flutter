@@ -118,10 +118,10 @@ This spec covers package metadata, repository/package structure expectations, pu
 
 ### Package Metadata and Layout
 
-- [ ] Update `pubspec.yaml` so publish metadata is complete: `name`, `version`, `description`, `homepage`/`repository`, SDK constraints, dependency constraints, `documentation`, and `issue_tracker`
-- [ ] Ensure package-support files exist and are release-ready at package root: `README.md`, `CHANGELOG.md`, and `LICENSE`
-- [ ] Remove duplicate package-metadata values from non-`pubspec.yaml` files so `pubspec.yaml` is the only metadata source
-- [ ] Confirm `README.md` and `CHANGELOG.md` do not contain metadata values that conflict with `pubspec.yaml`
+- [x] Update `pubspec.yaml` so publish metadata is complete: `name`, `version`, `description`, `homepage`/`repository`, SDK constraints, dependency constraints, `documentation`, and `issue_tracker`
+- [x] Ensure package-support files exist and are release-ready at package root: `README.md`, `CHANGELOG.md`, and `LICENSE`
+- [x] Remove duplicate package-metadata values from non-`pubspec.yaml` files so `pubspec.yaml` is the only metadata source
+- [x] Confirm `README.md` and `CHANGELOG.md` do not contain metadata values that conflict with `pubspec.yaml`
 
 ### Publish Readiness
 
