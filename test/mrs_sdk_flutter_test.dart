@@ -474,6 +474,35 @@ void main() {
       );
       expect(client.requests, hasLength(1));
     });
+
+    test('backoff abstraction supports default and custom strategy behavior', () async {
+      final defaults = FixedDelayBackoffStrategy();
+      expect(defaults.delayForRetry(1), const Duration(seconds: 15));
+      expect(defaults.delayForRetry(2), const Duration(seconds: 30));
+      expect(defaults.delayForRetry(3), const Duration(seconds: 60));
+      expect(defaults.delayForRetry(4), isNull);
+
+      final called = <int>[];
+      final custom = _TestBackoffStrategy((retryNumber) {
+        called.add(retryNumber);
+        return retryNumber == 1 ? Duration.zero : null;
+      });
+
+      final client = _QueuedClient();
+      client.enqueueJson(500, {'error': 'server'});
+      client.enqueueJson(201, {'token': 'token'});
+
+      final auth = DeviceAuth(
+        baseUri: Uri.parse('https://api.spoke.zone'),
+        callbacks: _deviceCallbacks(),
+        httpClient: client,
+        backoffStrategy: custom,
+        delay: (_) async {},
+      );
+
+      expect(await auth.login(), 'token');
+      expect(called, [1]);
+    });
   });
 }
 
@@ -531,4 +560,13 @@ class _QueuedClient extends http.BaseClient {
     final handler = _handlers.removeFirst();
     return handler(request);
   }
+}
+
+class _TestBackoffStrategy implements BackoffStrategy {
+  _TestBackoffStrategy(this._builder);
+
+  final Duration? Function(int retryNumber) _builder;
+
+  @override
+  Duration? delayForRetry(int retryNumber) => _builder(retryNumber);
 }
