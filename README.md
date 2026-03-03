@@ -4,16 +4,6 @@ Welcome to the official repository for the MRS Electronic Software Development K
 
 ## Development Setup
 
-Use the standard project setup by default:
+Use `just setup` to set up your development environment.
 
-```bash
-just setup
-```
-
-Nix is optional and intended for maintainers or contributors who prefer a pinned Nix environment. If you use Nix, enter the dev shell with:
-
-```bash
-nix develop
-```
-
-Non-Nix contributors should continue using the standard `just` workflow.
+If you use Nix, you can enter a development shell with `nix develop`. This should include all the packages required for Flutter and Android development.
