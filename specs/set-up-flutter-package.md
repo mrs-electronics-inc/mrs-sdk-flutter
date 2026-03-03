@@ -1,6 +1,6 @@
 ---
 number: 1
-status: in-progress
+status: completed
 author: Addison Emig
 creation_date: 2026-02-24
 approved_by: Addison Emig
@@ -143,19 +143,19 @@ This spec covers package metadata, repository/package structure expectations, pu
 
 ### Release Workflows
 
-- [ ] Add and implement `.github/workflows/publish-pubdev.yml` for tag-triggered (`push` tags `vX.Y.Z`) `pub.dev` deployment, with inline comments documenting trigger constraints
-- [ ] Configure release workflow to run the reusable quality-gates workflow before any publish steps, with inline comments on gate ordering
-- [ ] Add a `tag_version_check` gate that compares git tag version to `pubspec.yaml` version, with inline comments on mismatch failure behavior
-- [ ] Configure dependencies so tag/version mismatch fails before `dry_run_publish` and `publish`
-- [ ] Set explicit job dependencies: `quality_gates` -> `tag_version_check` -> `dry_run_publish` -> `publish`
-- [ ] Configure `publish` job to run in GitHub Environment `pubdev-release` with one maintainer approval
-- [ ] Configure secure `pub.dev` publish auth in release workflow using `PUB_DEV_PUBLISH_TOKEN` and `dart pub token add https://pub.dev --env-var PUB_DEV_PUBLISH_TOKEN`, with inline comments on secret handling
-- [ ] Document maintainer setup prerequisites in workflow comments: configure `pubdev-release` environment and `PUB_DEV_PUBLISH_TOKEN` secret
-- [ ] Keep one ordered publish path in release workflow: `quality_gates` -> `tag_version_check` -> `dry_run_publish` -> `publish`
-- [ ] Add inline comments for each release gate that describe environment protection, secret usage, and failure conditions
+- [x] Add and implement `.github/workflows/publish-pubdev.yml` for tag-triggered (`push` tags `vX.Y.Z`) `pub.dev` deployment, with inline comments documenting trigger constraints
+- [x] Configure release workflow to run the reusable quality-gates workflow before any publish steps, with inline comments on gate ordering
+- [x] Add a `tag_version_check` gate that compares git tag version to `pubspec.yaml` version, with inline comments on mismatch failure behavior
+- [x] Configure dependencies so tag/version mismatch fails before `dry_run_publish` and `publish`
+- [x] Set explicit job dependencies: `quality_gates` -> `tag_version_check` -> `dry_run_publish` -> `publish`
+- [x] Configure `publish` job to run in GitHub Environment `pubdev-release` with one maintainer approval
+- [x] Configure secure `pub.dev` publish auth in release workflow using `PUB_DEV_PUBLISH_TOKEN` and `dart pub token add https://pub.dev --env-var PUB_DEV_PUBLISH_TOKEN`, with inline comments on secret handling
+- [x] Document maintainer setup prerequisites in workflow comments: configure `pubdev-release` environment and `PUB_DEV_PUBLISH_TOKEN` secret
+- [x] Keep one ordered publish path in release workflow: `quality_gates` -> `tag_version_check` -> `dry_run_publish` -> `publish`
+- [x] Add inline comments for each release gate that describe environment protection, secret usage, and failure conditions
 
 ### Release Process
 
-- [ ] Add one release-process checklist in `.github/release-process.md` covering version bump and changelog update before tagging
-- [ ] Add release-to-deploy handoff steps in `.github/release-process.md`, including `vX.Y.Z` tag creation and push trigger expectations
-- [ ] Add post-publish traceability steps in `.github/release-process.md` for published version verification and deployment record links
+- [x] Add one release-process checklist in `.github/release-process.md` covering version bump and changelog update before tagging
+- [x] Add release-to-deploy handoff steps in `.github/release-process.md`, including `vX.Y.Z` tag creation and push trigger expectations
+- [x] Add post-publish traceability steps in `.github/release-process.md` for published version verification and deployment record links
