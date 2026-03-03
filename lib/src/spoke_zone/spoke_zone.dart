@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 import 'config.dart';
+import 'errors.dart';
 import 'models.dart';
 
 abstract interface class AccessTokenProvider {
@@ -22,20 +23,23 @@ class DeviceAuth implements AccessTokenProvider {
   String? _token;
 
   Future<String> login() async {
-    final req = http.Request('POST', baseUri.replace(path: '/loginDevice'));
-    req.headers['content-type'] = 'application/json';
-    req.body = jsonEncode({
-      'token': await callbacks.initialDeviceToken(),
-      'cpu_id': await callbacks.cpuId(),
-      'uuid': await callbacks.uuid(),
-    });
+    final seedToken = await callbacks.initialDeviceToken();
+    final response = await _sendWithRetry(() async {
+      final req = http.Request('POST', baseUri.replace(path: '/loginDevice'));
+      req.headers['content-type'] = 'application/json';
+      req.body = jsonEncode({
+        'token': seedToken,
+        'cpu_id': await callbacks.cpuId(),
+        'uuid': await callbacks.uuid(),
+      });
+      return req;
+    }, (request) => httpClient.send(request));
 
-    final response = await http.Response.fromStream(await httpClient.send(req));
     if (response.statusCode == 201) {
       final body = jsonDecode(response.body) as Map<String, dynamic>;
       _token = body['token'] as String;
     } else {
-      _token = await callbacks.initialDeviceToken();
+      _token = seedToken;
     }
     return _token!;
   }
@@ -62,14 +66,15 @@ class UserAuth implements AccessTokenProvider {
   String? _token;
 
   Future<String> login() async {
-    final req = http.Request('POST', baseUri.replace(path: '/login'));
-    req.headers['content-type'] = 'application/json';
-    req.body = jsonEncode({
-      'username': await callbacks.username(),
-      'password': await callbacks.password(),
-    });
-
-    final response = await http.Response.fromStream(await httpClient.send(req));
+    final response = await _sendWithRetry(() async {
+      final req = http.Request('POST', baseUri.replace(path: '/login'));
+      req.headers['content-type'] = 'application/json';
+      req.body = jsonEncode({
+        'username': await callbacks.username(),
+        'password': await callbacks.password(),
+      });
+      return req;
+    }, (request) => httpClient.send(request));
     final body = jsonDecode(response.body) as Map<String, dynamic>;
     _token = body['token'] as String;
     return _token!;
@@ -193,4 +198,40 @@ class DataFilesClient {
   final http.Client httpClient;
   final Uri baseUri;
   final AccessTokenProvider auth;
+}
+
+Future<http.Response> _sendWithRetry(
+  Future<http.Request> Function() buildRequest,
+  Future<http.StreamedResponse> Function(http.Request request) send,
+) async {
+  var attempt = 0;
+  while (true) {
+    final request = await buildRequest();
+    final response = await http.Response.fromStream(await send(request));
+    if (!_isError(response.statusCode)) {
+      return response;
+    }
+    if (_isRetryable(response.statusCode) && attempt < 2) {
+      attempt += 1;
+      continue;
+    }
+    throw SpokeZoneException(
+      code: _mapStatus(response.statusCode),
+      message: 'Auth request failed with status ${response.statusCode}',
+    );
+  }
+}
+
+bool _isError(int statusCode) => statusCode >= 400;
+bool _isRetryable(int statusCode) => statusCode == 429 || statusCode >= 500;
+
+SpokeZoneErrorCode _mapStatus(int statusCode) {
+  return switch (statusCode) {
+    401 => SpokeZoneErrorCode.unauthorized,
+    403 => SpokeZoneErrorCode.forbidden,
+    404 => SpokeZoneErrorCode.notFound,
+    429 => SpokeZoneErrorCode.rateLimited,
+    >= 500 => SpokeZoneErrorCode.serverError,
+    _ => SpokeZoneErrorCode.unknown,
+  };
 }
