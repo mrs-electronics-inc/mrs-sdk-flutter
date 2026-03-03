@@ -117,7 +117,7 @@ class LiveData {
   final DateTime Function() _now;
   final PeriodicTimerFactory _timerFactory;
 
-  late LiveDataTransport _transport;
+  final LiveDataTransport _transport;
 
   Future<bool>? _connectFuture;
   bool _disconnectRequested = false;

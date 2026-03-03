@@ -43,7 +43,6 @@ class SpokeZone {
           backoffStrategy: _backoffStrategy,
           delay: _delay,
         );
-    _auth = auth;
 
     devices = DevicesClient(
       httpClient: this.httpClient,
@@ -83,7 +82,6 @@ class SpokeZone {
   final http.Client httpClient;
   final BackoffStrategy _backoffStrategy;
   final DelayFn _delay;
-  late final AccessTokenProvider _auth;
 
   /// Device endpoints.
   late final DevicesClient devices;

@@ -1,6 +1,6 @@
 ---
 number: 3
-status: in-progress
+status: completed
 author: Addison Emig
 creation_date: 2026-02-24
 approved_by: Addison Emig
@@ -130,7 +130,7 @@ This integration builds on [Spoke.Zone API Integration](spokezone-api-integratio
 
 ### Documentation
 
-- [ ] Replace the `coming soon` content in `docs/src/content/docs/spoke-zone/live-data.mdx` with a minimal user-facing implementation guide focused on behavior and usage patterns (not symbol-level reference tables).
-- [ ] Document MQTT-specific operational guidance in `docs/src/content/docs/spoke-zone/live-data.mdx`: connection lifecycle expectations, publish success/failure semantics, periodic scheduling behavior, cancellation/resume behavior, retained-message behavior, and fixed topics.
-- [ ] Document per-registration observability in `docs/src/content/docs/spoke-zone/live-data.mdx`: status states, `lastSuccessAt`, `consecutiveFailures`, and reconnect/auth interaction expectations.
+- [x] Replace the `coming soon` content in `docs/src/content/docs/spoke-zone/live-data.mdx` with a minimal user-facing implementation guide focused on behavior and usage patterns (not symbol-level reference tables).
+- [x] Document MQTT-specific operational guidance in `docs/src/content/docs/spoke-zone/live-data.mdx`: connection lifecycle expectations, publish success/failure semantics, periodic scheduling behavior, cancellation/resume behavior, retained-message behavior, and fixed topics.
+- [x] Document per-registration observability in `docs/src/content/docs/spoke-zone/live-data.mdx`: status states, `lastSuccessAt`, `consecutiveFailures`, and reconnect/auth interaction expectations.
 - [x] Add and verify DartDoc comments on all new public MQTT API types/methods so pub.dev auto-generated API docs are complete and actionable.

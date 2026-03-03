@@ -506,9 +506,6 @@ class FakeAccessTokenProvider implements AccessTokenProvider {
     }
     return _tokens[index];
   }
-
-  @override
-  Future<String> login() => getAccessToken();
 }
 
 class FakeLiveDataTransport implements LiveDataTransport {
