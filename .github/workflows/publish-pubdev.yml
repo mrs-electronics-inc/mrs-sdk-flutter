@@ -2,8 +2,8 @@ name: Publish to pub.dev
 
 on:
   push:
-    # Trigger constraint: release workflow only reacts to version-like tags.
-    # Strict `vX.Y.Z` validation is enforced in `tag_version_check`.
+    # Trigger constraint: publish is only allowed from tag pushes.
+    # Tag format is validated strictly in `tag_version_check`.
     tags:
       - "v*.*.*"
 
@@ -65,30 +65,14 @@ jobs:
 
   publish:
     name: publish
-    runs-on: ubuntu-latest
     needs: dry_run_publish
-    # Environment protection: maintainers must configure `pubdev-release` with one required reviewer.
-    environment: pubdev-release
+    # OIDC permission required for pub.dev automated publishing from GitHub Actions.
     permissions:
+      id-token: write
       contents: read
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: stable
-
-      - name: Configure pub.dev token from secret
-        # Secret handling: token is injected from `PUB_DEV_PUBLISH_TOKEN` and never committed.
-        # Maintainer prerequisite: configure `pubdev-release` environment and `PUB_DEV_PUBLISH_TOKEN` secret.
-        env:
-          PUB_DEV_PUBLISH_TOKEN: ${{ secrets.PUB_DEV_PUBLISH_TOKEN }}
-        run: dart pub token add https://pub.dev --env-var PUB_DEV_PUBLISH_TOKEN
-
-      - name: Publish package to pub.dev
-        # Gate ordering: this runs only after quality gates, tag validation, and dry-run succeed.
-        # Failure condition: publish API errors fail the workflow and keep deployment traceable in Actions.
-        run: dart pub publish --force
+    # Use Dart's maintained reusable workflow for pub.dev automated publishing.
+    uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1
+    with:
+      # Environment protection: configure this GitHub Environment with one required reviewer.
+      # This environment name must also be required in pub.dev automated publishing settings.
+      environment: pubdev-release

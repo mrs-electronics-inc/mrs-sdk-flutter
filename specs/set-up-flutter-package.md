@@ -67,7 +67,7 @@ This spec covers package metadata, repository/package structure expectations, pu
 - Chosen: Add a CI/CD deployment pipeline for package publication
   - Deployment is triggered by release tags only
   - Deployment requires successful quality gates and publish dry-run checks
-  - Deployment publishes to `pub.dev` using CI-managed credentials/secrets
+  - Deployment publishes to `pub.dev` using GitHub OIDC automated publishing
 - Chosen: Implement deployment as a dedicated publish workflow with explicit gates
   - Workflow file: `.github/workflows/publish-pubdev.yml`
   - Triggers:
@@ -80,16 +80,16 @@ This spec covers package metadata, repository/package structure expectations, pu
   - `tag_version_check` failure stops the workflow before `dry_run_publish` and `publish`
   - `publish` job runs in GitHub Environment `pubdev-release` with exactly one maintainer approval
 - Chosen: Define credential handling contract for CI publish
-  - Store token in GitHub Actions secret (for example `PUB_DEV_PUBLISH_TOKEN`)
-  - Configure Dart publish auth in CI via `dart pub token add https://pub.dev --env-var PUB_DEV_PUBLISH_TOKEN`
-  - Never store pub.dev credentials in repository files
+  - Use GitHub OIDC (`id-token: write`) for pub.dev automated publishing
+  - Avoid static long-lived publish tokens in GitHub secrets for this scope
+  - Keep pub.dev trusted publisher configuration aligned with repository and tag workflow
 - Chosen: GitHub release prerequisites are explicit
   - Maintainers must configure `pubdev-release` environment with required reviewer approval
-  - Maintainers must set `PUB_DEV_PUBLISH_TOKEN` in repository/environment secrets before first publish
+  - Maintainers must configure pub.dev automated publishing (trusted publisher) for this repository/environment
 - References:
   - GitHub Actions environments: https://docs.github.com/actions/deployment/targeting-different-environments/using-environments-for-deployment
   - Managing environments for deployment: https://docs.github.com/repositories/configuring-branches-and-merges-in-your-repository/managing-environments-for-deployment
-  - Encrypted secrets in GitHub Actions: https://docs.github.com/actions/security-guides/encrypted-secrets
+  - Automated publishing with pub.dev: https://dart.dev/tools/pub/automated-publishing
 
 ### Publishing Workflow
 
@@ -149,10 +149,10 @@ This spec covers package metadata, repository/package structure expectations, pu
 - [x] Configure dependencies so tag/version mismatch fails before `dry_run_publish` and `publish`
 - [x] Set explicit job dependencies: `quality_gates` -> `tag_version_check` -> `dry_run_publish` -> `publish`
 - [x] Configure `publish` job to run in GitHub Environment `pubdev-release` with one maintainer approval
-- [x] Configure secure `pub.dev` publish auth in release workflow using `PUB_DEV_PUBLISH_TOKEN` and `dart pub token add https://pub.dev --env-var PUB_DEV_PUBLISH_TOKEN`, with inline comments on secret handling
-- [x] Document maintainer setup prerequisites in workflow comments: configure `pubdev-release` environment and `PUB_DEV_PUBLISH_TOKEN` secret
+- [x] Configure secure `pub.dev` publish auth in release workflow using GitHub OIDC automated publishing (`id-token: write`), with inline comments on auth handling
+- [x] Document maintainer setup prerequisites in workflow comments: configure `pubdev-release` environment and pub.dev automated publishing for this repository
 - [x] Keep one ordered publish path in release workflow: `quality_gates` -> `tag_version_check` -> `dry_run_publish` -> `publish`
-- [x] Add inline comments for each release gate that describe environment protection, secret usage, and failure conditions
+- [x] Add inline comments for each release gate that describe environment protection, auth usage, and failure conditions
 
 ### Release Process
 
