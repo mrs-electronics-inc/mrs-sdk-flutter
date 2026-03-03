@@ -159,6 +159,6 @@ All request/response, default/query, and endpoint-specific error mapping details
 - [x] Update `docs/src/content/docs/spoke-zone/auth.mdx` to document `DeviceAuth.login` and `UserAuth.login` lifecycle ownership and callback contracts
 - [x] Update `docs/src/content/docs/spoke-zone/errors.mdx` to list all public SDK error codes and their mapping/diagnostic behavior
 - [x] Update `docs/src/content/docs/spoke-zone/retry.mdx` to document retryable status classes, non-retryable classes, and `15s -> 30s -> 60s` delay sequence
-- [ ] Update `docs/src/content/docs/spoke-zone/endpoints.mdx` with request/response contracts for `devices.get`, `dataFiles.create`, `dataFiles.upload`, `otaFiles.list`, and `otaFiles.download`
+- [x] Update `docs/src/content/docs/spoke-zone/endpoints.mdx` with request/response contracts for `devices.get`, `dataFiles.create`, `dataFiles.upload`, `otaFiles.list`, and `otaFiles.download`
 - [ ] Update `docs/src/content/docs/spoke-zone/index.mdx` to link to config/auth/errors/retry/endpoints pages and avoid duplicating endpoint contracts
 - [ ] Update `docs/src/content/docs/index.mdx` and `docs/astro.config.mjs` so Spoke.Zone docs are listed in site navigation and docs index
