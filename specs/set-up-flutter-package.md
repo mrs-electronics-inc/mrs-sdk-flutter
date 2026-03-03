@@ -160,5 +160,4 @@ This spec covers package metadata, repository/package structure expectations, pu
 - [ ] Add release-to-deploy handoff steps in maintainers docs, including `vX.Y.Z` tag creation and push trigger expectations
 - [ ] Add post-publish traceability steps in maintainers docs for published version verification and deployment record links
 - [ ] Remove duplicate release instructions from other docs pages and replace them with links to the canonical workflow files/checklist
-- [ ] Keep `.github/release-process.md` as the single canonical release checklist and remove duplicate checklist definitions elsewhere
 - [ ] Ensure release-process checklist order matches CI job order and tag-trigger behavior exactly
