@@ -10,7 +10,25 @@ abstract interface class AccessTokenProvider {
   Future<String> getAccessToken();
 }
 
-class DeviceAuth implements AccessTokenProvider {
+abstract class _CachedAccessTokenProvider implements AccessTokenProvider {
+  String? _token;
+
+  Future<String> login();
+
+  void cacheToken(String token) {
+    _token = token;
+  }
+
+  @override
+  Future<String> getAccessToken() async {
+    if (_token != null) {
+      return _token!;
+    }
+    return login();
+  }
+}
+
+class DeviceAuth extends _CachedAccessTokenProvider {
   DeviceAuth({
     required this.baseUri,
     required this.callbacks,
@@ -20,8 +38,8 @@ class DeviceAuth implements AccessTokenProvider {
   final Uri baseUri;
   final DeviceAuthCallbacks callbacks;
   final http.Client httpClient;
-  String? _token;
 
+  @override
   Future<String> login() async {
     final seedToken = await callbacks.initialDeviceToken();
     final response = await _sendWithRetry(() async {
@@ -37,23 +55,15 @@ class DeviceAuth implements AccessTokenProvider {
 
     if (response.statusCode == 201) {
       final body = jsonDecode(response.body) as Map<String, dynamic>;
-      _token = body['token'] as String;
+      cacheToken(body['token'] as String);
     } else {
-      _token = seedToken;
+      cacheToken(seedToken);
     }
-    return _token!;
-  }
-
-  @override
-  Future<String> getAccessToken() async {
-    if (_token != null) {
-      return _token!;
-    }
-    return login();
+    return getAccessToken();
   }
 }
 
-class UserAuth implements AccessTokenProvider {
+class UserAuth extends _CachedAccessTokenProvider {
   UserAuth({
     required this.baseUri,
     required this.callbacks,
@@ -63,8 +73,8 @@ class UserAuth implements AccessTokenProvider {
   final Uri baseUri;
   final UserAuthCallbacks callbacks;
   final http.Client httpClient;
-  String? _token;
 
+  @override
   Future<String> login() async {
     final response = await _sendWithRetry(() async {
       final req = http.Request('POST', baseUri.replace(path: '/login'));
@@ -76,16 +86,8 @@ class UserAuth implements AccessTokenProvider {
       return req;
     }, (request) => httpClient.send(request));
     final body = jsonDecode(response.body) as Map<String, dynamic>;
-    _token = body['token'] as String;
-    return _token!;
-  }
-
-  @override
-  Future<String> getAccessToken() async {
-    if (_token != null) {
-      return _token!;
-    }
-    return login();
+    cacheToken(body['token'] as String);
+    return getAccessToken();
   }
 }
 
