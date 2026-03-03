@@ -365,18 +365,32 @@ class DataFilesClient {
 
   Future<void> upload(int id, Uint8List content) async {
     final token = await auth.getAccessToken();
-    final req = http.MultipartRequest(
-      'POST',
-      baseUri.replace(path: '/api/v2/data-files/$id/file'),
-    );
-    req.headers['x-access-token'] = token;
-    req.files.add(http.MultipartFile.fromBytes('files', content, filename: 'upload.bin'));
-    final streamed = await httpClient.send(req);
-    final response = await http.Response.fromStream(streamed);
-    if (response.statusCode >= 400) {
+    final endpoint = '/api/v2/data-files/$id/file';
+    try {
+      final req = http.MultipartRequest(
+        'POST',
+        baseUri.replace(path: endpoint),
+      );
+      req.headers['x-access-token'] = token;
+      req.files.add(http.MultipartFile.fromBytes('files', content, filename: 'upload.bin'));
+      final streamed = await httpClient.send(req);
+      final response = await http.Response.fromStream(streamed);
+      if (response.statusCode >= 400) {
+        throw SpokeZoneException(
+          code: _mapStatus(response.statusCode),
+          message: 'Upload failed with status ${response.statusCode}',
+          endpoint: endpoint,
+          httpStatus: response.statusCode,
+          responseSnippet: _snippet(response.body),
+        );
+      }
+    } on SpokeZoneException {
+      rethrow;
+    } on http.ClientException catch (_) {
       throw SpokeZoneException(
-        code: _mapStatus(response.statusCode),
-        message: 'Upload failed with status ${response.statusCode}',
+        code: SpokeZoneErrorCode.networkError,
+        message: 'Upload request failed due to network error',
+        endpoint: endpoint,
       );
     }
   }
@@ -393,6 +407,7 @@ Future<http.Response> _sendWithRetry(
     try {
       final request = await buildRequest();
       final response = await http.Response.fromStream(await send(request));
+      final endpoint = request.url.path;
       if (!_isError(response.statusCode)) {
         return response;
       }
@@ -403,11 +418,23 @@ Future<http.Response> _sendWithRetry(
           await delay(wait);
           continue;
         }
+        throw SpokeZoneException(
+          code: SpokeZoneErrorCode.retryLimitReached,
+          message: 'Retry limit reached',
+          endpoint: endpoint,
+          httpStatus: response.statusCode,
+          responseSnippet: _snippet(response.body),
+          retryAttempt: retryNumber,
+          retryAfter: wait,
+        );
       }
 
       throw SpokeZoneException(
         code: _mapStatus(response.statusCode),
         message: 'Auth request failed with status ${response.statusCode}',
+        endpoint: endpoint,
+        httpStatus: response.statusCode,
+        responseSnippet: _snippet(response.body),
       );
     } on http.ClientException {
       retryNumber += 1;
@@ -417,8 +444,10 @@ Future<http.Response> _sendWithRetry(
         continue;
       }
       throw SpokeZoneException(
-        code: SpokeZoneErrorCode.networkError,
-        message: 'Auth request failed due to network error',
+        code: SpokeZoneErrorCode.retryLimitReached,
+        message: 'Retry limit reached',
+        retryAttempt: retryNumber,
+        retryAfter: wait,
       );
     }
   }
@@ -460,6 +489,7 @@ Future<http.Response> _sendAuthorizedJsonWithRetry({
     try {
       final request = requestBuilder(token);
       final response = await http.Response.fromStream(await httpClient.send(request));
+      final endpoint = request.url.path;
       if (response.statusCode < 400) {
         return response;
       }
@@ -470,10 +500,22 @@ Future<http.Response> _sendAuthorizedJsonWithRetry({
           await delay(wait);
           continue;
         }
+        throw SpokeZoneException(
+          code: SpokeZoneErrorCode.retryLimitReached,
+          message: 'Retry limit reached',
+          endpoint: endpoint,
+          httpStatus: response.statusCode,
+          responseSnippet: _snippet(response.body),
+          retryAttempt: retryNumber,
+          retryAfter: wait,
+        );
       }
       throw SpokeZoneException(
         code: _mapStatus(response.statusCode),
         message: 'Request failed with status ${response.statusCode}',
+        endpoint: endpoint,
+        httpStatus: response.statusCode,
+        responseSnippet: _snippet(response.body),
       );
     } on http.ClientException {
       retryNumber += 1;
@@ -483,9 +525,18 @@ Future<http.Response> _sendAuthorizedJsonWithRetry({
         continue;
       }
       throw SpokeZoneException(
-        code: SpokeZoneErrorCode.networkError,
-        message: 'Request failed due to network error',
+        code: SpokeZoneErrorCode.retryLimitReached,
+        message: 'Retry limit reached',
+        retryAttempt: retryNumber,
+        retryAfter: wait,
       );
     }
   }
+}
+
+String _snippet(String body) {
+  if (body.length <= 200) {
+    return body;
+  }
+  return body.substring(0, 200);
 }
