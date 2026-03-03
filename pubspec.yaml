@@ -1,7 +1,7 @@
 name: mrs_sdk_flutter
 description: MRS SDK for Flutter
-version: 0.0.1
-homepage: https://flutter.mrs-electronics.dev
+version: 0.1.0
+homepage: https://mrs-electronics.dev
 repository: https://github.com/mrs-electronics-inc/mrs-sdk-flutter
 documentation: https://flutter.mrs-electronics.dev
 issue_tracker: https://github.com/mrs-electronics-inc/mrs-sdk-flutter/issues

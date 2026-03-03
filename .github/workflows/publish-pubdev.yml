@@ -21,7 +21,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Validate tag format and pubspec version match
+      - name: Validate tag format and package version references
         # Failure condition: non-`vX.Y.Z` tags or mismatched versions stop release before publish.
         run: |
           set -euo pipefail
@@ -42,6 +42,18 @@ jobs:
 
           if [[ "$TAG_VERSION" != "$PUBSPEC_VERSION" ]]; then
             echo "Tag version '$TAG_VERSION' does not match pubspec version '$PUBSPEC_VERSION'." >&2
+            exit 1
+          fi
+
+          README_VERSION="$(sed -nE 's/^[[:space:]]*mrs_sdk_flutter:[[:space:]]*\^?([0-9]+\.[0-9]+\.[0-9]+).*$/\1/p' README.md | head -n1)"
+
+          if [[ -z "$README_VERSION" ]]; then
+            echo "Could not determine package version example from README.md." >&2
+            exit 1
+          fi
+
+          if [[ "$README_VERSION" != "$TAG_VERSION" ]]; then
+            echo "README version '$README_VERSION' does not match tag version '$TAG_VERSION'." >&2
             exit 1
           fi
 
