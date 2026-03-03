@@ -125,12 +125,12 @@ This spec covers package metadata, repository/package structure expectations, pu
 
 ### Publish Readiness
 
-- [ ] Re-enable `flutter pub get` in `just deps`
-- [ ] Re-enable `flutter analyze` in `just lint`
-- [ ] Re-enable `dart format .` in `just format`
-- [ ] Define and validate the pre-publish readiness flow using repository recipes: `just lint` -> `just test` -> `dart pub publish --dry-run` (from package root), all exit `0`
-- [ ] Keep one ordered publish-readiness checklist (`lint` -> `test` -> `dry-run`) and remove duplicate checklist blocks from release docs/workflow comments
-- [ ] Ensure the readiness commands appear exactly once in the canonical checklist and match repository tooling expectations
+- [x] Re-enable `flutter pub get` in `just deps`
+- [x] Re-enable `flutter analyze` in `just lint`
+- [x] Re-enable `dart format .` in `just format`
+- [x] Define and validate the pre-publish readiness flow using repository recipes: `just lint` -> `just test` -> `flutter pub publish --dry-run` (from package root), all exit `0`
+- [x] Keep one ordered publish-readiness checklist (`lint` -> `test` -> `dry-run`) and remove duplicate checklist blocks from release docs/workflow comments
+- [x] Ensure the readiness commands appear exactly once in the canonical checklist and match repository tooling expectations
 
 ### PR Workflows
 
@@ -156,8 +156,6 @@ This spec covers package metadata, repository/package structure expectations, pu
 
 ### Release Process
 
-- [ ] Add one release-process checklist in maintainers docs covering version bump and changelog update before tagging
-- [ ] Add release-to-deploy handoff steps in maintainers docs, including `vX.Y.Z` tag creation and push trigger expectations
-- [ ] Add post-publish traceability steps in maintainers docs for published version verification and deployment record links
-- [ ] Remove duplicate release instructions from other docs pages and replace them with links to the canonical workflow files/checklist
-- [ ] Ensure release-process checklist order matches CI job order and tag-trigger behavior exactly
+- [ ] Add one release-process checklist in `.github/release-process.md` covering version bump and changelog update before tagging
+- [ ] Add release-to-deploy handoff steps in `.github/release-process.md`, including `vX.Y.Z` tag creation and push trigger expectations
+- [ ] Add post-publish traceability steps in `.github/release-process.md` for published version verification and deployment record links
