@@ -1,6 +1,6 @@
 # MRS SDK Flutter
 
-Flutter package for integrating with MRS Electronic systems.
+This SDK provides developers with the tools, libraries, and documentation needed to create Flutter apps that integrate well with the MRS Electronic product ecosystem.
 
 ## Installation
 
