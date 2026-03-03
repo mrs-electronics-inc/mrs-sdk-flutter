@@ -26,10 +26,7 @@ flutter pub get
 ## Minimal Setup
 
 ```dart
-import 'package:http/http.dart' as http;
 import 'package:mrs_sdk_flutter/mrs_sdk_flutter.dart';
-
-final client = http.Client();
 
 final spokeZone = SpokeZone(
   config: SpokeZoneConfig.device(
@@ -40,7 +37,6 @@ final spokeZone = SpokeZone(
       initialDeviceToken: () async => 'device-token',
     ),
   ),
-  httpClient: client,
 );
 ```
 

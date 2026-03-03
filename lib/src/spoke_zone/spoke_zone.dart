@@ -16,36 +16,40 @@ export 'clients/data_files_client.dart';
 export 'clients/devices_client.dart';
 export 'clients/ota_files_client.dart';
 
-/// Root Spoke.Zone SDK entry point.
+/// Spoke.Zone Integration
 ///
 /// Use [SpokeZoneConfig.device] or [SpokeZoneConfig.user] to select auth mode.
 class SpokeZone {
   /// Creates a Spoke.Zone client.
   SpokeZone({
     required this.config,
-    required this.httpClient,
+    http.Client? httpClient,
     BackoffStrategy? backoffStrategy,
     DelayFn? delay,
-  })  : _backoffStrategy = backoffStrategy ?? const FixedDelayBackoffStrategy(),
-        _delay = delay ?? Future<void>.delayed {
-    final auth = _buildAuthProvider(config: config, httpClient: httpClient);
+  }) : httpClient = httpClient ?? http.Client(),
+       _backoffStrategy = backoffStrategy ?? const FixedDelayBackoffStrategy(),
+       _delay = delay ?? Future<void>.delayed {
+    final auth = _buildAuthProvider(
+      config: config,
+      httpClient: this.httpClient,
+    );
 
     devices = DevicesClient(
-      httpClient: httpClient,
+      httpClient: this.httpClient,
       baseUri: config.baseUri,
       auth: auth,
       backoffStrategy: _backoffStrategy,
       delay: _delay,
     );
     otaFiles = OtaFilesClient(
-      httpClient: httpClient,
+      httpClient: this.httpClient,
       baseUri: config.baseUri,
       auth: auth,
       backoffStrategy: _backoffStrategy,
       delay: _delay,
     );
     dataFiles = DataFilesClient(
-      httpClient: httpClient,
+      httpClient: this.httpClient,
       baseUri: config.baseUri,
       auth: auth,
       backoffStrategy: _backoffStrategy,
@@ -73,19 +77,19 @@ class SpokeZone {
   }) {
     return switch (config.authMode) {
       SpokeZoneAuthMode.device => DeviceAuth(
-          baseUri: config.baseUri,
-          callbacks: config.deviceAuth!,
-          httpClient: httpClient,
-          backoffStrategy: _backoffStrategy,
-          delay: _delay,
-        ),
+        baseUri: config.baseUri,
+        callbacks: config.deviceAuth!,
+        httpClient: httpClient,
+        backoffStrategy: _backoffStrategy,
+        delay: _delay,
+      ),
       SpokeZoneAuthMode.user => UserAuth(
-          baseUri: config.baseUri,
-          callbacks: config.userAuth!,
-          httpClient: httpClient,
-          backoffStrategy: _backoffStrategy,
-          delay: _delay,
-        ),
+        baseUri: config.baseUri,
+        callbacks: config.userAuth!,
+        httpClient: httpClient,
+        backoffStrategy: _backoffStrategy,
+        delay: _delay,
+      ),
     };
   }
 }
