@@ -451,6 +451,29 @@ void main() {
         const Duration(seconds: 60),
       ]);
     });
+
+    test('does not retry non-429 4xx responses', () async {
+      final client = _QueuedClient();
+      client.enqueueJson(401, {'error': 'unauthorized'});
+
+      final auth = DeviceAuth(
+        baseUri: Uri.parse('https://api.spoke.zone'),
+        callbacks: _deviceCallbacks(),
+        httpClient: client,
+      );
+
+      await expectLater(
+        auth.login(),
+        throwsA(
+          isA<SpokeZoneException>().having(
+            (e) => e.code,
+            'code',
+            SpokeZoneErrorCode.unauthorized,
+          ),
+        ),
+      );
+      expect(client.requests, hasLength(1));
+    });
   });
 }
 
