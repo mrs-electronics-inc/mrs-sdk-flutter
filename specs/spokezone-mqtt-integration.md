@@ -130,8 +130,7 @@ This integration builds on [Spoke.Zone API Integration](spokezone-api-integratio
 
 ### Documentation
 
-- [ ] Update `docs/src/content/docs/index.mdx` and `docs/astro.config.mjs` so the Spoke.Zone docs set includes `spoke-zone/live-data` in docs navigation and index listings.
-- [ ] Update `docs/src/content/docs/spoke-zone/index.mdx` to link to `live-data.mdx` as part of the canonical Spoke.Zone docs set.
-- [ ] Update `docs/src/content/docs/spoke-zone/live-data.mdx` with the implemented `SpokeZone.liveData` public API signatures: lifecycle methods (`connect`, `disconnect`, `isConnected`), `publishJson`, generic periodic registration, and helper registrations.
-- [ ] Update `docs/src/content/docs/spoke-zone/live-data.mdx` with periodic registration behavior: async-nullable callback contract, first-publish-on-first-tick timing, cancellation semantics, reconnect resume behavior, retained-message options, default helper intervals, and fixed topics.
-- [ ] Update `docs/src/content/docs/spoke-zone/live-data.mdx` with per-registration status contract (`idle`, `running`, `failed`, `canceled`; `lastSuccessAt`; `consecutiveFailures`) and auth/reconnect behavior using shared `BackoffStrategy` and `FixedDelayBackoffStrategy`.
+- [ ] Replace the `coming soon` content in `docs/src/content/docs/spoke-zone/live-data.mdx` with a minimal user-facing implementation guide focused on behavior and usage patterns (not symbol-level reference tables).
+- [ ] Document MQTT-specific operational guidance in `docs/src/content/docs/spoke-zone/live-data.mdx`: connection lifecycle expectations, publish success/failure semantics, periodic scheduling behavior, cancellation/resume behavior, retained-message behavior, and fixed topics.
+- [ ] Document per-registration observability in `docs/src/content/docs/spoke-zone/live-data.mdx`: status states, `lastSuccessAt`, `consecutiveFailures`, and reconnect/auth interaction expectations.
+- [ ] Add and verify DartDoc comments on all new public MQTT API types/methods so pub.dev auto-generated API docs are complete and actionable.
