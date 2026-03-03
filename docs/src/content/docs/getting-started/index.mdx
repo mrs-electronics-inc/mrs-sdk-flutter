@@ -1,21 +1,54 @@
 ---
-title: Overview
+title: Quick Start
+description: Quick start for app developers using the MRS Flutter SDK.
 ---
 
-Use the standard project setup by default:
+## Prerequisites
 
-```bash
-just setup
+- Flutter SDK installed
+- Dart SDK compatible with this package's `pubspec.yaml`
+
+## Install
+
+Use the latest version listed on [pub.dev package page](https://pub.dev/packages/mrs_sdk_flutter), then add it to your app `pubspec.yaml`:
+
+```yaml
+dependencies:
+  mrs_sdk_flutter: ^0.2.0
 ```
 
-## Optional Nix Environment
-
-Nix is optional and mainly intended for maintainers or contributors who want reproducible pinned tooling.
-
-If you use Nix:
+Then fetch dependencies:
 
 ```bash
-nix develop
+flutter pub get
 ```
 
-If you do not use Nix, continue with the normal repository workflow using `just` recipes (`just deps`, `just test`, `just lint`, and so on).
+## Minimal Setup
+
+```dart
+import 'package:mrs_sdk_flutter/mrs_sdk_flutter.dart';
+
+final spokeZone = SpokeZone(
+  config: SpokeZoneConfig.device(
+    deviceAuth: DeviceAuthCallbacks(
+      cpuId: () async => 'cpu-id',
+      uuid: () async => 'uuid',
+      deviceId: () async => 'device-id',
+      initialDeviceToken: () async => 'device-token',
+    ),
+  ),
+);
+```
+
+## Example Usage
+
+```dart
+final device = await spokeZone.devices.get(123);
+final dataFileId = await spokeZone.dataFiles.create('log');
+await spokeZone.dataFiles.upload(dataFileId, payloadBytes);
+```
+
+## Reference
+
+- [pub.dev Package](https://pub.dev/packages/mrs_sdk_flutter)
+- [Package Documentation](https://pub.dev/documentation/mrs_sdk_flutter/latest/)

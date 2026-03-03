@@ -1,6 +1,6 @@
 ---
 number: 2
-status: approved
+status: completed
 author: Addison Emig
 creation_date: 2026-02-24
 approved_by: Addison Emig
@@ -91,74 +91,72 @@ See: `docs/src/content/docs/spoke-zone/errors.mdx`
 
 ## Internal Docs
 
-Implementation-facing docs for this integration live in:
+User-facing docs for this integration live in:
 
-- `docs/src/content/docs/spoke-zone/index.mdx`
-- `docs/src/content/docs/spoke-zone/config.mdx`
-- `docs/src/content/docs/spoke-zone/auth.mdx`
-- `docs/src/content/docs/spoke-zone/errors.mdx`
-- `docs/src/content/docs/spoke-zone/retry.mdx`
-- `docs/src/content/docs/spoke-zone/endpoints.mdx`
+- `docs/src/content/docs/getting-started/index.mdx`
+- `docs/src/content/docs/spoke-zone/integration-patterns.mdx`
+- `docs/src/content/docs/spoke-zone/live-data.mdx`
 
 ## Endpoint Contracts
 
-See: `docs/src/content/docs/spoke-zone/endpoints.mdx`
+See:
 
-All request/response, default/query, and endpoint-specific error mapping details are maintained in the docs page above. During implementation, treat that docs page as the canonical endpoint contract reference and keep it updated alongside code changes.
+- `https://pub.dev/documentation/mrs_sdk_flutter/latest/`
+- `https://api.spoke.zone/api-docs`
+
+Public endpoint signatures and model details should live in generated API docs, while site docs focus on integration guidance and operational context.
 
 ## Task List
 
 ### Foundation
 
-- [ ] Add tests first for `SpokeZoneConfig.device(...)` and `SpokeZoneConfig.user(...)` construction rules (exactly one auth mode per config)
-- [ ] Add tests first for shared auth interface usage in both modes and `x-access-token` request decoration
-- [ ] Implement config and auth mode plumbing to make foundation tests pass
-- [ ] Refactor config/auth construction for readability while preserving behavior; verify foundation tests remain green
+- [x] Add tests first for `SpokeZoneConfig.device(...)` and `SpokeZoneConfig.user(...)` construction rules (exactly one auth mode per config)
+- [x] Add tests first for shared auth interface usage in both modes and `x-access-token` request decoration
+- [x] Implement config and auth mode plumbing to make foundation tests pass
+- [x] Refactor config/auth construction for readability while preserving behavior; verify foundation tests remain green
 
 ### Device and User Auth
 
-- [ ] Add tests first for `DeviceAuth.login` request/response/error mapping for `POST /loginDevice`
-- [ ] Add tests first for `UserAuth.login` credential callback handling (`username`, `password`) and token lifecycle entry points
-- [ ] Add tests first for `UserAuth.login` failure mapping and retry behavior parity with `DeviceAuth.login`
-- [ ] Implement auth providers and callbacks to make auth tests pass
-- [ ] Remove duplicated token-handling logic by extracting shared auth lifecycle helpers; verify auth tests remain green
+- [x] Add tests first for `DeviceAuth.login` request/response/error mapping for `POST /loginDevice`
+- [x] Add tests first for `UserAuth.login` credential callback handling (`username`, `password`) and token lifecycle entry points
+- [x] Add tests first for `UserAuth.login` failure mapping and retry behavior parity with `DeviceAuth.login`
+- [x] Implement auth providers and callbacks to make auth tests pass
+- [x] Remove duplicated token-handling logic by extracting shared auth lifecycle helpers; verify auth tests remain green
 
 ### Service Shape
 
-- [ ] Add tests first asserting root `SpokeZone` exposes `devices`, `dataFiles`, and `otaFiles` namespaces
-- [ ] Add tests first for shared HTTP pipeline behavior (header injection, retry orchestration, and error mapping middleware)
-- [ ] Implement root service and namespaced clients to make service-shape tests pass
-- [ ] Simplify service wiring by extracting shared request setup into one internal helper; verify service-shape tests remain green
+- [x] Add tests first asserting root `SpokeZone` exposes `devices`, `dataFiles`, and `otaFiles` namespaces
+- [x] Add tests first for shared HTTP pipeline behavior (header injection, retry orchestration, and error mapping middleware)
+- [x] Implement root service and namespaced clients to make service-shape tests pass
+- [x] Simplify service wiring by extracting shared request setup into one internal helper; verify service-shape tests remain green
 
 ### Endpoint Behavior
 
-- [ ] Add tests first for `devices.get(id)` typed mapping: `name -> modelName`, `lastOnline` parse-to-null on missing/invalid, `lastLocation` null when either coordinate missing, and `softwareVersions` defaulting to empty map
-- [ ] Add tests first for shared `Coordinates` model usage in `devices.get(id)` (`lastLocation` typed as `Coordinates?` when both values are present)
-- [ ] Add tests first for `dataFiles.create(type)` using allowed type values and `id` extraction
-- [ ] Add tests first for `dataFiles.upload(id, content)` multipart construction from raw bytes
-- [ ] Add tests first for `otaFiles.list(...)` query handling and typed item mapping
-- [ ] Add tests first for `otaFiles.download(id)` byte-return behavior
-- [ ] Implement endpoint clients to make endpoint tests pass
-- [ ] Extract shared request/response helpers used by `devices`, `dataFiles`, and `otaFiles`; verify endpoint-behavior tests remain green
+- [x] Add tests first for `devices.get(id)` typed mapping: `name -> modelName`, `lastOnline` parse-to-null on missing/invalid, `lastLocation` null when either coordinate missing, and `softwareVersions` defaulting to empty map
+- [x] Add tests first for shared `Coordinates` model usage in `devices.get(id)` (`lastLocation` typed as `Coordinates?` when both values are present)
+- [x] Add tests first for `dataFiles.create(type)` using allowed type values and `id` extraction
+- [x] Add tests first for `dataFiles.upload(id, content)` multipart construction from raw bytes
+- [x] Add tests first for `otaFiles.list(...)` query handling and typed item mapping
+- [x] Add tests first for `otaFiles.download(id)` byte-return behavior
+- [x] Implement endpoint clients to make endpoint tests pass
+- [x] Extract shared request/response helpers used by `devices`, `dataFiles`, and `otaFiles`; verify endpoint-behavior tests remain green
 
 ### Reliability and Errors
 
-- [ ] Add tests first for retry policy: transport errors + `429` + `5xx` with delay sequence `15s -> 30s -> 60s`
-- [ ] Add tests first for non-retriable behavior on `4xx` other than `429`
-- [ ] Add tests first for backoff abstraction behavior via interface + default implementation
-- [ ] Implement shared backoff helper types (`BackoffStrategy` interface and default `FixedDelayBackoffStrategy`) and wire them into retry orchestration
-- [ ] Add tests first for typed error code mapping and diagnostic context (`endpoint`, `httpStatus`, bounded response snippet, retry metadata)
-- [ ] Add tests first that public APIs throw only SDK-typed exceptions (no raw HTTP/client exceptions leak)
-- [ ] Add tests first for client-side `validationError` mapping before request dispatch
-- [ ] Implement retry/backoff and uniform error mapping to make reliability tests pass
-- [ ] Centralize retry and error-mapping policy wiring into shared internal components; verify reliability/error tests remain green
+- [x] Add tests first for retry policy: transport errors + `429` + `5xx` with delay sequence `15s -> 30s -> 60s`
+- [x] Add tests first for non-retriable behavior on `4xx` other than `429`
+- [x] Add tests first for backoff abstraction behavior via interface + default implementation
+- [x] Implement shared backoff helper types (`BackoffStrategy` interface and default `FixedDelayBackoffStrategy`) and wire them into retry orchestration
+- [x] Add tests first for typed error code mapping and diagnostic context (`endpoint`, `httpStatus`, bounded response snippet, retry metadata)
+- [x] Add tests first that public APIs throw only SDK-typed exceptions (no raw HTTP/client exceptions leak)
+- [x] Add tests first for client-side `validationError` mapping before request dispatch
+- [x] Implement retry/backoff and uniform error mapping to make reliability tests pass
+- [x] Centralize retry and error-mapping policy wiring into shared internal components; verify reliability/error tests remain green
 
 ### Documentation
 
-- [ ] Update `docs/src/content/docs/spoke-zone/config.mdx` to document config mode constructors, base URL host rules, and callback semantics for both auth modes
-- [ ] Update `docs/src/content/docs/spoke-zone/auth.mdx` to document `DeviceAuth.login` and `UserAuth.login` lifecycle ownership and callback contracts
-- [ ] Update `docs/src/content/docs/spoke-zone/errors.mdx` to list all public SDK error codes and their mapping/diagnostic behavior
-- [ ] Update `docs/src/content/docs/spoke-zone/retry.mdx` to document retryable status classes, non-retryable classes, and `15s -> 30s -> 60s` delay sequence
-- [ ] Update `docs/src/content/docs/spoke-zone/endpoints.mdx` with request/response contracts for `devices.get`, `dataFiles.create`, `dataFiles.upload`, `otaFiles.list`, and `otaFiles.download`
-- [ ] Update `docs/src/content/docs/spoke-zone/index.mdx` to link to config/auth/errors/retry/endpoints pages and avoid duplicating endpoint contracts
-- [ ] Update `docs/src/content/docs/index.mdx` and `docs/astro.config.mjs` so Spoke.Zone docs are listed in site navigation and docs index
+- [x] Refocus `docs/src/content/docs/getting-started/index.mdx` on package consumers: install from pub.dev, minimal SDK setup, and one end-to-end usage example
+- [x] Add `docs/src/content/docs/spoke-zone/integration-patterns.mdx` with an auth-mode decision table and short reliability expectations
+- [x] Set `docs/src/content/docs/spoke-zone/live-data.mdx` to a minimal "coming soon" page for Spec 3 (no unshipped API behavior details)
+- [x] Keep site navigation focused on minimal pages (`getting-started`, `spoke-zone/integration-patterns`, `spoke-zone/live-data`)
+- [x] Link API reference from docs to `https://pub.dev/documentation/mrs_sdk_flutter/latest/` and package install source to `https://pub.dev/packages/mrs_sdk_flutter`

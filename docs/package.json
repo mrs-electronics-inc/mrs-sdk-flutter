@@ -9,6 +9,7 @@
     "preview": "astro preview",
     "astro": "astro",
     "lint": "astro check && eslint astro.config.mjs src/content.config.ts --max-warnings=0",
+    "format": "prettier --write \"**/*.{js,mjs,ts,md,mdx,json,yml,yaml}\"",
     "format:check": "prettier --check \"**/*.{js,mjs,ts,md,mdx,json,yml,yaml}\""
   },
   "dependencies": {
