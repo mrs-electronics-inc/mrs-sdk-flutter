@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 import '../http_helpers.dart';
-import '../models.dart';
+import '../models/models.dart';
 import '../retry.dart';
 import 'cached_access_token_provider.dart';
 
