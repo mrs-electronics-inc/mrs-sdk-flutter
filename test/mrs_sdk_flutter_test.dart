@@ -273,6 +273,30 @@ void main() {
       expect(device.lastLocation, isNull);
       expect(device.softwareVersions, isEmpty);
     });
+
+    test('devices.get maps shared Coordinates when both coordinates are present', () async {
+      final client = _QueuedClient();
+      client.enqueueJson(201, {'token': 'device-token'});
+      client.enqueueJson(200, {
+        'id': 1,
+        'identifier': 'd-1',
+        'serialNumber': 'SN-1',
+        'modelId': 2,
+        'name': 'Model One',
+        'lastLatitude': 41.1,
+        'lastLongitude': -71.2,
+      });
+
+      final zone = SpokeZone(
+        config: SpokeZoneConfig.device(deviceAuth: _deviceCallbacks()),
+        httpClient: client,
+      );
+
+      final device = await zone.devices.get(1);
+      expect(device.lastLocation, isA<Coordinates>());
+      expect(device.lastLocation!.latitude, 41.1);
+      expect(device.lastLocation!.longitude, -71.2);
+    });
   });
 }
 
