@@ -117,7 +117,7 @@ All request/response, default/query, and endpoint-specific error mapping details
 
 ### Device and User Auth
 
-- [ ] Add tests first for `DeviceAuth.login` request/response/error mapping for `POST /loginDevice`
+- [x] Add tests first for `DeviceAuth.login` request/response/error mapping for `POST /loginDevice`
 - [ ] Add tests first for `UserAuth.login` credential callback handling (`username`, `password`) and token lifecycle entry points
 - [ ] Add tests first for `UserAuth.login` failure mapping and retry behavior parity with `DeviceAuth.login`
 - [ ] Implement auth providers and callbacks to make auth tests pass

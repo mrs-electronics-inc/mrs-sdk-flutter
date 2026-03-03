@@ -74,6 +74,60 @@ void main() {
       expect(userClient.requests[1].headers['x-access-token'], 'user-token');
     });
   });
+
+  group('Auth providers', () {
+    test('DeviceAuth.login sends expected request and handles 200/201', () async {
+      final client = _QueuedClient();
+      client.enqueueJson(200, {'status': 'ok'});
+
+      final auth200 = DeviceAuth(
+        baseUri: Uri.parse('https://api.spoke.zone'),
+        callbacks: _deviceCallbacks(),
+        httpClient: client,
+      );
+
+      final token200 = await auth200.login();
+      expect(token200, 'initial-device-token');
+      final request200 = client.requests.single as http.Request;
+      expect(request200.method, 'POST');
+      expect(request200.url.path, '/loginDevice');
+      final body200 = jsonDecode(request200.body) as Map<String, dynamic>;
+      expect(body200['token'], 'initial-device-token');
+      expect(body200['cpu_id'], 'cpu-1');
+      expect(body200['uuid'], 'uuid-1');
+
+      final renewedClient = _QueuedClient();
+      renewedClient.enqueueJson(201, {'token': 'renewed-token'});
+      final auth201 = DeviceAuth(
+        baseUri: Uri.parse('https://api.spoke.zone'),
+        callbacks: _deviceCallbacks(),
+        httpClient: renewedClient,
+      );
+
+      expect(await auth201.login(), 'renewed-token');
+    });
+
+    test('DeviceAuth.login maps terminal errors', () async {
+      final client = _QueuedClient();
+      client.enqueueJson(403, {'message': 'forbidden'});
+      final auth = DeviceAuth(
+        baseUri: Uri.parse('https://api.spoke.zone'),
+        callbacks: _deviceCallbacks(),
+        httpClient: client,
+      );
+
+      await expectLater(
+        auth.login(),
+        throwsA(
+          isA<SpokeZoneException>().having(
+            (e) => e.code,
+            'code',
+            SpokeZoneErrorCode.forbidden,
+          ),
+        ),
+      );
+    });
+  });
 }
 
 DeviceAuthCallbacks _deviceCallbacks() {
