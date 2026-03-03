@@ -402,6 +402,24 @@ void main() {
       expect(request.url.queryParameters['limit'], '25');
       expect(request.url.queryParameters['offset'], '10');
     });
+
+    test('otaFiles.download returns binary bytes', () async {
+      final client = _QueuedClient();
+      client.enqueueJson(200, {
+        'token': 'user-token',
+        'expires': 1,
+        'user': {'username': 'u'},
+      });
+      client.enqueueBytes(200, [5, 4, 3]);
+
+      final zone = SpokeZone(
+        config: SpokeZoneConfig.user(userAuth: _userCallbacks()),
+        httpClient: client,
+      );
+
+      final bytes = await zone.otaFiles.download(4);
+      expect(bytes, Uint8List.fromList([5, 4, 3]));
+    });
   });
 }
 
@@ -435,6 +453,15 @@ class _QueuedClient extends http.BaseClient {
         headers: const {'content-type': 'application/json'},
       );
     });
+  }
+
+  void enqueueBytes(int statusCode, List<int> bytes) {
+    _handlers.add(
+      (_) async => http.StreamedResponse(
+        Stream<List<int>>.fromIterable(<List<int>>[bytes]),
+        statusCode,
+      ),
+    );
   }
 
   @override
