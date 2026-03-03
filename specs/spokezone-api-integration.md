@@ -156,7 +156,7 @@ All request/response, default/query, and endpoint-specific error mapping details
 ### Documentation
 
 - [x] Update `docs/src/content/docs/spoke-zone/config.mdx` to document config mode constructors, base URL host rules, and callback semantics for both auth modes
-- [ ] Update `docs/src/content/docs/spoke-zone/auth.mdx` to document `DeviceAuth.login` and `UserAuth.login` lifecycle ownership and callback contracts
+- [x] Update `docs/src/content/docs/spoke-zone/auth.mdx` to document `DeviceAuth.login` and `UserAuth.login` lifecycle ownership and callback contracts
 - [ ] Update `docs/src/content/docs/spoke-zone/errors.mdx` to list all public SDK error codes and their mapping/diagnostic behavior
 - [ ] Update `docs/src/content/docs/spoke-zone/retry.mdx` to document retryable status classes, non-retryable classes, and `15s -> 30s -> 60s` delay sequence
 - [ ] Update `docs/src/content/docs/spoke-zone/endpoints.mdx` with request/response contracts for `devices.get`, `dataFiles.create`, `dataFiles.upload`, `otaFiles.list`, and `otaFiles.download`
