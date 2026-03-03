@@ -1,5 +1,6 @@
 import 'dart:collection';
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
@@ -314,6 +315,24 @@ void main() {
       final request = client.requests[1] as http.Request;
       expect(request.url.path, '/api/v2/data-files');
       expect(jsonDecode(request.body), {'type': 'log'});
+    });
+
+    test('dataFiles.upload sends multipart bytes in files field', () async {
+      final client = _QueuedClient();
+      client.enqueueJson(201, {'token': 'device-token'});
+      client.enqueueJson(200, {'ok': true});
+
+      final zone = SpokeZone(
+        config: SpokeZoneConfig.device(deviceAuth: _deviceCallbacks()),
+        httpClient: client,
+      );
+
+      await zone.dataFiles.upload(7, Uint8List.fromList([1, 2, 3]));
+
+      final request = client.requests[1] as http.MultipartRequest;
+      expect(request.url.path, '/api/v2/data-files/7/file');
+      expect(request.files.single.field, 'files');
+      expect(request.files.single.length, 3);
     });
   });
 }
