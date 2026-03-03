@@ -6,5 +6,6 @@ export 'src/spoke_zone/models/coordinates.dart';
 export 'src/spoke_zone/models/device_details.dart';
 export 'src/spoke_zone/models/ota_file.dart';
 export 'src/spoke_zone/models/ota_files_list_options.dart';
+export 'src/spoke_zone/live_data.dart';
 export 'src/spoke_zone/retry.dart';
 export 'src/spoke_zone/spoke_zone.dart';
