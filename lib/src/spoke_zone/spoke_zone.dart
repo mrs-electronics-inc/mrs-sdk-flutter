@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'config.dart';
 import 'errors.dart';
 import 'models.dart';
+import 'retry.dart';
 
 abstract interface class AccessTokenProvider {
   Future<String> getAccessToken();
@@ -34,11 +35,16 @@ class DeviceAuth extends _CachedAccessTokenProvider {
     required this.baseUri,
     required this.callbacks,
     required this.httpClient,
-  });
+    BackoffStrategy? backoffStrategy,
+    DelayFn? delay,
+  })  : _backoffStrategy = backoffStrategy ?? const FixedDelayBackoffStrategy(),
+        _delay = delay ?? Future<void>.delayed;
 
   final Uri baseUri;
   final DeviceAuthCallbacks callbacks;
   final http.Client httpClient;
+  final BackoffStrategy _backoffStrategy;
+  final DelayFn _delay;
 
   @override
   Future<String> login() async {
@@ -52,7 +58,7 @@ class DeviceAuth extends _CachedAccessTokenProvider {
         'uuid': await callbacks.uuid(),
       });
       return req;
-    }, (request) => httpClient.send(request));
+    }, (request) => httpClient.send(request), _backoffStrategy, _delay);
 
     if (response.statusCode == 201) {
       final body = jsonDecode(response.body) as Map<String, dynamic>;
@@ -69,11 +75,16 @@ class UserAuth extends _CachedAccessTokenProvider {
     required this.baseUri,
     required this.callbacks,
     required this.httpClient,
-  });
+    BackoffStrategy? backoffStrategy,
+    DelayFn? delay,
+  })  : _backoffStrategy = backoffStrategy ?? const FixedDelayBackoffStrategy(),
+        _delay = delay ?? Future<void>.delayed;
 
   final Uri baseUri;
   final UserAuthCallbacks callbacks;
   final http.Client httpClient;
+  final BackoffStrategy _backoffStrategy;
+  final DelayFn _delay;
 
   @override
   Future<String> login() async {
@@ -85,7 +96,7 @@ class UserAuth extends _CachedAccessTokenProvider {
         'password': await callbacks.password(),
       });
       return req;
-    }, (request) => httpClient.send(request));
+    }, (request) => httpClient.send(request), _backoffStrategy, _delay);
     final body = _decodeJsonObject(response.body);
     cacheToken(body['token'] as String);
     return getAccessToken();
@@ -93,21 +104,47 @@ class UserAuth extends _CachedAccessTokenProvider {
 }
 
 class SpokeZone {
-  SpokeZone({required this.config, required this.httpClient}) {
+  SpokeZone({
+    required this.config,
+    required this.httpClient,
+    BackoffStrategy? backoffStrategy,
+    DelayFn? delay,
+  })  : _backoffStrategy = backoffStrategy ?? const FixedDelayBackoffStrategy(),
+        _delay = delay ?? Future<void>.delayed {
     final auth = _buildAuthProvider(config: config, httpClient: httpClient);
 
-    devices = DevicesClient(httpClient: httpClient, baseUri: config.baseUri, auth: auth);
-    otaFiles = OtaFilesClient(httpClient: httpClient, baseUri: config.baseUri, auth: auth);
-    dataFiles = DataFilesClient(httpClient: httpClient, baseUri: config.baseUri, auth: auth);
+    devices = DevicesClient(
+      httpClient: httpClient,
+      baseUri: config.baseUri,
+      auth: auth,
+      backoffStrategy: _backoffStrategy,
+      delay: _delay,
+    );
+    otaFiles = OtaFilesClient(
+      httpClient: httpClient,
+      baseUri: config.baseUri,
+      auth: auth,
+      backoffStrategy: _backoffStrategy,
+      delay: _delay,
+    );
+    dataFiles = DataFilesClient(
+      httpClient: httpClient,
+      baseUri: config.baseUri,
+      auth: auth,
+      backoffStrategy: _backoffStrategy,
+      delay: _delay,
+    );
   }
 
   final SpokeZoneConfig config;
   final http.Client httpClient;
+  final BackoffStrategy _backoffStrategy;
+  final DelayFn _delay;
   late final DevicesClient devices;
   late final OtaFilesClient otaFiles;
   late final DataFilesClient dataFiles;
 
-  static AccessTokenProvider _buildAuthProvider({
+  AccessTokenProvider _buildAuthProvider({
     required SpokeZoneConfig config,
     required http.Client httpClient,
   }) {
@@ -116,11 +153,15 @@ class SpokeZone {
           baseUri: config.baseUri,
           callbacks: config.deviceAuth!,
           httpClient: httpClient,
+          backoffStrategy: _backoffStrategy,
+          delay: _delay,
         ),
       SpokeZoneAuthMode.user => UserAuth(
           baseUri: config.baseUri,
           callbacks: config.userAuth!,
           httpClient: httpClient,
+          backoffStrategy: _backoffStrategy,
+          delay: _delay,
         ),
     };
   }
@@ -131,11 +172,16 @@ class DevicesClient {
     required this.httpClient,
     required this.baseUri,
     required this.auth,
-  });
+    required BackoffStrategy backoffStrategy,
+    required DelayFn delay,
+  })  : _backoffStrategy = backoffStrategy,
+        _delay = delay;
 
   final http.Client httpClient;
   final Uri baseUri;
   final AccessTokenProvider auth;
+  final BackoffStrategy _backoffStrategy;
+  final DelayFn _delay;
 
   Future<DeviceDetails> get(int id) async {
     final response = await _sendAuthorizedJsonWithRetry(
@@ -146,6 +192,8 @@ class DevicesClient {
         req.headers['x-access-token'] = token;
         return req;
       },
+      backoffStrategy: _backoffStrategy,
+      delay: _delay,
     );
     final body = jsonDecode(response.body) as Map<String, dynamic>;
 
@@ -190,11 +238,16 @@ class OtaFilesClient {
     required this.httpClient,
     required this.baseUri,
     required this.auth,
-  });
+    required BackoffStrategy backoffStrategy,
+    required DelayFn delay,
+  })  : _backoffStrategy = backoffStrategy,
+        _delay = delay;
 
   final http.Client httpClient;
   final Uri baseUri;
   final AccessTokenProvider auth;
+  final BackoffStrategy _backoffStrategy;
+  final DelayFn _delay;
 
   Future<List<OtaFile>> list({OtaFilesListOptions options = const OtaFilesListOptions()}) async {
     final query = <String, String>{
@@ -223,6 +276,8 @@ class OtaFilesClient {
         req.headers['x-access-token'] = token;
         return req;
       },
+      backoffStrategy: _backoffStrategy,
+      delay: _delay,
     );
     final body = _decodeJsonList(response.body);
     return body.map((item) {
@@ -250,6 +305,8 @@ class OtaFilesClient {
         req.headers['x-access-token'] = token;
         return req;
       },
+      backoffStrategy: _backoffStrategy,
+      delay: _delay,
     );
     return Uint8List.fromList(response.bodyBytes);
   }
@@ -260,11 +317,16 @@ class DataFilesClient {
     required this.httpClient,
     required this.baseUri,
     required this.auth,
-  });
+    required BackoffStrategy backoffStrategy,
+    required DelayFn delay,
+  })  : _backoffStrategy = backoffStrategy,
+        _delay = delay;
 
   final http.Client httpClient;
   final Uri baseUri;
   final AccessTokenProvider auth;
+  final BackoffStrategy _backoffStrategy;
+  final DelayFn _delay;
 
   static const Set<String> _allowedTypes = {
     'log',
@@ -294,6 +356,8 @@ class DataFilesClient {
         req.body = jsonEncode({'type': type});
         return req;
       },
+      backoffStrategy: _backoffStrategy,
+      delay: _delay,
     );
     final body = _decodeJsonObject(response.body);
     return body['id'] as int;
@@ -321,22 +385,42 @@ class DataFilesClient {
 Future<http.Response> _sendWithRetry(
   Future<http.Request> Function() buildRequest,
   Future<http.StreamedResponse> Function(http.Request request) send,
+  BackoffStrategy backoffStrategy,
+  DelayFn delay,
 ) async {
-  var attempt = 0;
+  var retryNumber = 0;
   while (true) {
-    final request = await buildRequest();
-    final response = await http.Response.fromStream(await send(request));
-    if (!_isError(response.statusCode)) {
-      return response;
+    try {
+      final request = await buildRequest();
+      final response = await http.Response.fromStream(await send(request));
+      if (!_isError(response.statusCode)) {
+        return response;
+      }
+      if (_isRetryable(response.statusCode)) {
+        retryNumber += 1;
+        final wait = backoffStrategy.delayForRetry(retryNumber);
+        if (wait != null) {
+          await delay(wait);
+          continue;
+        }
+      }
+
+      throw SpokeZoneException(
+        code: _mapStatus(response.statusCode),
+        message: 'Auth request failed with status ${response.statusCode}',
+      );
+    } on http.ClientException {
+      retryNumber += 1;
+      final wait = backoffStrategy.delayForRetry(retryNumber);
+      if (wait != null) {
+        await delay(wait);
+        continue;
+      }
+      throw SpokeZoneException(
+        code: SpokeZoneErrorCode.networkError,
+        message: 'Auth request failed due to network error',
+      );
     }
-    if (_isRetryable(response.statusCode) && attempt < 2) {
-      attempt += 1;
-      continue;
-    }
-    throw SpokeZoneException(
-      code: _mapStatus(response.statusCode),
-      message: 'Auth request failed with status ${response.statusCode}',
-    );
   }
 }
 
@@ -366,23 +450,42 @@ Future<http.Response> _sendAuthorizedJsonWithRetry({
   required http.Client httpClient,
   required AccessTokenProvider auth,
   required http.Request Function(String token) requestBuilder,
+  required BackoffStrategy backoffStrategy,
+  required DelayFn delay,
 }) async {
   final token = await auth.getAccessToken();
-  var attempt = 0;
+  var retryNumber = 0;
 
   while (true) {
-    final request = requestBuilder(token);
-    final response = await http.Response.fromStream(await httpClient.send(request));
-    if (response.statusCode < 400) {
-      return response;
+    try {
+      final request = requestBuilder(token);
+      final response = await http.Response.fromStream(await httpClient.send(request));
+      if (response.statusCode < 400) {
+        return response;
+      }
+      if (_isRetryable(response.statusCode)) {
+        retryNumber += 1;
+        final wait = backoffStrategy.delayForRetry(retryNumber);
+        if (wait != null) {
+          await delay(wait);
+          continue;
+        }
+      }
+      throw SpokeZoneException(
+        code: _mapStatus(response.statusCode),
+        message: 'Request failed with status ${response.statusCode}',
+      );
+    } on http.ClientException {
+      retryNumber += 1;
+      final wait = backoffStrategy.delayForRetry(retryNumber);
+      if (wait != null) {
+        await delay(wait);
+        continue;
+      }
+      throw SpokeZoneException(
+        code: SpokeZoneErrorCode.networkError,
+        message: 'Request failed due to network error',
+      );
     }
-    if (_isRetryable(response.statusCode) && attempt < 2) {
-      attempt += 1;
-      continue;
-    }
-    throw SpokeZoneException(
-      code: _mapStatus(response.statusCode),
-      message: 'Request failed with status ${response.statusCode}',
-    );
   }
 }

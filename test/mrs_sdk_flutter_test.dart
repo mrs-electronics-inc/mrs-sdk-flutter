@@ -141,6 +141,7 @@ void main() {
         baseUri: Uri.parse('https://api.spoke.zone'),
         callbacks: _userCallbacks(),
         httpClient: client,
+        delay: (_) async {},
       );
 
       final token = await auth.login();
@@ -169,6 +170,7 @@ void main() {
         baseUri: Uri.parse('https://api.spoke.zone'),
         callbacks: _userCallbacks(),
         httpClient: client,
+        delay: (_) async {},
       );
 
       expect(await auth.login(), 'ok-token');
