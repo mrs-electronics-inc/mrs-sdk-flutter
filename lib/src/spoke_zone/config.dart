@@ -1,4 +1,4 @@
-import 'models/models.dart';
+import 'models/callbacks.dart';
 
 enum SpokeZoneAuthMode { device, user }
 

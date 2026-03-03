@@ -4,7 +4,8 @@ import 'package:http/http.dart' as http;
 
 import '../access_token_provider.dart';
 import '../http_helpers.dart';
-import '../models/models.dart';
+import '../models/coordinates.dart';
+import '../models/device_details.dart';
 import '../retry.dart';
 
 class DevicesClient {

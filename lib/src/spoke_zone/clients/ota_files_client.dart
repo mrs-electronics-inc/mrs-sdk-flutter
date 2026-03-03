@@ -4,7 +4,8 @@ import 'package:http/http.dart' as http;
 
 import '../access_token_provider.dart';
 import '../http_helpers.dart';
-import '../models/models.dart';
+import '../models/ota_file.dart';
+import '../models/ota_files_list_options.dart';
 import '../retry.dart';
 
 class OtaFilesClient {
