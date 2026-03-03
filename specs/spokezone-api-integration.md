@@ -143,7 +143,7 @@ All request/response, default/query, and endpoint-specific error mapping details
 
 ### Reliability and Errors
 
-- [ ] Add tests first for retry policy: transport errors + `429` + `5xx` with delay sequence `15s -> 30s -> 60s`
+- [x] Add tests first for retry policy: transport errors + `429` + `5xx` with delay sequence `15s -> 30s -> 60s`
 - [ ] Add tests first for non-retriable behavior on `4xx` other than `429`
 - [ ] Add tests first for backoff abstraction behavior via interface + default implementation
 - [ ] Implement shared backoff helper types (`BackoffStrategy` interface and default `FixedDelayBackoffStrategy`) and wire them into retry orchestration

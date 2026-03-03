@@ -421,6 +421,37 @@ void main() {
       expect(bytes, Uint8List.fromList([5, 4, 3]));
     });
   });
+
+  group('Reliability and errors', () {
+    test('retries transport errors + 429 + 5xx using 15s -> 30s -> 60s delays', () async {
+      final delays = <Duration>[];
+      final client = _QueuedClient();
+      client.enqueueException(http.ClientException('network'));
+      client.enqueueJson(429, {'error': 'rate'});
+      client.enqueueJson(500, {'error': 'server'});
+      client.enqueueJson(201, {'token': 'device-token'});
+      client.enqueueJson(200, {
+        'id': 2,
+        'identifier': 'd2',
+        'serialNumber': 's2',
+        'modelId': 2,
+        'name': 'm2',
+      });
+
+      final zone = SpokeZone(
+        config: SpokeZoneConfig.device(deviceAuth: _deviceCallbacks()),
+        httpClient: client,
+        delay: (duration) async => delays.add(duration),
+      );
+
+      await zone.devices.get(2);
+      expect(delays, [
+        const Duration(seconds: 15),
+        const Duration(seconds: 30),
+        const Duration(seconds: 60),
+      ]);
+    });
+  });
 }
 
 DeviceAuthCallbacks _deviceCallbacks() {
@@ -462,6 +493,10 @@ class _QueuedClient extends http.BaseClient {
         statusCode,
       ),
     );
+  }
+
+  void enqueueException(Object error) {
+    _handlers.add((_) async => throw error);
   }
 
   @override
