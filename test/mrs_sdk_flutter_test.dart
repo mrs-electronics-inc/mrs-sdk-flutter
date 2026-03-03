@@ -297,6 +297,24 @@ void main() {
       expect(device.lastLocation!.latitude, 41.1);
       expect(device.lastLocation!.longitude, -71.2);
     });
+
+    test('dataFiles.create validates type and extracts id', () async {
+      final client = _QueuedClient();
+      client.enqueueJson(201, {'token': 'device-token'});
+      client.enqueueJson(200, {'id': 99});
+
+      final zone = SpokeZone(
+        config: SpokeZoneConfig.device(deviceAuth: _deviceCallbacks()),
+        httpClient: client,
+      );
+
+      final id = await zone.dataFiles.create('log');
+      expect(id, 99);
+
+      final request = client.requests[1] as http.Request;
+      expect(request.url.path, '/api/v2/data-files');
+      expect(jsonDecode(request.body), {'type': 'log'});
+    });
   });
 }
 
