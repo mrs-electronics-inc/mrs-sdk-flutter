@@ -7,7 +7,9 @@ import '../models/callbacks.dart';
 import '../retry.dart';
 import 'cached_access_token_provider.dart';
 
+/// Device authentication provider for Spoke.Zone.
 class DeviceAuth extends CachedAccessTokenProvider {
+  /// Creates a device auth provider.
   DeviceAuth({
     required this.baseUri,
     required this.callbacks,
@@ -23,6 +25,7 @@ class DeviceAuth extends CachedAccessTokenProvider {
   final BackoffStrategy _backoffStrategy;
   final DelayFn _delay;
 
+  /// Performs `/loginDevice` and returns the current access token.
   @override
   Future<String> login() async {
     final seedToken = await callbacks.initialDeviceToken();

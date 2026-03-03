@@ -8,7 +8,9 @@ import '../models/ota_file.dart';
 import '../models/ota_files_list_options.dart';
 import '../retry.dart';
 
+/// Client for OTA file endpoints.
 class OtaFilesClient {
+  /// Creates an OTA files client.
   OtaFilesClient({
     required this.httpClient,
     required this.baseUri,
@@ -24,6 +26,7 @@ class OtaFilesClient {
   final BackoffStrategy _backoffStrategy;
   final DelayFn _delay;
 
+  /// Lists OTA files with optional [options].
   Future<List<OtaFile>> list({OtaFilesListOptions options = const OtaFilesListOptions()}) async {
     final query = <String, String>{
       'limit': '${options.limit}',
@@ -71,6 +74,7 @@ class OtaFilesClient {
     }).toList(growable: false);
   }
 
+  /// Downloads OTA file content as raw bytes for [id].
   Future<Uint8List> download(int id) async {
     final response = await sendAuthorizedJsonWithRetry(
       httpClient: httpClient,

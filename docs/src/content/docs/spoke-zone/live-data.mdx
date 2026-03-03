@@ -1,80 +1,10 @@
 ---
 title: Live Data
-description: MQTT live-data contracts for Spoke.Zone integration.
+description: MQTT live-data documentation status.
 sidebar:
-  order: 7
+  order: 3
 ---
 
-This page documents the SDK-facing MQTT live-data contracts for `SpokeZone.liveData`.
+## Coming Soon
 
-## Scope
-
-- Current implemented scope is publish-focused.
-- Subscription APIs are planned but not part of the current implementation contract.
-
-## API Surface
-
-- `connect() -> Future<void>`
-- `disconnect() -> Future<void>`
-- `isConnected` (observable connection state)
-- `publishJson({required String topic, required Map<String, dynamic> payload}) -> Future<bool>`
-- `registerPeriodicBroadcast({required String topic, required Duration interval, required Future<Map<String, dynamic>?> Function() payloadProvider}) -> LiveDataRegistration`
-- Fixed-topic helpers:
-  - `registerLocationBroadcast({required Future<Coordinates?> Function() locationProvider}) -> LiveDataRegistration`
-  - `registerSoftwareVersionsBroadcast({required Future<Map<String, String>?> Function() versionsProvider}) -> LiveDataRegistration`
-
-## Publish Behavior
-
-- `publishJson` is non-throwing and returns `Future<bool>`.
-  - `true` means publish succeeded.
-  - `false` means not delivered (for example disconnected and reconnect not yet successful).
-- One-off `publishJson` failures do not expose additional global diagnostics in the public API.
-
-## Connection Configuration
-
-- MQTT settings come from `SpokeZoneConfig`:
-  - `mqttHost`
-  - `mqttPort`
-  - `mqttUseTls`
-  - Defaults:
-    - `mqttHost = io.spoke.zone`
-    - `mqttPort = 8883`
-    - `mqttUseTls = true`
-  - Testing-only unencrypted mode:
-    - `mqttPort = 1883`
-    - `mqttUseTls = false`
-
-## Fixed Topic Conventions
-
-- Location:
-  - Topic: `mrs/d/<device-id>/mon/location`
-  - Payload: generated from `Coordinates` and serialized as `{lat, lon}`
-- Software versions:
-  - Topic: `mrs/d/<device-id>/mon/versions`
-  - Payload: flat `Map<String, String>` (`module -> version`)
-
-## Helper Intervals
-
-- `registerLocationBroadcast(...)` default interval: every 15 seconds.
-- `registerSoftwareVersionsBroadcast(...)` default interval: every 60 seconds.
-
-## Periodic Scheduling
-
-- Callbacks are async and nullable (`null` skips the tick).
-- `registerLocationBroadcast` uses nullable `Coordinates` from `locationProvider`.
-- First publish happens on the first interval tick.
-- Periodic jobs run only after `connect()`.
-- Jobs pause on `disconnect()` and resume on later `connect()`.
-- Registration cancellation stops only that registration.
-- Periodic publish failures do not throw to callers; status is updated per registration.
-
-## Registration Status
-
-- Each registration exposes minimal status:
-  - States: `idle`, `running`, `failed`, `canceled`
-  - Fields: `lastSuccessAt`, `consecutiveFailures`
-
-## Backoff and Auth
-
-- Reconnect behavior uses shared `BackoffStrategy` with default `FixedDelayBackoffStrategy` defined in `specs/spokezone-api-integration.md`.
-- Connect/reconnect requests the current token from the active `SpokeZone` auth provider.
+Information will be added here when live data support is added to the SDK.

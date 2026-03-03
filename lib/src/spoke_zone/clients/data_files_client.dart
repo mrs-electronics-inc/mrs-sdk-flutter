@@ -8,7 +8,9 @@ import '../errors.dart';
 import '../http_helpers.dart';
 import '../retry.dart';
 
+/// Client for data file endpoints.
 class DataFilesClient {
+  /// Creates a data files client.
   DataFilesClient({
     required this.httpClient,
     required this.baseUri,
@@ -34,6 +36,10 @@ class DataFilesClient {
     'txt',
   };
 
+  /// Creates a server-side data-file record and returns its ID.
+  ///
+  /// Supported [type] values: `log`, `event`, `gps`, `debug`, `journal`,
+  /// `dmesg`, `txt`.
   Future<int> create(String type) async {
     if (!_allowedTypes.contains(type)) {
       throw SpokeZoneException(
@@ -59,6 +65,7 @@ class DataFilesClient {
     return body['id'] as int;
   }
 
+  /// Uploads raw [content] bytes to a previously created data file [id].
   Future<void> upload(int id, Uint8List content) async {
     final token = await auth.getAccessToken();
     final endpoint = '/api/v2/data-files/$id/file';

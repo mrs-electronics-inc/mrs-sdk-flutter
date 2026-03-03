@@ -8,7 +8,9 @@ import '../models/coordinates.dart';
 import '../models/device_details.dart';
 import '../retry.dart';
 
+/// Client for device endpoints.
 class DevicesClient {
+  /// Creates a devices client.
   DevicesClient({
     required this.httpClient,
     required this.baseUri,
@@ -24,6 +26,7 @@ class DevicesClient {
   final BackoffStrategy _backoffStrategy;
   final DelayFn _delay;
 
+  /// Fetches a device by numeric [id].
   Future<DeviceDetails> get(int id) async {
     final response = await sendAuthorizedJsonWithRetry(
       httpClient: httpClient,

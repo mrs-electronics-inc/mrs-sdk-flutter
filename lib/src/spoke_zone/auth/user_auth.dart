@@ -7,7 +7,9 @@ import '../models/callbacks.dart';
 import '../retry.dart';
 import 'cached_access_token_provider.dart';
 
+/// User authentication provider for Spoke.Zone.
 class UserAuth extends CachedAccessTokenProvider {
+  /// Creates a user auth provider.
   UserAuth({
     required this.baseUri,
     required this.callbacks,
@@ -23,6 +25,7 @@ class UserAuth extends CachedAccessTokenProvider {
   final BackoffStrategy _backoffStrategy;
   final DelayFn _delay;
 
+  /// Performs `/login` and returns the current access token.
   @override
   Future<String> login() async {
     final response = await sendWithRetry(() async {

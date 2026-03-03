@@ -16,7 +16,11 @@ export 'clients/data_files_client.dart';
 export 'clients/devices_client.dart';
 export 'clients/ota_files_client.dart';
 
+/// Root Spoke.Zone SDK entry point.
+///
+/// Use [SpokeZoneConfig.device] or [SpokeZoneConfig.user] to select auth mode.
 class SpokeZone {
+  /// Creates a Spoke.Zone client.
   SpokeZone({
     required this.config,
     required this.httpClient,
@@ -53,8 +57,14 @@ class SpokeZone {
   final http.Client httpClient;
   final BackoffStrategy _backoffStrategy;
   final DelayFn _delay;
+
+  /// Device endpoints.
   late final DevicesClient devices;
+
+  /// OTA endpoints.
   late final OtaFilesClient otaFiles;
+
+  /// Data file endpoints.
   late final DataFilesClient dataFiles;
 
   AccessTokenProvider _buildAuthProvider({
