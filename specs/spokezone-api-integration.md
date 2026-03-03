@@ -136,7 +136,7 @@ All request/response, default/query, and endpoint-specific error mapping details
 - [x] Add tests first for shared `Coordinates` model usage in `devices.get(id)` (`lastLocation` typed as `Coordinates?` when both values are present)
 - [x] Add tests first for `dataFiles.create(type)` using allowed type values and `id` extraction
 - [x] Add tests first for `dataFiles.upload(id, content)` multipart construction from raw bytes
-- [ ] Add tests first for `otaFiles.list(...)` query handling and typed item mapping
+- [x] Add tests first for `otaFiles.list(...)` query handling and typed item mapping
 - [ ] Add tests first for `otaFiles.download(id)` byte-return behavior
 - [ ] Implement endpoint clients to make endpoint tests pass
 - [ ] Extract shared request/response helpers used by `devices`, `dataFiles`, and `otaFiles`; verify endpoint-behavior tests remain green

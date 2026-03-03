@@ -334,6 +334,74 @@ void main() {
       expect(request.files.single.field, 'files');
       expect(request.files.single.length, 3);
     });
+
+    test('otaFiles.list applies default query parameters and maps items', () async {
+      final client = _QueuedClient();
+      client.enqueueJson(200, {
+        'token': 'user-token',
+        'expires': 1,
+        'user': {'username': 'u'},
+      });
+      client.enqueueJson(200, [
+        {
+          'id': 1,
+          'modelId': 2,
+          'moduleId': 3,
+          'module': 'ECU',
+          'version': '1.2.3',
+          'fileLocation': '/bin',
+          'isActive': true,
+          'createdDate': '2026-01-01',
+          'releaseNotes': 'notes',
+        },
+      ]);
+
+      final zone = SpokeZone(
+        config: SpokeZoneConfig.user(userAuth: _userCallbacks()),
+        httpClient: client,
+      );
+
+      final list = await zone.otaFiles.list();
+      expect(list.single.module, 'ECU');
+
+      final request = client.requests[1] as http.Request;
+      expect(request.url.queryParameters['limit'], '50');
+      expect(request.url.queryParameters['offset'], '0');
+    });
+
+    test('otaFiles.list forwards caller query options', () async {
+      final client = _QueuedClient();
+      client.enqueueJson(200, {
+        'token': 'user-token',
+        'expires': 1,
+        'user': {'username': 'u'},
+      });
+      client.enqueueJson(200, []);
+
+      final zone = SpokeZone(
+        config: SpokeZoneConfig.user(userAuth: _userCallbacks()),
+        httpClient: client,
+      );
+
+      await zone.otaFiles.list(
+        options: const OtaFilesListOptions(
+          searchTerm: 'abc',
+          searchFields: 'module,version',
+          sort: 'createdDate',
+          sortOrder: 'desc',
+          limit: 25,
+          offset: 10,
+        ),
+      );
+
+      final request = client.requests[1] as http.Request;
+      expect(request.url.queryParameters['searchTerm'], 'abc');
+      expect(request.url.queryParameters['searchFields'], 'module,version');
+      expect(request.url.queryParameters['sort'], 'createdDate');
+      expect(request.url.queryParameters['sortOrder'], 'desc');
+      expect(request.url.queryParameters['limit'], '25');
+      expect(request.url.queryParameters['offset'], '10');
+    });
   });
 }
 
