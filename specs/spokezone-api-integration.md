@@ -139,7 +139,7 @@ All request/response, default/query, and endpoint-specific error mapping details
 - [x] Add tests first for `otaFiles.list(...)` query handling and typed item mapping
 - [x] Add tests first for `otaFiles.download(id)` byte-return behavior
 - [x] Implement endpoint clients to make endpoint tests pass
-- [ ] Extract shared request/response helpers used by `devices`, `dataFiles`, and `otaFiles`; verify endpoint-behavior tests remain green
+- [x] Extract shared request/response helpers used by `devices`, `dataFiles`, and `otaFiles`; verify endpoint-behavior tests remain green
 
 ### Reliability and Errors
 

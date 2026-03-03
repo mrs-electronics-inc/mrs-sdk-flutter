@@ -86,7 +86,7 @@ class UserAuth extends _CachedAccessTokenProvider {
       });
       return req;
     }, (request) => httpClient.send(request));
-    final body = jsonDecode(response.body) as Map<String, dynamic>;
+    final body = _decodeJsonObject(response.body);
     cacheToken(body['token'] as String);
     return getAccessToken();
   }
@@ -224,7 +224,7 @@ class OtaFilesClient {
         return req;
       },
     );
-    final body = jsonDecode(response.body) as List<dynamic>;
+    final body = _decodeJsonList(response.body);
     return body.map((item) {
       final map = item as Map<String, dynamic>;
       return OtaFile(
@@ -295,7 +295,7 @@ class DataFilesClient {
         return req;
       },
     );
-    final body = jsonDecode(response.body) as Map<String, dynamic>;
+    final body = _decodeJsonObject(response.body);
     return body['id'] as int;
   }
 
@@ -352,6 +352,14 @@ SpokeZoneErrorCode _mapStatus(int statusCode) {
     >= 500 => SpokeZoneErrorCode.serverError,
     _ => SpokeZoneErrorCode.unknown,
   };
+}
+
+Map<String, dynamic> _decodeJsonObject(String body) {
+  return jsonDecode(body) as Map<String, dynamic>;
+}
+
+List<dynamic> _decodeJsonList(String body) {
+  return jsonDecode(body) as List<dynamic>;
 }
 
 Future<http.Response> _sendAuthorizedJsonWithRetry({
