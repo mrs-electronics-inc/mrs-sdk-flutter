@@ -137,10 +137,15 @@ class DevicesClient {
   final AccessTokenProvider auth;
 
   Future<DeviceDetails> get(int id) async {
-    final token = await auth.getAccessToken();
-    final req = http.Request('GET', baseUri.replace(path: '/api/v2/devices/$id'));
-    req.headers['x-access-token'] = token;
-    final response = await http.Response.fromStream(await httpClient.send(req));
+    final response = await _sendAuthorizedJsonWithRetry(
+      httpClient: httpClient,
+      auth: auth,
+      requestBuilder: (token) {
+        final req = http.Request('GET', baseUri.replace(path: '/api/v2/devices/$id'));
+        req.headers['x-access-token'] = token;
+        return req;
+      },
+    );
     final body = jsonDecode(response.body) as Map<String, dynamic>;
     return DeviceDetails(
       id: body['id'] as int,
@@ -236,4 +241,29 @@ SpokeZoneErrorCode _mapStatus(int statusCode) {
     >= 500 => SpokeZoneErrorCode.serverError,
     _ => SpokeZoneErrorCode.unknown,
   };
+}
+
+Future<http.Response> _sendAuthorizedJsonWithRetry({
+  required http.Client httpClient,
+  required AccessTokenProvider auth,
+  required http.Request Function(String token) requestBuilder,
+}) async {
+  final token = await auth.getAccessToken();
+  var attempt = 0;
+
+  while (true) {
+    final request = requestBuilder(token);
+    final response = await http.Response.fromStream(await httpClient.send(request));
+    if (response.statusCode < 400) {
+      return response;
+    }
+    if (_isRetryable(response.statusCode) && attempt < 2) {
+      attempt += 1;
+      continue;
+    }
+    throw SpokeZoneException(
+      code: _mapStatus(response.statusCode),
+      message: 'Request failed with status ${response.statusCode}',
+    );
+  }
 }
