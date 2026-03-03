@@ -505,6 +505,53 @@ void main() {
       expect(await auth.login(), 'token');
       expect(called, [1]);
     });
+
+    test('maps typed error codes with endpoint/httpStatus/snippet diagnostics', () async {
+      final client = _QueuedClient();
+      client.enqueueJson(201, {'token': 'device-token'});
+      client.enqueueJson(404, {'message': 'missing resource'});
+
+      final zone = SpokeZone(
+        config: SpokeZoneConfig.device(deviceAuth: _deviceCallbacks()),
+        httpClient: client,
+      );
+
+      await expectLater(
+        zone.devices.get(99),
+        throwsA(
+          isA<SpokeZoneException>()
+              .having((e) => e.code, 'code', SpokeZoneErrorCode.notFound)
+              .having((e) => e.endpoint, 'endpoint', '/api/v2/devices/99')
+              .having((e) => e.httpStatus, 'httpStatus', 404)
+              .having((e) => e.responseSnippet, 'responseSnippet', contains('missing')),
+        ),
+      );
+    });
+
+    test('includes retry metadata when retry limit is reached', () async {
+      final client = _QueuedClient();
+      client.enqueueJson(500, {'error': 's1'});
+      client.enqueueJson(500, {'error': 's2'});
+      client.enqueueJson(500, {'error': 's3'});
+      client.enqueueJson(500, {'error': 's4'});
+
+      final auth = DeviceAuth(
+        baseUri: Uri.parse('https://api.spoke.zone'),
+        callbacks: _deviceCallbacks(),
+        httpClient: client,
+        delay: (_) async {},
+      );
+
+      await expectLater(
+        auth.login(),
+        throwsA(
+          isA<SpokeZoneException>()
+              .having((e) => e.code, 'code', SpokeZoneErrorCode.retryLimitReached)
+              .having((e) => e.retryAttempt, 'retryAttempt', 4)
+              .having((e) => e.retryAfter, 'retryAfter', isNull),
+        ),
+      );
+    });
   });
 }
 

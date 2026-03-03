@@ -147,7 +147,7 @@ All request/response, default/query, and endpoint-specific error mapping details
 - [x] Add tests first for non-retriable behavior on `4xx` other than `429`
 - [x] Add tests first for backoff abstraction behavior via interface + default implementation
 - [x] Implement shared backoff helper types (`BackoffStrategy` interface and default `FixedDelayBackoffStrategy`) and wire them into retry orchestration
-- [ ] Add tests first for typed error code mapping and diagnostic context (`endpoint`, `httpStatus`, bounded response snippet, retry metadata)
+- [x] Add tests first for typed error code mapping and diagnostic context (`endpoint`, `httpStatus`, bounded response snippet, retry metadata)
 - [ ] Add tests first that public APIs throw only SDK-typed exceptions (no raw HTTP/client exceptions leak)
 - [ ] Add tests first for client-side `validationError` mapping before request dispatch
 - [ ] Implement retry/backoff and uniform error mapping to make reliability tests pass
