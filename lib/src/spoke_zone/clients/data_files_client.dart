@@ -17,8 +17,8 @@ class DataFilesClient {
     required this.auth,
     required BackoffStrategy backoffStrategy,
     required DelayFn delay,
-  })  : _backoffStrategy = backoffStrategy,
-        _delay = delay;
+  }) : _backoffStrategy = backoffStrategy,
+       _delay = delay;
 
   final http.Client httpClient;
   final Uri baseUri;
@@ -52,7 +52,10 @@ class DataFilesClient {
       httpClient: httpClient,
       auth: auth,
       requestBuilder: (token) {
-        final req = http.Request('POST', baseUri.replace(path: '/api/v2/data-files'));
+        final req = http.Request(
+          'POST',
+          baseUri.replace(path: '/api/v2/data-files'),
+        );
         req.headers['x-access-token'] = token;
         req.headers['content-type'] = 'application/json';
         req.body = jsonEncode({'type': type});
@@ -75,7 +78,9 @@ class DataFilesClient {
         baseUri.replace(path: endpoint),
       );
       req.headers['x-access-token'] = token;
-      req.files.add(http.MultipartFile.fromBytes('files', content, filename: 'upload.bin'));
+      req.files.add(
+        http.MultipartFile.fromBytes('files', content, filename: 'upload.bin'),
+      );
       final streamed = await httpClient.send(req);
       final response = await http.Response.fromStream(streamed);
       if (response.statusCode >= 400) {

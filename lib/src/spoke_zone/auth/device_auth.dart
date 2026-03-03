@@ -16,8 +16,8 @@ class DeviceAuth extends CachedAccessTokenProvider {
     required this.httpClient,
     BackoffStrategy? backoffStrategy,
     DelayFn? delay,
-  })  : _backoffStrategy = backoffStrategy ?? const FixedDelayBackoffStrategy(),
-        _delay = delay ?? Future<void>.delayed;
+  }) : _backoffStrategy = backoffStrategy ?? const FixedDelayBackoffStrategy(),
+       _delay = delay ?? Future<void>.delayed;
 
   final Uri baseUri;
   final DeviceAuthCallbacks callbacks;
@@ -29,16 +29,21 @@ class DeviceAuth extends CachedAccessTokenProvider {
   @override
   Future<String> login() async {
     final seedToken = await callbacks.initialDeviceToken();
-    final response = await sendWithRetry(() async {
-      final req = http.Request('POST', baseUri.replace(path: '/loginDevice'));
-      req.headers['content-type'] = 'application/json';
-      req.body = jsonEncode({
-        'token': seedToken,
-        'cpu_id': await callbacks.cpuId(),
-        'uuid': await callbacks.uuid(),
-      });
-      return req;
-    }, (request) => httpClient.send(request), _backoffStrategy, _delay);
+    final response = await sendWithRetry(
+      () async {
+        final req = http.Request('POST', baseUri.replace(path: '/loginDevice'));
+        req.headers['content-type'] = 'application/json';
+        req.body = jsonEncode({
+          'token': seedToken,
+          'cpu_id': await callbacks.cpuId(),
+          'uuid': await callbacks.uuid(),
+        });
+        return req;
+      },
+      (request) => httpClient.send(request),
+      _backoffStrategy,
+      _delay,
+    );
 
     if (response.statusCode == 201) {
       final body = jsonDecode(response.body) as Map<String, dynamic>;

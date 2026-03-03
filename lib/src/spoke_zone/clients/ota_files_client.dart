@@ -17,8 +17,8 @@ class OtaFilesClient {
     required this.auth,
     required BackoffStrategy backoffStrategy,
     required DelayFn delay,
-  })  : _backoffStrategy = backoffStrategy,
-        _delay = delay;
+  }) : _backoffStrategy = backoffStrategy,
+       _delay = delay;
 
   final http.Client httpClient;
   final Uri baseUri;
@@ -27,7 +27,9 @@ class OtaFilesClient {
   final DelayFn _delay;
 
   /// Lists OTA files with optional [options].
-  Future<List<OtaFile>> list({OtaFilesListOptions options = const OtaFilesListOptions()}) async {
+  Future<List<OtaFile>> list({
+    OtaFilesListOptions options = const OtaFilesListOptions(),
+  }) async {
     final query = <String, String>{
       'limit': '${options.limit}',
       'offset': '${options.offset}',
@@ -45,7 +47,10 @@ class OtaFilesClient {
       query['sortOrder'] = options.sortOrder!;
     }
 
-    final uri = baseUri.replace(path: '/api/v2/ota-files', queryParameters: query);
+    final uri = baseUri.replace(
+      path: '/api/v2/ota-files',
+      queryParameters: query,
+    );
     final response = await sendAuthorizedJsonWithRetry(
       httpClient: httpClient,
       auth: auth,
@@ -58,20 +63,22 @@ class OtaFilesClient {
       delay: _delay,
     );
     final body = decodeJsonList(response.body);
-    return body.map((item) {
-      final map = item as Map<String, dynamic>;
-      return OtaFile(
-        id: map['id'] as int,
-        modelId: map['modelId'] as int,
-        moduleId: map['moduleId'] as int,
-        module: map['module'] as String,
-        version: map['version'] as String,
-        fileLocation: map['fileLocation'] as String,
-        isActive: map['isActive'] as bool,
-        createdDate: map['createdDate'] as String,
-        releaseNotes: map['releaseNotes'] as String,
-      );
-    }).toList(growable: false);
+    return body
+        .map((item) {
+          final map = item as Map<String, dynamic>;
+          return OtaFile(
+            id: map['id'] as int,
+            modelId: map['modelId'] as int,
+            moduleId: map['moduleId'] as int,
+            module: map['module'] as String,
+            version: map['version'] as String,
+            fileLocation: map['fileLocation'] as String,
+            isActive: map['isActive'] as bool,
+            createdDate: map['createdDate'] as String,
+            releaseNotes: map['releaseNotes'] as String,
+          );
+        })
+        .toList(growable: false);
   }
 
   /// Downloads OTA file content as raw bytes for [id].
@@ -80,7 +87,10 @@ class OtaFilesClient {
       httpClient: httpClient,
       auth: auth,
       requestBuilder: (token) {
-        final req = http.Request('GET', baseUri.replace(path: '/api/v2/ota-files/$id/file'));
+        final req = http.Request(
+          'GET',
+          baseUri.replace(path: '/api/v2/ota-files/$id/file'),
+        );
         req.headers['x-access-token'] = token;
         return req;
       },

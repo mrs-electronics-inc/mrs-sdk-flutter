@@ -23,7 +23,7 @@ test:
 # Format Flutter and docs code.
 format:
     dart format .
-    cd docs && npm run astro -- format
+    cd docs && npm run format
 
 # Run the docs site in development mode.
 run-docs:

@@ -16,8 +16,8 @@ class UserAuth extends CachedAccessTokenProvider {
     required this.httpClient,
     BackoffStrategy? backoffStrategy,
     DelayFn? delay,
-  })  : _backoffStrategy = backoffStrategy ?? const FixedDelayBackoffStrategy(),
-        _delay = delay ?? Future<void>.delayed;
+  }) : _backoffStrategy = backoffStrategy ?? const FixedDelayBackoffStrategy(),
+       _delay = delay ?? Future<void>.delayed;
 
   final Uri baseUri;
   final UserAuthCallbacks callbacks;
@@ -28,15 +28,20 @@ class UserAuth extends CachedAccessTokenProvider {
   /// Performs `/login` and returns the current access token.
   @override
   Future<String> login() async {
-    final response = await sendWithRetry(() async {
-      final req = http.Request('POST', baseUri.replace(path: '/login'));
-      req.headers['content-type'] = 'application/json';
-      req.body = jsonEncode({
-        'username': await callbacks.username(),
-        'password': await callbacks.password(),
-      });
-      return req;
-    }, (request) => httpClient.send(request), _backoffStrategy, _delay);
+    final response = await sendWithRetry(
+      () async {
+        final req = http.Request('POST', baseUri.replace(path: '/login'));
+        req.headers['content-type'] = 'application/json';
+        req.body = jsonEncode({
+          'username': await callbacks.username(),
+          'password': await callbacks.password(),
+        });
+        return req;
+      },
+      (request) => httpClient.send(request),
+      _backoffStrategy,
+      _delay,
+    );
     final body = decodeJsonObject(response.body);
     cacheToken(body['token'] as String);
     return getAccessToken();

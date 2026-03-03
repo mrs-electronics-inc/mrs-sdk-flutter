@@ -68,7 +68,9 @@ Future<http.Response> sendAuthorizedJsonWithRetry({
   while (true) {
     try {
       final request = requestBuilder(token);
-      final response = await http.Response.fromStream(await httpClient.send(request));
+      final response = await http.Response.fromStream(
+        await httpClient.send(request),
+      );
       final endpoint = request.url.path;
       if (response.statusCode < 400) {
         return response;

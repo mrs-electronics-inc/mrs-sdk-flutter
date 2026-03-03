@@ -8,36 +8,39 @@ import 'helpers.dart';
 
 void main() {
   group('Auth providers', () {
-    test('DeviceAuth.login sends expected request and handles 200/201', () async {
-      final client = QueuedClient();
-      client.enqueueJson(200, {'status': 'ok'});
+    test(
+      'DeviceAuth.login sends expected request and handles 200/201',
+      () async {
+        final client = QueuedClient();
+        client.enqueueJson(200, {'status': 'ok'});
 
-      final auth200 = DeviceAuth(
-        baseUri: Uri.parse('https://api.spoke.zone'),
-        callbacks: deviceCallbacks(),
-        httpClient: client,
-      );
+        final auth200 = DeviceAuth(
+          baseUri: Uri.parse('https://api.spoke.zone'),
+          callbacks: deviceCallbacks(),
+          httpClient: client,
+        );
 
-      final token200 = await auth200.login();
-      expect(token200, 'initial-device-token');
-      final request200 = client.requests.single as http.Request;
-      expect(request200.method, 'POST');
-      expect(request200.url.path, '/loginDevice');
-      final body200 = jsonDecode(request200.body) as Map<String, dynamic>;
-      expect(body200['token'], 'initial-device-token');
-      expect(body200['cpu_id'], 'cpu-1');
-      expect(body200['uuid'], 'uuid-1');
+        final token200 = await auth200.login();
+        expect(token200, 'initial-device-token');
+        final request200 = client.requests.single as http.Request;
+        expect(request200.method, 'POST');
+        expect(request200.url.path, '/loginDevice');
+        final body200 = jsonDecode(request200.body) as Map<String, dynamic>;
+        expect(body200['token'], 'initial-device-token');
+        expect(body200['cpu_id'], 'cpu-1');
+        expect(body200['uuid'], 'uuid-1');
 
-      final renewedClient = QueuedClient();
-      renewedClient.enqueueJson(201, {'token': 'renewed-token'});
-      final auth201 = DeviceAuth(
-        baseUri: Uri.parse('https://api.spoke.zone'),
-        callbacks: deviceCallbacks(),
-        httpClient: renewedClient,
-      );
+        final renewedClient = QueuedClient();
+        renewedClient.enqueueJson(201, {'token': 'renewed-token'});
+        final auth201 = DeviceAuth(
+          baseUri: Uri.parse('https://api.spoke.zone'),
+          callbacks: deviceCallbacks(),
+          httpClient: renewedClient,
+        );
 
-      expect(await auth201.login(), 'renewed-token');
-    });
+        expect(await auth201.login(), 'renewed-token');
+      },
+    );
 
     test('DeviceAuth.login maps terminal errors', () async {
       final client = QueuedClient();
@@ -60,32 +63,35 @@ void main() {
       );
     });
 
-    test('UserAuth.login uses username/password callbacks and token lifecycle entry points', () async {
-      final client = QueuedClient();
-      client.enqueueJson(200, {
-        'token': 'user-token',
-        'expires': 1,
-        'user': {'username': 'u'},
-      });
+    test(
+      'UserAuth.login uses username/password callbacks and token lifecycle entry points',
+      () async {
+        final client = QueuedClient();
+        client.enqueueJson(200, {
+          'token': 'user-token',
+          'expires': 1,
+          'user': {'username': 'u'},
+        });
 
-      final auth = UserAuth(
-        baseUri: Uri.parse('https://api.spoke.zone'),
-        callbacks: userCallbacks(),
-        httpClient: client,
-        delay: (_) async {},
-      );
+        final auth = UserAuth(
+          baseUri: Uri.parse('https://api.spoke.zone'),
+          callbacks: userCallbacks(),
+          httpClient: client,
+          delay: (_) async {},
+        );
 
-      final token = await auth.login();
-      expect(token, 'user-token');
+        final token = await auth.login();
+        expect(token, 'user-token');
 
-      final request = client.requests.single as http.Request;
-      expect(request.url.path, '/login');
-      final body = jsonDecode(request.body) as Map<String, dynamic>;
-      expect(body, {'username': 'user-a', 'password': 'pw-a'});
+        final request = client.requests.single as http.Request;
+        expect(request.url.path, '/login');
+        final body = jsonDecode(request.body) as Map<String, dynamic>;
+        expect(body, {'username': 'user-a', 'password': 'pw-a'});
 
-      expect(await auth.getAccessToken(), 'user-token');
-      expect(client.requests, hasLength(1));
-    });
+        expect(await auth.getAccessToken(), 'user-token');
+        expect(client.requests, hasLength(1));
+      },
+    );
 
     test('UserAuth.login applies retry parity and failure mapping', () async {
       final client = QueuedClient();

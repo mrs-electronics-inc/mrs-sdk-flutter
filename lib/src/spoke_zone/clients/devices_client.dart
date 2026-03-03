@@ -17,8 +17,8 @@ class DevicesClient {
     required this.auth,
     required BackoffStrategy backoffStrategy,
     required DelayFn delay,
-  })  : _backoffStrategy = backoffStrategy,
-        _delay = delay;
+  }) : _backoffStrategy = backoffStrategy,
+       _delay = delay;
 
   final http.Client httpClient;
   final Uri baseUri;
@@ -32,7 +32,10 @@ class DevicesClient {
       httpClient: httpClient,
       auth: auth,
       requestBuilder: (token) {
-        final req = http.Request('GET', baseUri.replace(path: '/api/v2/devices/$id'));
+        final req = http.Request(
+          'GET',
+          baseUri.replace(path: '/api/v2/devices/$id'),
+        );
         req.headers['x-access-token'] = token;
         return req;
       },
@@ -42,7 +45,9 @@ class DevicesClient {
     final body = jsonDecode(response.body) as Map<String, dynamic>;
 
     final lastOnlineRaw = body['lastOnline'] as String?;
-    final lastOnline = lastOnlineRaw == null ? null : DateTime.tryParse(lastOnlineRaw);
+    final lastOnline = lastOnlineRaw == null
+        ? null
+        : DateTime.tryParse(lastOnlineRaw);
 
     final latRaw = body['lastLatitude'];
     final lonRaw = body['lastLongitude'];

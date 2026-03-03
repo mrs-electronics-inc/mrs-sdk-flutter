@@ -21,8 +21,8 @@ UserAuthCallbacks userCallbacks() {
 }
 
 class QueuedClient extends http.BaseClient {
-  final Queue<Future<http.StreamedResponse> Function(http.BaseRequest)> _handlers =
-      Queue<Future<http.StreamedResponse> Function(http.BaseRequest)>();
+  final Queue<Future<http.StreamedResponse> Function(http.BaseRequest)>
+  _handlers = Queue<Future<http.StreamedResponse> Function(http.BaseRequest)>();
   final List<http.BaseRequest> requests = <http.BaseRequest>[];
 
   void enqueueJson(int statusCode, Object body) {
@@ -53,7 +53,9 @@ class QueuedClient extends http.BaseClient {
   Future<http.StreamedResponse> send(http.BaseRequest request) async {
     requests.add(request);
     if (_handlers.isEmpty) {
-      throw StateError('No queued response for ${request.method} ${request.url}');
+      throw StateError(
+        'No queued response for ${request.method} ${request.url}',
+      );
     }
     final handler = _handlers.removeFirst();
     return handler(request);
