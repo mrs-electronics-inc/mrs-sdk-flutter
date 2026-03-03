@@ -134,8 +134,8 @@ This spec covers package metadata, repository/package structure expectations, pu
 
 ### PR Workflows
 
-- [ ] Add a reusable quality-gates workflow/job (Ubuntu runner) shared by PR and release workflows, with inline comments explaining commands and failure behavior
-- [ ] Implement quality-gate command steps (no `just`): `dart format --set-exit-if-changed .`, `flutter analyze`, `flutter test`, `npm --prefix docs run lint`, `npm --prefix docs run format:check` with inline comments for each gate purpose
+- [x] Add a reusable quality-gates workflow/job (Ubuntu runner) shared by PR and release workflows, with inline comments explaining commands and failure behavior
+- [x] Implement quality-gate command steps (no `just`): `dart format --set-exit-if-changed .`, `flutter analyze`, `flutter test`, `npm --prefix docs run lint`, `npm --prefix docs run format:check` with inline comments for each gate purpose
 - [ ] Implement PR workflow that calls reusable quality-gates workflow, with inline comments for trigger and required-check intent
 - [ ] Configure PR checks so any failing required quality gate results in a failed PR workflow status
 - [ ] Keep quality-gate definitions in one reusable workflow and remove duplicated gate definitions from PR/release workflows
