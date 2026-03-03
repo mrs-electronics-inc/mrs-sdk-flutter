@@ -552,6 +552,22 @@ void main() {
         ),
       );
     });
+
+    test('public APIs throw only SDK typed exceptions', () async {
+      final client = _QueuedClient();
+      client.enqueueJson(201, {'token': 'device-token'});
+      client.enqueueException(http.ClientException('socket closed'));
+
+      final zone = SpokeZone(
+        config: SpokeZoneConfig.device(deviceAuth: _deviceCallbacks()),
+        httpClient: client,
+      );
+
+      await expectLater(
+        zone.dataFiles.upload(1, Uint8List.fromList([1, 2, 3])),
+        throwsA(isA<SpokeZoneException>()),
+      );
+    });
   });
 }
 
