@@ -1,0 +1,90 @@
+name: Publish to pub.dev
+
+on:
+  push:
+    # Trigger constraint: publish is only allowed from tag pushes.
+    # Tag format is validated strictly in `tag_version_check`.
+    tags:
+      - "v*.*.*"
+
+jobs:
+  quality_gates:
+    # Gate ordering: run shared quality gates before any publish-specific gates.
+    uses: ./.github/workflows/quality-gates.yml
+
+  tag_version_check:
+    name: tag_version_check
+    runs-on: ubuntu-latest
+    needs: quality_gates
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate tag format and package version references
+        # Failure condition: non-`vX.Y.Z` tags or mismatched versions stop release before publish.
+        run: |
+          set -euo pipefail
+          TAG="${GITHUB_REF_NAME}"
+
+          if ! [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Tag '$TAG' must match vX.Y.Z (no prerelease/build suffixes)." >&2
+            exit 1
+          fi
+
+          TAG_VERSION="${TAG#v}"
+          PUBSPEC_VERSION="$(sed -nE 's/^version:[[:space:]]*([^+[:space:]]+).*$/\1/p' pubspec.yaml | head -n1)"
+
+          if [[ -z "$PUBSPEC_VERSION" ]]; then
+            echo "Could not determine version from pubspec.yaml." >&2
+            exit 1
+          fi
+
+          if [[ "$TAG_VERSION" != "$PUBSPEC_VERSION" ]]; then
+            echo "Tag version '$TAG_VERSION' does not match pubspec version '$PUBSPEC_VERSION'." >&2
+            exit 1
+          fi
+
+          README_VERSION="$(sed -nE 's/^[[:space:]]*mrs_sdk_flutter:[[:space:]]*\^?([0-9]+\.[0-9]+\.[0-9]+).*$/\1/p' README.md | head -n1)"
+
+          if [[ -z "$README_VERSION" ]]; then
+            echo "Could not determine package version example from README.md." >&2
+            exit 1
+          fi
+
+          if [[ "$README_VERSION" != "$TAG_VERSION" ]]; then
+            echo "README version '$README_VERSION' does not match tag version '$TAG_VERSION'." >&2
+            exit 1
+          fi
+
+  dry_run_publish:
+    name: dry_run_publish
+    runs-on: ubuntu-latest
+    needs: tag_version_check
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Verify publish readiness with dry-run
+        # Failure condition: any pub.dev packaging or validation issue blocks real publish.
+        run: dart pub publish --dry-run
+
+  publish:
+    name: publish
+    needs: dry_run_publish
+    # OIDC permission required for pub.dev automated publishing from GitHub Actions.
+    permissions:
+      id-token: write
+      contents: read
+    # Use Dart's maintained reusable workflow for pub.dev automated publishing.
+    uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1
+    with:
+      # Environment protection: configure this GitHub Environment with one required reviewer.
+      # This environment name must also be required in pub.dev automated publishing settings.
+      environment: pubdev-release

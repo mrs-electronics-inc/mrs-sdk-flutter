@@ -1,6 +1,6 @@
-# MRS SDK Flutter
+# MRS SDK - Flutter
 
-This SDK provides developers with the tools, libraries, and documentation needed to create Flutter apps that integrate well with the MRS Electronic product ecosystem.
+`mrs_sdk_flutter` is the official Flutter package for integrating mobile apps with MRS Electronic products and services.
 
 ## Installation
 
@@ -8,7 +8,7 @@ Add the package to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  mrs_sdk_flutter: ^0.0.1
+  mrs_sdk_flutter: ^0.1.0
 ```
 
 Then fetch dependencies:
