@@ -169,14 +169,19 @@ class OtaFilesClient {
   final AccessTokenProvider auth;
 
   Future<List<OtaFile>> list() async {
-    final token = await auth.getAccessToken();
     final uri = baseUri.replace(
       path: '/api/v2/ota-files',
       queryParameters: const {'limit': '50', 'offset': '0'},
     );
-    final req = http.Request('GET', uri);
-    req.headers['x-access-token'] = token;
-    final response = await http.Response.fromStream(await httpClient.send(req));
+    final response = await _sendAuthorizedJsonWithRetry(
+      httpClient: httpClient,
+      auth: auth,
+      requestBuilder: (token) {
+        final req = http.Request('GET', uri);
+        req.headers['x-access-token'] = token;
+        return req;
+      },
+    );
     final body = jsonDecode(response.body) as List<dynamic>;
     return body.map((item) {
       final map = item as Map<String, dynamic>;
