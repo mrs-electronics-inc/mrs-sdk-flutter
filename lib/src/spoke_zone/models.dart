@@ -1,5 +1,12 @@
 typedef AsyncStringCallback = Future<String> Function();
 
+class Coordinates {
+  const Coordinates({required this.latitude, required this.longitude});
+
+  final double latitude;
+  final double longitude;
+}
+
 class DeviceAuthCallbacks {
   const DeviceAuthCallbacks({
     required this.cpuId,
@@ -52,6 +59,9 @@ class DeviceDetails {
     required this.serialNumber,
     required this.modelId,
     required this.modelName,
+    required this.lastOnline,
+    required this.lastLocation,
+    required this.softwareVersions,
   });
 
   final int id;
@@ -59,4 +69,25 @@ class DeviceDetails {
   final String serialNumber;
   final int modelId;
   final String modelName;
+  final DateTime? lastOnline;
+  final Coordinates? lastLocation;
+  final Map<String, String> softwareVersions;
+}
+
+class OtaFilesListOptions {
+  const OtaFilesListOptions({
+    this.searchTerm,
+    this.searchFields,
+    this.sort,
+    this.sortOrder,
+    this.limit = 50,
+    this.offset = 0,
+  });
+
+  final String? searchTerm;
+  final String? searchFields;
+  final String? sort;
+  final String? sortOrder;
+  final int limit;
+  final int offset;
 }

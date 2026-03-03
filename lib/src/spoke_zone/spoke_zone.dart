@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:http/http.dart' as http;
 
@@ -147,12 +148,39 @@ class DevicesClient {
       },
     );
     final body = jsonDecode(response.body) as Map<String, dynamic>;
+
+    final lastOnlineRaw = body['lastOnline'] as String?;
+    final lastOnline = lastOnlineRaw == null ? null : DateTime.tryParse(lastOnlineRaw);
+
+    final latRaw = body['lastLatitude'];
+    final lonRaw = body['lastLongitude'];
+    Coordinates? lastLocation;
+    if (latRaw is num && lonRaw is num) {
+      lastLocation = Coordinates(
+        latitude: latRaw.toDouble(),
+        longitude: lonRaw.toDouble(),
+      );
+    }
+
+    final softwareVersionsRaw = body['softwareVersions'];
+    final softwareVersions = <String, String>{};
+    if (softwareVersionsRaw is Map<String, dynamic>) {
+      softwareVersionsRaw.forEach((key, value) {
+        if (value is String) {
+          softwareVersions[key] = value;
+        }
+      });
+    }
+
     return DeviceDetails(
       id: body['id'] as int,
       identifier: body['identifier'] as String,
       serialNumber: body['serialNumber'] as String,
       modelId: body['modelId'] as int,
       modelName: body['name'] as String,
+      lastOnline: lastOnline,
+      lastLocation: lastLocation,
+      softwareVersions: softwareVersions,
     );
   }
 }
@@ -168,11 +196,25 @@ class OtaFilesClient {
   final Uri baseUri;
   final AccessTokenProvider auth;
 
-  Future<List<OtaFile>> list() async {
-    final uri = baseUri.replace(
-      path: '/api/v2/ota-files',
-      queryParameters: const {'limit': '50', 'offset': '0'},
-    );
+  Future<List<OtaFile>> list({OtaFilesListOptions options = const OtaFilesListOptions()}) async {
+    final query = <String, String>{
+      'limit': '${options.limit}',
+      'offset': '${options.offset}',
+    };
+    if (options.searchTerm != null) {
+      query['searchTerm'] = options.searchTerm!;
+    }
+    if (options.searchFields != null) {
+      query['searchFields'] = options.searchFields!;
+    }
+    if (options.sort != null) {
+      query['sort'] = options.sort!;
+    }
+    if (options.sortOrder != null) {
+      query['sortOrder'] = options.sortOrder!;
+    }
+
+    final uri = baseUri.replace(path: '/api/v2/ota-files', queryParameters: query);
     final response = await _sendAuthorizedJsonWithRetry(
       httpClient: httpClient,
       auth: auth,
@@ -198,6 +240,19 @@ class OtaFilesClient {
       );
     }).toList(growable: false);
   }
+
+  Future<Uint8List> download(int id) async {
+    final response = await _sendAuthorizedJsonWithRetry(
+      httpClient: httpClient,
+      auth: auth,
+      requestBuilder: (token) {
+        final req = http.Request('GET', baseUri.replace(path: '/api/v2/ota-files/$id/file'));
+        req.headers['x-access-token'] = token;
+        return req;
+      },
+    );
+    return Uint8List.fromList(response.bodyBytes);
+  }
 }
 
 class DataFilesClient {
@@ -210,6 +265,57 @@ class DataFilesClient {
   final http.Client httpClient;
   final Uri baseUri;
   final AccessTokenProvider auth;
+
+  static const Set<String> _allowedTypes = {
+    'log',
+    'event',
+    'gps',
+    'debug',
+    'journal',
+    'dmesg',
+    'txt',
+  };
+
+  Future<int> create(String type) async {
+    if (!_allowedTypes.contains(type)) {
+      throw SpokeZoneException(
+        code: SpokeZoneErrorCode.validationError,
+        message: 'Unsupported data file type: $type',
+      );
+    }
+
+    final response = await _sendAuthorizedJsonWithRetry(
+      httpClient: httpClient,
+      auth: auth,
+      requestBuilder: (token) {
+        final req = http.Request('POST', baseUri.replace(path: '/api/v2/data-files'));
+        req.headers['x-access-token'] = token;
+        req.headers['content-type'] = 'application/json';
+        req.body = jsonEncode({'type': type});
+        return req;
+      },
+    );
+    final body = jsonDecode(response.body) as Map<String, dynamic>;
+    return body['id'] as int;
+  }
+
+  Future<void> upload(int id, Uint8List content) async {
+    final token = await auth.getAccessToken();
+    final req = http.MultipartRequest(
+      'POST',
+      baseUri.replace(path: '/api/v2/data-files/$id/file'),
+    );
+    req.headers['x-access-token'] = token;
+    req.files.add(http.MultipartFile.fromBytes('files', content, filename: 'upload.bin'));
+    final streamed = await httpClient.send(req);
+    final response = await http.Response.fromStream(streamed);
+    if (response.statusCode >= 400) {
+      throw SpokeZoneException(
+        code: _mapStatus(response.statusCode),
+        message: 'Upload failed with status ${response.statusCode}',
+      );
+    }
+  }
 }
 
 Future<http.Response> _sendWithRetry(

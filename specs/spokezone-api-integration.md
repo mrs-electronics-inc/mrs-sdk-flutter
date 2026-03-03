@@ -138,7 +138,7 @@ All request/response, default/query, and endpoint-specific error mapping details
 - [x] Add tests first for `dataFiles.upload(id, content)` multipart construction from raw bytes
 - [x] Add tests first for `otaFiles.list(...)` query handling and typed item mapping
 - [x] Add tests first for `otaFiles.download(id)` byte-return behavior
-- [ ] Implement endpoint clients to make endpoint tests pass
+- [x] Implement endpoint clients to make endpoint tests pass
 - [ ] Extract shared request/response helpers used by `devices`, `dataFiles`, and `otaFiles`; verify endpoint-behavior tests remain green
 
 ### Reliability and Errors
