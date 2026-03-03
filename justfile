@@ -11,10 +11,6 @@ deps:
 setup: deps
     pre-commit install
 
-# Run the Flutter app.
-dev:
-    flutter run
-
 # Run Flutter analysis and docs build checks.
 lint:
     flutter analyze
