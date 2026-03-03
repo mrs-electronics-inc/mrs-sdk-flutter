@@ -2,4 +2,20 @@
 title: Overview
 ---
 
-Documentation for getting started with the MRS Flutter SDK will be available soon.
+Use the standard project setup by default:
+
+```bash
+just setup
+```
+
+## Optional Nix Environment
+
+Nix is optional and mainly intended for maintainers or contributors who want reproducible pinned tooling.
+
+If you use Nix:
+
+```bash
+nix develop
+```
+
+If you do not use Nix, continue with the normal repository workflow using `just` recipes (`just deps`, `just test`, `just lint`, and so on).
