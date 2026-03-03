@@ -418,23 +418,20 @@ Future<http.Response> _sendWithRetry(
           await delay(wait);
           continue;
         }
-        throw SpokeZoneException(
-          code: SpokeZoneErrorCode.retryLimitReached,
-          message: 'Retry limit reached',
+        throw _retryLimitError(
           endpoint: endpoint,
           httpStatus: response.statusCode,
-          responseSnippet: _snippet(response.body),
+          responseBody: response.body,
           retryAttempt: retryNumber,
           retryAfter: wait,
         );
       }
 
-      throw SpokeZoneException(
-        code: _mapStatus(response.statusCode),
-        message: 'Auth request failed with status ${response.statusCode}',
+      throw _statusError(
         endpoint: endpoint,
-        httpStatus: response.statusCode,
-        responseSnippet: _snippet(response.body),
+        statusCode: response.statusCode,
+        responseBody: response.body,
+        messagePrefix: 'Auth request failed',
       );
     } on http.ClientException {
       retryNumber += 1;
@@ -443,12 +440,7 @@ Future<http.Response> _sendWithRetry(
         await delay(wait);
         continue;
       }
-      throw SpokeZoneException(
-        code: SpokeZoneErrorCode.retryLimitReached,
-        message: 'Retry limit reached',
-        retryAttempt: retryNumber,
-        retryAfter: wait,
-      );
+      throw _retryLimitError(retryAttempt: retryNumber, retryAfter: wait);
     }
   }
 }
@@ -500,22 +492,19 @@ Future<http.Response> _sendAuthorizedJsonWithRetry({
           await delay(wait);
           continue;
         }
-        throw SpokeZoneException(
-          code: SpokeZoneErrorCode.retryLimitReached,
-          message: 'Retry limit reached',
+        throw _retryLimitError(
           endpoint: endpoint,
           httpStatus: response.statusCode,
-          responseSnippet: _snippet(response.body),
+          responseBody: response.body,
           retryAttempt: retryNumber,
           retryAfter: wait,
         );
       }
-      throw SpokeZoneException(
-        code: _mapStatus(response.statusCode),
-        message: 'Request failed with status ${response.statusCode}',
+      throw _statusError(
         endpoint: endpoint,
-        httpStatus: response.statusCode,
-        responseSnippet: _snippet(response.body),
+        statusCode: response.statusCode,
+        responseBody: response.body,
+        messagePrefix: 'Request failed',
       );
     } on http.ClientException {
       retryNumber += 1;
@@ -524,12 +513,7 @@ Future<http.Response> _sendAuthorizedJsonWithRetry({
         await delay(wait);
         continue;
       }
-      throw SpokeZoneException(
-        code: SpokeZoneErrorCode.retryLimitReached,
-        message: 'Retry limit reached',
-        retryAttempt: retryNumber,
-        retryAfter: wait,
-      );
+      throw _retryLimitError(retryAttempt: retryNumber, retryAfter: wait);
     }
   }
 }
@@ -539,4 +523,37 @@ String _snippet(String body) {
     return body;
   }
   return body.substring(0, 200);
+}
+
+SpokeZoneException _retryLimitError({
+  String? endpoint,
+  int? httpStatus,
+  String? responseBody,
+  required int retryAttempt,
+  required Duration? retryAfter,
+}) {
+  return SpokeZoneException(
+    code: SpokeZoneErrorCode.retryLimitReached,
+    message: 'Retry limit reached',
+    endpoint: endpoint,
+    httpStatus: httpStatus,
+    responseSnippet: responseBody == null ? null : _snippet(responseBody),
+    retryAttempt: retryAttempt,
+    retryAfter: retryAfter,
+  );
+}
+
+SpokeZoneException _statusError({
+  required String endpoint,
+  required int statusCode,
+  required String responseBody,
+  required String messagePrefix,
+}) {
+  return SpokeZoneException(
+    code: _mapStatus(statusCode),
+    message: '$messagePrefix with status $statusCode',
+    endpoint: endpoint,
+    httpStatus: statusCode,
+    responseSnippet: _snippet(responseBody),
+  );
 }

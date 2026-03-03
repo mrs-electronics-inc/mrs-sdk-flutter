@@ -151,7 +151,7 @@ All request/response, default/query, and endpoint-specific error mapping details
 - [x] Add tests first that public APIs throw only SDK-typed exceptions (no raw HTTP/client exceptions leak)
 - [x] Add tests first for client-side `validationError` mapping before request dispatch
 - [x] Implement retry/backoff and uniform error mapping to make reliability tests pass
-- [ ] Centralize retry and error-mapping policy wiring into shared internal components; verify reliability/error tests remain green
+- [x] Centralize retry and error-mapping policy wiring into shared internal components; verify reliability/error tests remain green
 
 ### Documentation
 
