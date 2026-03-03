@@ -159,5 +159,3 @@ This spec covers package metadata, repository/package structure expectations, pu
 - [ ] Add one release-process checklist in `.github/release-process.md` covering version bump and changelog update before tagging
 - [ ] Add release-to-deploy handoff steps in `.github/release-process.md`, including `vX.Y.Z` tag creation and push trigger expectations
 - [ ] Add post-publish traceability steps in `.github/release-process.md` for published version verification and deployment record links
-- [ ] Remove duplicate release instructions from other docs pages and replace them with links to `.github/release-process.md` and canonical workflow files
-- [ ] Ensure release-process checklist order matches CI job order and tag-trigger behavior exactly
