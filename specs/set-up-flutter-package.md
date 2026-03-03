@@ -110,10 +110,10 @@ This spec covers package metadata, repository/package structure expectations, pu
 
 ### Nix Flake Setup
 
-- [ ] Add `flake.nix` with inputs (`nixpkgs`, `devshell`, `android-nixpkgs`) and overlay-based Android SDK configuration
-- [ ] Add/align `devshell.nix` and ensure flake `devShell` points to it
-- [ ] Commit `flake.lock` and verify `flake.nix` input pins are resolved exclusively from the lockfile
-- [ ] Remove redundant or conflicting Nix environment definitions (single canonical `flake.nix` + `devshell.nix` path only)
+- [x] Add `flake.nix` with inputs (`nixpkgs`, `devshell`, `android-nixpkgs`) and overlay-based Android SDK configuration
+- [x] Add/align `devshell.nix` and ensure flake `devShell` points to it
+- [x] Commit `flake.lock` and verify `flake.nix` input pins are resolved exclusively from the lockfile
+- [x] Remove redundant or conflicting Nix environment definitions (single canonical `flake.nix` + `devshell.nix` path only)
 - [ ] Update Nix setup guidance to explicitly state Nix is optional for users/maintainers and non-Nix contributors use standard project setup
 
 ### Package Metadata and Layout
