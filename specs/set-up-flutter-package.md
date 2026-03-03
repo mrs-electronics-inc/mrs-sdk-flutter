@@ -1,6 +1,6 @@
 ---
 number: 1
-status: approved
+status: in-progress
 author: Addison Emig
 creation_date: 2026-02-24
 approved_by: Addison Emig
