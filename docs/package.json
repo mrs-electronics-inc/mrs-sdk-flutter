@@ -7,11 +7,22 @@
     "start": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "lint": "astro check && eslint astro.config.mjs src/content.config.ts --max-warnings=0",
+    "format:check": "prettier --check \"**/*.{js,mjs,ts,md,mdx,json,yml,yaml}\""
   },
   "dependencies": {
     "@astrojs/starlight": "^0.36.2",
     "astro": "^5.6.1",
     "sharp": "^0.34.2"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.6",
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.0.2",
+    "globals": "^17.4.0",
+    "prettier": "^3.8.1",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.56.1"
   }
 }
