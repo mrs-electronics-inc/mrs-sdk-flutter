@@ -127,6 +127,32 @@ void main() {
         ),
       );
     });
+
+    test('UserAuth.login uses username/password callbacks and token lifecycle entry points', () async {
+      final client = _QueuedClient();
+      client.enqueueJson(200, {
+        'token': 'user-token',
+        'expires': 1,
+        'user': {'username': 'u'},
+      });
+
+      final auth = UserAuth(
+        baseUri: Uri.parse('https://api.spoke.zone'),
+        callbacks: _userCallbacks(),
+        httpClient: client,
+      );
+
+      final token = await auth.login();
+      expect(token, 'user-token');
+
+      final request = client.requests.single as http.Request;
+      expect(request.url.path, '/login');
+      final body = jsonDecode(request.body) as Map<String, dynamic>;
+      expect(body, {'username': 'user-a', 'password': 'pw-a'});
+
+      expect(await auth.getAccessToken(), 'user-token');
+      expect(client.requests, hasLength(1));
+    });
   });
 }
 
