@@ -193,6 +193,19 @@ void main() {
       );
     });
   });
+
+  group('Service shape', () {
+    test('SpokeZone exposes devices, dataFiles, and otaFiles namespaces', () {
+      final zone = SpokeZone(
+        config: SpokeZoneConfig.device(deviceAuth: _deviceCallbacks()),
+        httpClient: _QueuedClient(),
+      );
+
+      expect(zone.devices, isA<DevicesClient>());
+      expect(zone.dataFiles, isA<DataFilesClient>());
+      expect(zone.otaFiles, isA<OtaFilesClient>());
+    });
+  });
 }
 
 DeviceAuthCallbacks _deviceCallbacks() {

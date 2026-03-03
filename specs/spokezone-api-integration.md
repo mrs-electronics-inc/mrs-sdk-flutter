@@ -125,7 +125,7 @@ All request/response, default/query, and endpoint-specific error mapping details
 
 ### Service Shape
 
-- [ ] Add tests first asserting root `SpokeZone` exposes `devices`, `dataFiles`, and `otaFiles` namespaces
+- [x] Add tests first asserting root `SpokeZone` exposes `devices`, `dataFiles`, and `otaFiles` namespaces
 - [ ] Add tests first for shared HTTP pipeline behavior (header injection, retry orchestration, and error mapping middleware)
 - [ ] Implement root service and namespaced clients to make service-shape tests pass
 - [ ] Simplify service wiring by extracting shared request setup into one internal helper; verify service-shape tests remain green
