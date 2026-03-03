@@ -1,3 +1,7 @@
+## 0.2.0
+
+- Implement basic Spoke.Zone integration.
+
 ## 0.1.0
 
 - Prepare first automated GitHub Actions publish flow.

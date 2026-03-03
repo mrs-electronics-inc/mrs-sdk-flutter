@@ -1,6 +1,6 @@
 name: mrs_sdk_flutter
 description: Official Flutter package for integrating mobile apps with MRS Electronic products and services.
-version: 0.1.0
+version: 0.2.0
 homepage: https://mrs-electronics.dev
 repository: https://github.com/mrs-electronics-inc/mrs-sdk-flutter
 documentation: https://flutter.mrs-electronics.dev
