@@ -1,4 +1,4 @@
-# Publish Readiness Checklist
+# Release Process Checklist
 
 Use this checklist before package publish work:
 
