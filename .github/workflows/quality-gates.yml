@@ -1,0 +1,53 @@
+name: Quality Gates
+
+on:
+  workflow_call:
+
+jobs:
+  quality_gates:
+    name: quality_gates
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: docs/package-lock.json
+
+      - name: Install docs dependencies
+        run: npm --prefix docs ci
+
+      - name: Verify Dart formatting
+        # Gate intent: reject unformatted Dart source before deeper checks run.
+        # Failure behavior: exits non-zero when `dart format` would change files.
+        run: dart format --set-exit-if-changed .
+
+      - name: Run Flutter static analysis
+        # Gate intent: block merges/releases when analyzer reports issues.
+        # Failure behavior: analyzer diagnostics return non-zero and fail the job.
+        run: flutter analyze
+
+      - name: Run Flutter tests
+        # Gate intent: enforce green SDK tests for all incoming and release changes.
+        # Failure behavior: any failing test returns non-zero and fails the job.
+        run: flutter test
+
+      - name: Lint docs
+        # Gate intent: ensure docs code quality checks pass before merge/release.
+        # Failure behavior: docs lint errors return non-zero and fail the job.
+        run: npm --prefix docs run lint
+
+      - name: Check docs formatting
+        # Gate intent: enforce docs formatting consistency in CI.
+        # Failure behavior: format check returns non-zero when files are not formatted.
+        run: npm --prefix docs run format:check
