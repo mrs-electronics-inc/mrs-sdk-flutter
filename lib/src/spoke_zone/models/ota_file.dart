@@ -35,10 +35,10 @@ class OtaFile {
   /// Active status flag.
   final bool isActive;
 
-  /// Parsed creation date from API when present and valid.
+  /// Creation date parsed from API payload, or `null` when missing/invalid.
   final DateTime? createdDate;
 
-  /// Parsed release date from API when present and valid.
+  /// Release date parsed from API payload, or `null` when missing/invalid.
   final DateTime? releaseDate;
 
   /// Release notes text.

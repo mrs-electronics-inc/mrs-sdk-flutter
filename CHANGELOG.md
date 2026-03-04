@@ -1,6 +1,6 @@
 ## 0.4.0
 
-- Improve SDK release documentation and maintenance notes.
+- Improved Spoke.Zone integration.
 
 ## 0.3.0
 
