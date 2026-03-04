@@ -25,6 +25,7 @@ abstract interface class LiveDataTransport {
 typedef LiveDataTransportFactory = LiveDataTransport Function();
 
 class _DefaultLiveDataTransport implements LiveDataTransport {
+  MqttServerClient? _client;
   bool _connected = false;
 
   @override
@@ -34,11 +35,32 @@ class _DefaultLiveDataTransport implements LiveDataTransport {
     required bool useTls,
     required String accessToken,
   }) async {
+    await disconnect();
+
+    final client = MqttServerClient.withPort(
+      host,
+      _buildLiveDataClientIdentifier(),
+      port,
+    );
+    client.secure = useTls;
+    client.keepAlivePeriod = 20;
+    client.setProtocolV311();
+
+    final status = await client.connect('', accessToken);
+    if (status?.state != mqtt.MqttConnectionState.connected) {
+      client.disconnect();
+      _connected = false;
+      throw StateError('MQTT connection failed');
+    }
+
+    _client = client;
     _connected = true;
   }
 
   @override
   Future<void> disconnect() async {
+    _client?.disconnect();
+    _client = null;
     _connected = false;
   }
 
@@ -48,6 +70,32 @@ class _DefaultLiveDataTransport implements LiveDataTransport {
     required String payload,
     required bool retained,
   }) async {
-    return _connected;
+    if (!_connected || _client == null) {
+      return false;
+    }
+
+    final builder = mqtt.MqttClientPayloadBuilder();
+    builder.addString(payload);
+    final encodedPayload = builder.payload;
+    if (encodedPayload == null) {
+      return false;
+    }
+
+    try {
+      _client!.publishMessage(
+        topic,
+        mqtt.MqttQos.atLeastOnce,
+        encodedPayload,
+        retain: retained,
+      );
+      return true;
+    } catch (_) {
+      return false;
+    }
   }
+}
+
+String _buildLiveDataClientIdentifier() {
+  final unixTimeMs = DateTime.now().millisecondsSinceEpoch;
+  return 'mrs-live-$unixTimeMs';
 }
