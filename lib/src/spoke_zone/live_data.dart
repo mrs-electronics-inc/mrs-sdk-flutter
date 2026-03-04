@@ -5,85 +5,13 @@ import 'package:flutter/foundation.dart';
 
 import 'access_token_provider.dart';
 import 'errors.dart';
-import 'retry.dart';
 import 'models/coordinates.dart';
+import 'retry.dart';
 
-/// Registration states for periodic live-data jobs.
-enum LiveDataRegistrationState { idle, running, failed, canceled }
-
-/// Snapshot of one periodic registration's current status.
-class LiveDataRegistrationStatus {
-  /// Creates an immutable registration status snapshot.
-  const LiveDataRegistrationStatus({
-    required this.state,
-    required this.lastSuccessAt,
-    required this.consecutiveFailures,
-  });
-
-  /// Current state for this registration.
-  final LiveDataRegistrationState state;
-
-  /// Timestamp of the latest successful publish, if any.
-  final DateTime? lastSuccessAt;
-
-  /// Count of consecutive failed publish attempts.
-  final int consecutiveFailures;
-}
-
-/// Async provider used for periodic JSON payload generation.
-typedef LiveDataPayloadProvider = Future<Map<String, dynamic>?> Function();
-
-/// Transport abstraction used by [LiveData].
-abstract interface class LiveDataTransport {
-  /// Opens an MQTT session with token-authenticated connection settings.
-  Future<void> connect({
-    required String host,
-    required int port,
-    required bool useTls,
-    required String accessToken,
-  });
-
-  /// Closes the active MQTT session.
-  Future<void> disconnect();
-
-  /// Publishes a serialized JSON payload to the given topic.
-  Future<bool> publish({
-    required String topic,
-    required String payload,
-    required bool retained,
-  });
-}
-
-/// Factory for creating a [LiveDataTransport] instance.
-typedef LiveDataTransportFactory = LiveDataTransport Function();
-
-/// Minimal periodic timer contract used for scheduler injection.
-abstract interface class PeriodicTimer {
-  /// Cancels future ticks.
-  void cancel();
-}
-
-/// Factory for creating periodic timers.
-typedef PeriodicTimerFactory =
-    PeriodicTimer Function(Duration interval, void Function() onTick);
-
-/// Handle returned by periodic registration APIs.
-class LiveDataRegistration {
-  LiveDataRegistration._(this._cancel, this._statusNotifier);
-
-  final Future<void> Function() _cancel;
-  final ValueNotifier<LiveDataRegistrationStatus> _statusNotifier;
-
-  /// Current registration status snapshot.
-  LiveDataRegistrationStatus get status => _statusNotifier.value;
-
-  /// Observable status updates for this registration.
-  ValueListenable<LiveDataRegistrationStatus> get statusListenable =>
-      _statusNotifier;
-
-  /// Cancels this registration.
-  Future<void> cancel() => _cancel();
-}
+part 'live_data/live_data_registration.dart';
+part 'live_data/live_data_timer.dart';
+part 'live_data/live_data_transport.dart';
+part 'live_data/live_data_types.dart';
 
 /// MQTT live-data service for publish and periodic telemetry workflows.
 class LiveData {
@@ -116,7 +44,6 @@ class LiveData {
   final DelayFn _delay;
   final DateTime Function() _now;
   final PeriodicTimerFactory _timerFactory;
-
   final LiveDataTransport _transport;
 
   Future<bool>? _connectFuture;
@@ -420,69 +347,5 @@ class LiveData {
         message: 'Payload must be JSON-encodable',
       );
     }
-  }
-}
-
-class _RegistrationRecord {
-  _RegistrationRecord({
-    required this.topic,
-    required this.payloadProvider,
-    required this.interval,
-    required this.retained,
-    required this.statusNotifier,
-  });
-
-  final String topic;
-  final LiveDataPayloadProvider payloadProvider;
-  final Duration interval;
-  final bool retained;
-  final ValueNotifier<LiveDataRegistrationStatus> statusNotifier;
-
-  bool canceled = false;
-  bool isPublishing = false;
-  PeriodicTimer? timer;
-}
-
-class _SystemPeriodicTimer implements PeriodicTimer {
-  _SystemPeriodicTimer(this._timer);
-
-  final Timer _timer;
-
-  @override
-  void cancel() => _timer.cancel();
-}
-
-PeriodicTimer _systemPeriodicTimerFactory(
-  Duration interval,
-  void Function() onTick,
-) {
-  return _SystemPeriodicTimer(Timer.periodic(interval, (_) => onTick()));
-}
-
-class _DefaultLiveDataTransport implements LiveDataTransport {
-  bool _connected = false;
-
-  @override
-  Future<void> connect({
-    required String host,
-    required int port,
-    required bool useTls,
-    required String accessToken,
-  }) async {
-    _connected = true;
-  }
-
-  @override
-  Future<void> disconnect() async {
-    _connected = false;
-  }
-
-  @override
-  Future<bool> publish({
-    required String topic,
-    required String payload,
-    required bool retained,
-  }) async {
-    return _connected;
   }
 }
