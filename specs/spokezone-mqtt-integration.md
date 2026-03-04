@@ -1,6 +1,6 @@
 ---
 number: 3
-status: approved
+status: completed
 author: Addison Emig
 creation_date: 2026-02-24
 approved_by: Addison Emig
@@ -95,42 +95,42 @@ This integration builds on [Spoke.Zone API Integration](spokezone-api-integratio
 
 ### API Surface and Wiring
 
-- [ ] Add tests first for `SpokeZone.liveData` exposure and type contract.
-- [ ] Add tests first for `LiveData` lifecycle API (`connect`, `disconnect`, `isConnected`) and initial disconnected state.
-- [ ] Add tests first for MQTT config defaults and overrides via `SpokeZoneConfig` (`mqttHost`, `mqttPort`, `mqttUseTls`), including test-only unencrypted mode.
-- [ ] Implement `SpokeZone.liveData` and lifecycle API wiring to satisfy tests.
+- [x] Add tests first for `SpokeZone.liveData` exposure and type contract.
+- [x] Add tests first for `LiveData` lifecycle API (`connect`, `disconnect`, `isConnected`) and initial disconnected state.
+- [x] Add tests first for MQTT config defaults and overrides via `SpokeZoneConfig` (`mqttHost`, `mqttPort`, `mqttUseTls`), including test-only unencrypted mode.
+- [x] Implement `SpokeZone.liveData` and lifecycle API wiring to satisfy tests.
 
 ### Auth and Connection Behavior
 
-- [ ] Add tests first that connect/reconnect asks the active `SpokeZone` auth provider for the current token.
-- [ ] Add tests first for reconnect behavior using shared `BackoffStrategy` and default `FixedDelayBackoffStrategy`.
-- [ ] Implement auth-driven connect/reconnect behavior using shared `BackoffStrategy` and `FixedDelayBackoffStrategy` types from API integration (no MQTT-specific duplicate backoff types).
+- [x] Add tests first that connect/reconnect asks the active `SpokeZone` auth provider for the current token.
+- [x] Add tests first for reconnect behavior using shared `BackoffStrategy` and default `FixedDelayBackoffStrategy`.
+- [x] Implement auth-driven connect/reconnect behavior using shared `BackoffStrategy` and `FixedDelayBackoffStrategy` types from API integration (no MQTT-specific duplicate backoff types).
 
 ### Publish Contract
 
-- [ ] Add tests first for `publishJson(topic, payload)` success/failure boolean semantics.
-- [ ] Add tests first for retained-message behavior in `publishJson(...)`.
-- [ ] Add tests first for payload validation and serialization behavior.
-- [ ] Implement `publishJson` behavior with non-throwing boolean outcomes.
+- [x] Add tests first for `publishJson(topic, payload)` success/failure boolean semantics.
+- [x] Add tests first for retained-message behavior in `publishJson(...)`.
+- [x] Add tests first for payload validation and serialization behavior.
+- [x] Implement `publishJson` behavior with non-throwing boolean outcomes.
 
 ### Periodic Broadcasting
 
-- [ ] Add tests first for generic periodic registration API with custom topic strings and async nullable callbacks.
-- [ ] Add tests first for scheduler timing semantics: no immediate publish on registration, first publish on first interval tick, and subsequent publishes on configured cadence.
-- [ ] Add tests first for cancellation/resume semantics: cancel stops only that registration, `disconnect()` pauses active registrations, and later `connect()` resumes uncanceled registrations.
-- [ ] Add tests first for `registerLocationBroadcast(...)` fixed topic, default interval behavior, and `Coordinates -> {lat, lon}` payload serialization.
-- [ ] Add tests first for `registerSoftwareVersionsBroadcast(...)` fixed topic, default interval behavior, and flat `Map<String, String>` payload contract.
-- [ ] Implement generic periodic scheduler and registration handles.
-- [ ] Implement helper registration methods using the generic periodic scheduler.
+- [x] Add tests first for generic periodic registration API with custom topic strings and async nullable callbacks.
+- [x] Add tests first for scheduler timing semantics: no immediate publish on registration, first publish on first interval tick, and subsequent publishes on configured cadence.
+- [x] Add tests first for cancellation/resume semantics: cancel stops only that registration, `disconnect()` pauses active registrations, and later `connect()` resumes uncanceled registrations.
+- [x] Add tests first for `registerLocationBroadcast(...)` fixed topic, default interval behavior, and `Coordinates -> {lat, lon}` payload serialization.
+- [x] Add tests first for `registerSoftwareVersionsBroadcast(...)` fixed topic, default interval behavior, and flat `Map<String, String>` payload contract.
+- [x] Implement generic periodic scheduler and registration handles.
+- [x] Implement helper registration methods using the generic periodic scheduler.
 
 ### Per-Registration Status
 
-- [ ] Add tests first for minimal status fields and state transitions per registration (`state`, `lastSuccessAt`, `consecutiveFailures`).
-- [ ] Implement minimal status tracking surface on registration handles.
+- [x] Add tests first for minimal status fields and state transitions per registration (`state`, `lastSuccessAt`, `consecutiveFailures`).
+- [x] Implement minimal status tracking surface on registration handles.
 
 ### Documentation
 
-- [ ] Replace the `coming soon` content in `docs/src/content/docs/spoke-zone/live-data.mdx` with a minimal user-facing implementation guide focused on behavior and usage patterns (not symbol-level reference tables).
-- [ ] Document MQTT-specific operational guidance in `docs/src/content/docs/spoke-zone/live-data.mdx`: connection lifecycle expectations, publish success/failure semantics, periodic scheduling behavior, cancellation/resume behavior, retained-message behavior, and fixed topics.
-- [ ] Document per-registration observability in `docs/src/content/docs/spoke-zone/live-data.mdx`: status states, `lastSuccessAt`, `consecutiveFailures`, and reconnect/auth interaction expectations.
-- [ ] Add and verify DartDoc comments on all new public MQTT API types/methods so pub.dev auto-generated API docs are complete and actionable.
+- [x] Replace the `coming soon` content in `docs/src/content/docs/spoke-zone/live-data.mdx` with a minimal user-facing implementation guide focused on behavior and usage patterns (not symbol-level reference tables).
+- [x] Document MQTT-specific operational guidance in `docs/src/content/docs/spoke-zone/live-data.mdx`: connection lifecycle expectations, publish success/failure semantics, periodic scheduling behavior, cancellation/resume behavior, retained-message behavior, and fixed topics.
+- [x] Document per-registration observability in `docs/src/content/docs/spoke-zone/live-data.mdx`: status states, `lastSuccessAt`, `consecutiveFailures`, and reconnect/auth interaction expectations.
+- [x] Add and verify DartDoc comments on all new public MQTT API types/methods so pub.dev auto-generated API docs are complete and actionable.

@@ -1,3 +1,7 @@
+## 0.3.0
+
+- Implement basic Spoke.Zone live data integration (publish-only).
+
 ## 0.2.0
 
 - Implement basic Spoke.Zone integration.

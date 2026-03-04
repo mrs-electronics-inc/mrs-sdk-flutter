@@ -6,16 +6,26 @@ enum SpokeZoneAuthMode { device, user }
 /// Configuration for creating a [SpokeZone] client.
 class SpokeZoneConfig {
   /// Creates a device-authenticated configuration.
-  SpokeZoneConfig.device({Uri? baseUri, required this.deviceAuth})
-    : baseUri = baseUri ?? Uri.parse('https://api.spoke.zone'),
-      authMode = SpokeZoneAuthMode.device,
-      userAuth = null;
+  SpokeZoneConfig.device({
+    Uri? baseUri,
+    required this.deviceAuth,
+    this.mqttHost = 'io.spoke.zone',
+    this.mqttPort = 8883,
+    this.mqttUseTls = true,
+  }) : baseUri = baseUri ?? Uri.parse('https://api.spoke.zone'),
+       authMode = SpokeZoneAuthMode.device,
+       userAuth = null;
 
   /// Creates a user-authenticated configuration.
-  SpokeZoneConfig.user({Uri? baseUri, required this.userAuth})
-    : baseUri = baseUri ?? Uri.parse('https://api.spoke.zone'),
-      authMode = SpokeZoneAuthMode.user,
-      deviceAuth = null;
+  SpokeZoneConfig.user({
+    Uri? baseUri,
+    required this.userAuth,
+    this.mqttHost = 'io.spoke.zone',
+    this.mqttPort = 8883,
+    this.mqttUseTls = true,
+  }) : baseUri = baseUri ?? Uri.parse('https://api.spoke.zone'),
+       authMode = SpokeZoneAuthMode.user,
+       deviceAuth = null;
 
   /// Base URI used for all auth and API requests.
   final Uri baseUri;
@@ -28,4 +38,13 @@ class SpokeZoneConfig {
 
   /// User callbacks when [authMode] is [SpokeZoneAuthMode.user].
   final UserAuthCallbacks? userAuth;
+
+  /// MQTT broker host used for live-data publishing.
+  final String mqttHost;
+
+  /// MQTT broker port used for live-data publishing.
+  final int mqttPort;
+
+  /// Whether MQTT transport uses TLS.
+  final bool mqttUseTls;
 }

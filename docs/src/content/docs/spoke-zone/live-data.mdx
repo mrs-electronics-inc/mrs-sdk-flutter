@@ -1,10 +1,67 @@
 ---
 title: Live Data
-description: MQTT live-data documentation status.
+description: MQTT live-data publishing and periodic telemetry behavior.
 sidebar:
   order: 3
 ---
 
-## Coming Soon
+`SpokeZone.liveData` provides publish-focused MQTT support for one-off messages and scheduled telemetry.
 
-Information will be added here when live data support is added to the SDK.
+## Connection Lifecycle
+
+- Start MQTT with `await spokeZone.liveData.connect()`.
+- Stop MQTT with `await spokeZone.liveData.disconnect()`.
+- Observe current connection state via `spokeZone.liveData.isConnected`.
+- Periodic registrations are paused while disconnected and resume on the next successful `connect()`.
+
+## One-Off Publishing
+
+Use `publishJson(topic, payload, retained: ...)` for direct JSON publishes.
+
+- Returns `true` when publish succeeds.
+- Returns `false` when not delivered (for example disconnected or transport failure).
+- Does not throw for runtime publish failures.
+- Throws `SpokeZoneException` with `validationError` only for invalid topic/payload input.
+- Supports retained messages using the `retained` flag.
+
+## Periodic Broadcasting
+
+Use the generic scheduler for custom topics:
+
+- `registerJsonBroadcast(...)` accepts an async callback returning `Future<Map<String, dynamic>?>`.
+- No message is published at registration time.
+- The first publish happens on the first interval tick.
+- Returning `null` skips that tick without publishing.
+
+Each registration can be canceled independently by calling `cancel()` on its returned handle.
+
+## Fixed Topic Helpers
+
+The SDK provides helper registrations for common telemetry topics:
+
+- `registerLocationBroadcast(...)` publishes to `mrs/d/<device-id>/mon/location` with payload `{lat, lon}`.
+- `registerSoftwareVersionsBroadcast(...)` publishes to `mrs/d/<device-id>/mon/versions` with payload `Map<String, String>`.
+
+Default intervals:
+
+- Location: every 15 seconds.
+- Software versions: every 60 seconds.
+
+## Registration Status and Observability
+
+Each registration handle exposes status fields:
+
+- `state`: `idle`, `running`, `failed`, or `canceled`.
+- `lastSuccessAt`: timestamp of the most recent successful publish.
+- `consecutiveFailures`: failure streak for recent publish attempts.
+
+Status behavior:
+
+- Successful publish transitions state to `running`, updates `lastSuccessAt`, and resets `consecutiveFailures`.
+- Failed publish transitions state to `failed` and increments `consecutiveFailures`.
+- `cancel()` transitions to terminal `canceled`.
+
+## Reconnect and Auth Behavior
+
+- Connect and reconnect attempts always request the current access token from the active `SpokeZone` auth provider.
+- Reconnect delay behavior uses the same SDK backoff strategy system (`BackoffStrategy`, default `FixedDelayBackoffStrategy`) used by the HTTP APIs.

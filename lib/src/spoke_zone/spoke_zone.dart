@@ -7,6 +7,7 @@ import 'clients/data_files_client.dart';
 import 'clients/devices_client.dart';
 import 'clients/ota_files_client.dart';
 import 'config.dart';
+import 'live_data.dart';
 import 'retry.dart';
 
 export 'access_token_provider.dart';
@@ -15,6 +16,7 @@ export 'auth/user_auth.dart';
 export 'clients/data_files_client.dart';
 export 'clients/devices_client.dart';
 export 'clients/ota_files_client.dart';
+export 'live_data.dart';
 
 /// Spoke.Zone Integration
 ///
@@ -26,13 +28,21 @@ class SpokeZone {
     http.Client? httpClient,
     BackoffStrategy? backoffStrategy,
     DelayFn? delay,
+    AccessTokenProvider? authProvider,
+    LiveDataTransportFactory? liveDataTransportFactory,
+    DateTime Function()? liveDataNow,
+    PeriodicTimerFactory? liveDataTimerFactory,
   }) : httpClient = httpClient ?? http.Client(),
        _backoffStrategy = backoffStrategy ?? const FixedDelayBackoffStrategy(),
        _delay = delay ?? Future<void>.delayed {
-    final auth = _buildAuthProvider(
-      config: config,
-      httpClient: this.httpClient,
-    );
+    final auth =
+        authProvider ??
+        _buildAuthProvider(
+          config: config,
+          httpClient: this.httpClient,
+          backoffStrategy: _backoffStrategy,
+          delay: _delay,
+        );
 
     devices = DevicesClient(
       httpClient: this.httpClient,
@@ -55,6 +65,17 @@ class SpokeZone {
       backoffStrategy: _backoffStrategy,
       delay: _delay,
     );
+    liveData = LiveData(
+      mqttHost: config.mqttHost,
+      mqttPort: config.mqttPort,
+      mqttUseTls: config.mqttUseTls,
+      authProvider: auth,
+      backoffStrategy: _backoffStrategy,
+      delay: _delay,
+      transportFactory: liveDataTransportFactory,
+      now: liveDataNow,
+      timerFactory: liveDataTimerFactory,
+    );
   }
 
   final SpokeZoneConfig config;
@@ -71,24 +92,29 @@ class SpokeZone {
   /// Data file endpoints.
   late final DataFilesClient dataFiles;
 
-  AccessTokenProvider _buildAuthProvider({
+  /// MQTT live-data publishing.
+  late final LiveData liveData;
+
+  static AccessTokenProvider _buildAuthProvider({
     required SpokeZoneConfig config,
     required http.Client httpClient,
+    required BackoffStrategy backoffStrategy,
+    required DelayFn delay,
   }) {
     return switch (config.authMode) {
       SpokeZoneAuthMode.device => DeviceAuth(
         baseUri: config.baseUri,
         callbacks: config.deviceAuth!,
         httpClient: httpClient,
-        backoffStrategy: _backoffStrategy,
-        delay: _delay,
+        backoffStrategy: backoffStrategy,
+        delay: delay,
       ),
       SpokeZoneAuthMode.user => UserAuth(
         baseUri: config.baseUri,
         callbacks: config.userAuth!,
         httpClient: httpClient,
-        backoffStrategy: _backoffStrategy,
-        delay: _delay,
+        backoffStrategy: backoffStrategy,
+        delay: delay,
       ),
     };
   }
