@@ -49,7 +49,8 @@ class _DefaultLiveDataTransport implements LiveDataTransport {
     client.setProtocolV311();
     client.onDisconnected = onDisconnected;
 
-    final status = await client.connect('', accessToken);
+    // Spoke.Zone broker expects the access token as the username
+    final status = await client.connect(accessToken, 'gibberish');
     if (status?.state != mqtt.MqttConnectionState.connected) {
       client.disconnect();
       _connected = false;
