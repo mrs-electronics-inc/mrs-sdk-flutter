@@ -201,9 +201,8 @@ void main() {
       );
 
       final file = (await spokeZone.otaFiles.list()).single;
-      expect(file.createdAt, DateTime.parse('2026-01-01T10:11:12Z'));
+      expect(file.createdDate, DateTime.parse('2026-01-01T10:11:12Z'));
       expect(file.releaseDate, DateTime.parse('2026-02-03T00:00:00Z'));
-      expect(file.createdDate, '2026-01-01T10:11:12Z');
     });
 
     test('otaFiles.list maps invalid or missing typed dates to null', () async {
@@ -245,9 +244,9 @@ void main() {
       );
 
       final files = await spokeZone.otaFiles.list();
-      expect(files[0].createdAt, isNull);
+      expect(files[0].createdDate, isNull);
       expect(files[0].releaseDate, isNull);
-      expect(files[1].createdAt, DateTime.parse('2026-01-01'));
+      expect(files[1].createdDate, DateTime.parse('2026-01-01'));
       expect(files[1].releaseDate, isNull);
     });
 

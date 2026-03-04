@@ -31,10 +31,9 @@ This spec focuses on:
 
 ### OTA Model Typed Date Compatibility
 
-Keep `OtaFile` backward compatible and additive:
+Use typed OTA date fields:
 
-- Preserve existing raw `createdDate` field.
-- Add `DateTime? createdAt` parsed from `createdDate`.
+- Set `createdDate` to `DateTime?` parsed from API payload when present.
 - Add `DateTime? releaseDate` parsed from API payload when present.
 
 Invalid or missing date strings must map to `null` typed fields and not throw.
@@ -79,7 +78,7 @@ Invoke this callback whenever the active token is updated after login/refresh.
 
 - [x] Add tests for OTA query mapping with `module` and `isActive` options.
 - [x] Add tests verifying OTA list behavior remains unchanged when new filters are not provided.
-- [x] Add tests for `OtaFile` typed date parsing (`releaseDate`, `createdAt`) including invalid/missing date handling.
+- [x] Add tests for `OtaFile` typed date parsing (`releaseDate`, `createdDate`) including invalid/missing date handling.
 - [x] Implement `module` and `isActive` in `OtaFilesListOptions` and query forwarding in `OtaFilesClient.list(...)`.
 - [x] Implement additive typed date fields in `OtaFile` with safe parsing and backward compatibility.
 - [ ] Add tests for proactive token refresh behavior using JWT expiry with a 12-hour window.

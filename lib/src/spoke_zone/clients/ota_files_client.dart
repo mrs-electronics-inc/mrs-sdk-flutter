@@ -80,8 +80,7 @@ class OtaFilesClient {
             version: map['version'] as String,
             fileLocation: map['fileLocation'] as String,
             isActive: map['isActive'] as bool,
-            createdDate: map['createdDate'] as String,
-            createdAt: DateTime.tryParse(map['createdDate'] as String),
+            createdDate: _parseOptionalDate(map['createdDate']),
             releaseDate: _parseOptionalDate(map['releaseDate']),
             releaseNotes: map['releaseNotes'] as String,
           );
