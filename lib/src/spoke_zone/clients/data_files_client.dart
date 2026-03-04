@@ -20,8 +20,13 @@ class DataFilesClient {
   }) : _backoffStrategy = backoffStrategy,
        _delay = delay;
 
+  /// HTTP client used for data-file API requests.
   final http.Client httpClient;
+
+  /// Base Spoke.Zone API URI used to build data-file endpoints.
   final Uri baseUri;
+
+  /// Access token provider used to authorize data-file requests.
   final AccessTokenProvider auth;
   final BackoffStrategy _backoffStrategy;
   final DelayFn _delay;

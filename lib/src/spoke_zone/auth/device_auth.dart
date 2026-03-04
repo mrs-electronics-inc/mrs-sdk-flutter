@@ -19,6 +19,7 @@ class DeviceAuth extends CachedAccessTokenProvider {
   }) : _backoffStrategy = backoffStrategy ?? const FixedDelayBackoffStrategy(),
        _delay = delay ?? Future<void>.delayed;
 
+  /// Base Spoke.Zone API URI used for device login requests.
   final Uri baseUri;
   final DeviceAuthCallbacks callbacks;
   final http.Client httpClient;
