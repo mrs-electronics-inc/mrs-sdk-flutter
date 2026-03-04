@@ -95,6 +95,64 @@ void main() {
       },
     );
 
+    test('fixed-delay strategy supports optional repeat-last behavior', () {
+      const nonRepeating = FixedDelayBackoffStrategy(
+        delays: [Duration(seconds: 1), Duration(seconds: 2)],
+        repeatLastDelay: false,
+      );
+      expect(nonRepeating.delayForRetry(1), const Duration(seconds: 1));
+      expect(nonRepeating.delayForRetry(2), const Duration(seconds: 2));
+      expect(nonRepeating.delayForRetry(3), isNull);
+
+      const repeating = FixedDelayBackoffStrategy(
+        delays: [Duration(seconds: 1), Duration(seconds: 2)],
+        repeatLastDelay: true,
+      );
+      expect(repeating.delayForRetry(1), const Duration(seconds: 1));
+      expect(repeating.delayForRetry(2), const Duration(seconds: 2));
+      expect(repeating.delayForRetry(3), const Duration(seconds: 2));
+      expect(repeating.delayForRetry(4), const Duration(seconds: 2));
+      expect(repeating.delayForRetry(10), const Duration(seconds: 2));
+    });
+
+    test(
+      'SpokeZone uses API strategy for auth and endpoint HTTP retries',
+      () async {
+        final delays = <Duration>[];
+        final client = QueuedClient();
+        client.enqueueJson(500, {'error': 'auth retry'});
+        client.enqueueJson(201, {'token': 'device-token'});
+        client.enqueueJson(500, {'error': 'endpoint retry'});
+        client.enqueueJson(200, {
+          'id': 2,
+          'identifier': 'd2',
+          'serialNumber': 's2',
+          'modelId': 2,
+          'name': 'm2',
+        });
+
+        final spokeZone = SpokeZone(
+          config: SpokeZoneConfig.device(
+            deviceAuth: deviceCallbacks(),
+            apiBackoffStrategy: const FixedDelayBackoffStrategy(
+              delays: [Duration(milliseconds: 111)],
+            ),
+            liveDataBackoffStrategy: const FixedDelayBackoffStrategy(
+              delays: [Duration(milliseconds: 222)],
+            ),
+          ),
+          httpClient: client,
+          delay: (duration) async => delays.add(duration),
+        );
+
+        await spokeZone.devices.get(2);
+        expect(delays, <Duration>[
+          const Duration(milliseconds: 111),
+          const Duration(milliseconds: 111),
+        ]);
+      },
+    );
+
     test(
       'maps typed error codes with endpoint/httpStatus/snippet diagnostics',
       () async {

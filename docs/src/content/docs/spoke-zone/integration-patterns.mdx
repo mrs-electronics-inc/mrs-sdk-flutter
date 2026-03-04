@@ -17,3 +17,28 @@ sidebar:
 - SDK retries transport errors, `429`, and `5xx` automatically.
 - SDK does not retry non-`429` `4xx` responses.
 - Failures are surfaced as `SpokeZoneException` with typed error codes.
+
+## Retry Backoff Configuration
+
+`SpokeZoneConfig` exposes separate backoff strategies for HTTP/API traffic and MQTT live-data reconnect:
+
+- `apiBackoffStrategy` default: `15s`, `30s`, `60s`, then stop.
+- `liveDataBackoffStrategy` default: `5s`, `15s`, `30s`, `60s`, `120s`, `300s`, then repeat `300s`.
+
+```dart
+final config = SpokeZoneConfig.device(
+  deviceAuth: DeviceAuthCallbacks(
+    cpuId: () async => 'cpu-id',
+    uuid: () async => 'uuid',
+    deviceId: () async => 'device-id',
+    initialDeviceToken: () async => 'token',
+  ),
+  apiBackoffStrategy: const FixedDelayBackoffStrategy(
+    delays: [Duration(seconds: 10), Duration(seconds: 30)],
+  ),
+  liveDataBackoffStrategy: const FixedDelayBackoffStrategy(
+    delays: [Duration(seconds: 2), Duration(seconds: 5), Duration(seconds: 15)],
+    repeatLastDelay: true,
+  ),
+);
+```

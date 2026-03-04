@@ -13,17 +13,27 @@ class FixedDelayBackoffStrategy implements BackoffStrategy {
       Duration(seconds: 30),
       Duration(seconds: 60),
     ],
+    this.repeatLastDelay = false,
   });
 
   /// Delay schedule indexed by retry number (1-based).
   final List<Duration> delays;
 
+  /// Whether to repeat the final delay when retries exceed [delays] length.
+  final bool repeatLastDelay;
+
   @override
   Duration? delayForRetry(int retryNumber) {
-    if (retryNumber <= 0 || retryNumber > delays.length) {
+    if (retryNumber <= 0) {
       return null;
     }
-    return delays[retryNumber - 1];
+    if (retryNumber <= delays.length) {
+      return delays[retryNumber - 1];
+    }
+    if (repeatLastDelay && delays.isNotEmpty) {
+      return delays.last;
+    }
+    return null;
   }
 }
 

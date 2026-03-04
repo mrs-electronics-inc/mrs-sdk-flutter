@@ -29,7 +29,6 @@ class SpokeZone {
   SpokeZone({
     required this.config,
     http.Client? httpClient,
-    BackoffStrategy? backoffStrategy,
     DelayFn? delay,
     AccessTokenProvider? authProvider,
     LiveDataTransportFactory? liveDataTransportFactory,
@@ -37,14 +36,13 @@ class SpokeZone {
     DateTime Function()? liveDataNow,
     PeriodicTimerFactory? liveDataTimerFactory,
   }) : httpClient = httpClient ?? http.Client(),
-       _backoffStrategy = backoffStrategy ?? const FixedDelayBackoffStrategy(),
        _delay = delay ?? Future<void>.delayed {
     final auth =
         authProvider ??
         _buildAuthProvider(
           config: config,
           httpClient: this.httpClient,
-          backoffStrategy: _backoffStrategy,
+          backoffStrategy: config.apiBackoffStrategy,
           delay: _delay,
         );
 
@@ -52,21 +50,21 @@ class SpokeZone {
       httpClient: this.httpClient,
       baseUri: config.baseUri,
       auth: auth,
-      backoffStrategy: _backoffStrategy,
+      backoffStrategy: config.apiBackoffStrategy,
       delay: _delay,
     );
     otaFiles = OtaFilesClient(
       httpClient: this.httpClient,
       baseUri: config.baseUri,
       auth: auth,
-      backoffStrategy: _backoffStrategy,
+      backoffStrategy: config.apiBackoffStrategy,
       delay: _delay,
     );
     dataFiles = DataFilesClient(
       httpClient: this.httpClient,
       baseUri: config.baseUri,
       auth: auth,
-      backoffStrategy: _backoffStrategy,
+      backoffStrategy: config.apiBackoffStrategy,
       delay: _delay,
     );
     liveData = LiveData(
@@ -74,7 +72,7 @@ class SpokeZone {
       mqttPort: config.mqttPort,
       mqttUseTls: config.mqttUseTls,
       authProvider: auth,
-      backoffStrategy: _backoffStrategy,
+      backoffStrategy: config.liveDataBackoffStrategy,
       delay: _delay,
       connectTimeout: liveDataConnectTimeout,
       transportFactory: liveDataTransportFactory,
@@ -85,7 +83,6 @@ class SpokeZone {
 
   final SpokeZoneConfig config;
   final http.Client httpClient;
-  final BackoffStrategy _backoffStrategy;
   final DelayFn _delay;
 
   /// Device endpoints.
