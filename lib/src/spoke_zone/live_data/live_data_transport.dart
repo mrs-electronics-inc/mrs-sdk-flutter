@@ -8,6 +8,7 @@ abstract interface class LiveDataTransport {
     required int port,
     required bool useTls,
     required String accessToken,
+    required void Function() onDisconnected,
   });
 
   /// Closes the active MQTT session.
@@ -34,6 +35,7 @@ class _DefaultLiveDataTransport implements LiveDataTransport {
     required int port,
     required bool useTls,
     required String accessToken,
+    required void Function() onDisconnected,
   }) async {
     await disconnect();
 
@@ -45,6 +47,7 @@ class _DefaultLiveDataTransport implements LiveDataTransport {
     client.secure = useTls;
     client.keepAlivePeriod = 20;
     client.setProtocolV311();
+    client.onDisconnected = onDisconnected;
 
     final status = await client.connect('', accessToken);
     if (status?.state != mqtt.MqttConnectionState.connected) {

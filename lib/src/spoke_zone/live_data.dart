@@ -61,6 +61,11 @@ class LiveData {
 
   /// Opens an MQTT connection.
   Future<bool> connect() {
+    // Avoid reconnecting an already-healthy session.
+    if (_isConnected.value) {
+      return Future<bool>.value(true);
+    }
+
     _disconnectRequested = false;
     final existing = _connectFuture;
     if (existing != null) {
@@ -209,6 +214,7 @@ class LiveData {
           port: _mqttPort,
           useTls: _mqttUseTls,
           accessToken: token,
+          onDisconnected: _handleTransportDisconnected,
         );
         if (_disconnectRequested) {
           _isConnected.value = false;
@@ -231,6 +237,11 @@ class LiveData {
 
     _isConnected.value = false;
     return false;
+  }
+
+  void _handleTransportDisconnected() {
+    // Network/broker disconnects can happen after a successful connect call.
+    _isConnected.value = false;
   }
 
   void _resumeRegistrations() {

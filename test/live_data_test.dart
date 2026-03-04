@@ -178,6 +178,39 @@ void main() {
       expect(liveData.isConnected.value, isTrue);
       expect(transport.connectCallCount, 1);
     });
+
+    test('connect is idempotent when already connected', () async {
+      final transport = FakeLiveDataTransport();
+      final liveData = LiveData(
+        mqttHost: 'io.spoke.zone',
+        mqttPort: 8883,
+        mqttUseTls: true,
+        authProvider: FakeAccessTokenProvider(),
+        transportFactory: () => transport,
+      );
+
+      expect(await liveData.connect(), isTrue);
+      expect(await liveData.connect(), isTrue);
+      expect(transport.connectAttemptCount, 1);
+      expect(liveData.isConnected.value, isTrue);
+    });
+
+    test('unexpected transport disconnect updates isConnected', () async {
+      final transport = FakeLiveDataTransport();
+      final liveData = LiveData(
+        mqttHost: 'io.spoke.zone',
+        mqttPort: 8883,
+        mqttUseTls: true,
+        authProvider: FakeAccessTokenProvider(),
+        transportFactory: () => transport,
+      );
+
+      await liveData.connect();
+      expect(liveData.isConnected.value, isTrue);
+
+      transport.simulateUnexpectedDisconnect();
+      expect(liveData.isConnected.value, isFalse);
+    });
   });
 
   group('LiveData publish contract', () {
@@ -626,6 +659,9 @@ class FakeLiveDataTransport implements LiveDataTransport {
   bool _connected = false;
   int disconnectCallCount = 0;
   int _connectAttempts = 0;
+  void Function()? _onDisconnected;
+
+  int get connectAttemptCount => _connectAttempts;
 
   @override
   Future<void> connect({
@@ -633,8 +669,10 @@ class FakeLiveDataTransport implements LiveDataTransport {
     required int port,
     required bool useTls,
     required String accessToken,
+    required void Function() onDisconnected,
   }) async {
     _connectAttempts += 1;
+    _onDisconnected = onDisconnected;
     if (_connectAttempts <= connectFailuresBeforeSuccess) {
       throw StateError('connect failed');
     }
@@ -645,6 +683,11 @@ class FakeLiveDataTransport implements LiveDataTransport {
   Future<void> disconnect() async {
     disconnectCallCount += 1;
     _connected = false;
+  }
+
+  void simulateUnexpectedDisconnect() {
+    _connected = false;
+    _onDisconnected?.call();
   }
 
   @override
@@ -688,6 +731,7 @@ class BlockingConnectLiveDataTransport extends FakeLiveDataTransport {
     required int port,
     required bool useTls,
     required String accessToken,
+    required void Function() onDisconnected,
   }) async {
     connectCallCount += 1;
     if (!_connectStarted.isCompleted) {
@@ -699,6 +743,7 @@ class BlockingConnectLiveDataTransport extends FakeLiveDataTransport {
       port: port,
       useTls: useTls,
       accessToken: accessToken,
+      onDisconnected: onDisconnected,
     );
   }
 }
