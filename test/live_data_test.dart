@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -121,6 +122,61 @@ void main() {
         const Duration(seconds: 30),
         const Duration(seconds: 60),
       ]);
+    });
+
+    test(
+      'disconnect during in-flight connect resolves false and stays disconnected',
+      () async {
+        final timerFactory = ManualTimerFactory();
+        final transport = BlockingConnectLiveDataTransport();
+        final liveData = LiveData(
+          mqttHost: 'io.spoke.zone',
+          mqttPort: 8883,
+          mqttUseTls: true,
+          authProvider: FakeAccessTokenProvider(),
+          transportFactory: () => transport,
+          timerFactory: timerFactory.create,
+        );
+        liveData.registerJsonBroadcast(
+          topic: 'topic/race',
+          payloadProvider: () async => <String, dynamic>{'ok': true},
+        );
+
+        final connectFuture = liveData.connect();
+        await transport.connectStarted;
+
+        await liveData.disconnect();
+        transport.completeConnect();
+
+        expect(await connectFuture, isFalse);
+        expect(liveData.isConnected.value, isFalse);
+        expect(timerFactory.timers, isEmpty);
+      },
+    );
+
+    test('disconnect then reconnect reuses in-flight connect', () async {
+      final transport = BlockingConnectLiveDataTransport();
+      final liveData = LiveData(
+        mqttHost: 'io.spoke.zone',
+        mqttPort: 8883,
+        mqttUseTls: true,
+        authProvider: FakeAccessTokenProvider(),
+        transportFactory: () => transport,
+      );
+
+      final firstConnect = liveData.connect();
+      await transport.connectStarted;
+
+      await liveData.disconnect();
+      final secondConnect = liveData.connect();
+
+      expect(identical(firstConnect, secondConnect), isTrue);
+
+      transport.completeConnect();
+      expect(await firstConnect, isTrue);
+      expect(await secondConnect, isTrue);
+      expect(liveData.isConnected.value, isTrue);
+      expect(transport.connectCallCount, 1);
     });
   });
 
@@ -365,6 +421,53 @@ void main() {
     );
 
     test(
+      'cancel allows one in-flight publish and stops subsequent ticks',
+      () async {
+        final timerFactory = ManualTimerFactory();
+        final transport = FakeLiveDataTransport();
+        final liveData = LiveData(
+          mqttHost: 'io.spoke.zone',
+          mqttPort: 8883,
+          mqttUseTls: true,
+          authProvider: FakeAccessTokenProvider(),
+          transportFactory: () => transport,
+          timerFactory: timerFactory.create,
+        );
+        final payloadStarted = Completer<void>();
+        final releasePayload = Completer<void>();
+
+        final registration = liveData.registerJsonBroadcast(
+          topic: 'topic/in-flight',
+          interval: const Duration(seconds: 1),
+          payloadProvider: () async {
+            if (!payloadStarted.isCompleted) {
+              payloadStarted.complete();
+            }
+            await releasePayload.future;
+            return <String, dynamic>{'ok': true};
+          },
+        );
+
+        await liveData.connect();
+
+        timerFactory.timers.single.tick();
+        await payloadStarted.future;
+
+        await registration.cancel();
+        releasePayload.complete();
+        await Future<void>.delayed(Duration.zero);
+
+        expect(transport.publishCalls, hasLength(1));
+        expect(transport.publishCalls.single.topic, 'topic/in-flight');
+        expect(registration.status.state, LiveDataRegistrationState.canceled);
+
+        timerFactory.timers.single.tick();
+        await Future<void>.delayed(Duration.zero);
+        expect(transport.publishCalls, hasLength(1));
+      },
+    );
+
+    test(
       'registerLocationBroadcast uses fixed topic, default interval, and lat/lon payload',
       () async {
         final timerFactory = ManualTimerFactory();
@@ -521,6 +624,7 @@ class FakeLiveDataTransport implements LiveDataTransport {
   final List<PublishCall> publishCalls = <PublishCall>[];
 
   bool _connected = false;
+  int disconnectCallCount = 0;
   int _connectAttempts = 0;
 
   @override
@@ -539,6 +643,7 @@ class FakeLiveDataTransport implements LiveDataTransport {
 
   @override
   Future<void> disconnect() async {
+    disconnectCallCount += 1;
     _connected = false;
   }
 
@@ -561,6 +666,40 @@ class FakeLiveDataTransport implements LiveDataTransport {
       return true;
     }
     return _publishResults.removeAt(0);
+  }
+}
+
+class BlockingConnectLiveDataTransport extends FakeLiveDataTransport {
+  final Completer<void> _connectStarted = Completer<void>();
+  final Completer<void> _allowConnect = Completer<void>();
+
+  Future<void> get connectStarted => _connectStarted.future;
+  int connectCallCount = 0;
+
+  void completeConnect() {
+    if (!_allowConnect.isCompleted) {
+      _allowConnect.complete();
+    }
+  }
+
+  @override
+  Future<void> connect({
+    required String host,
+    required int port,
+    required bool useTls,
+    required String accessToken,
+  }) async {
+    connectCallCount += 1;
+    if (!_connectStarted.isCompleted) {
+      _connectStarted.complete();
+    }
+    await _allowConnect.future;
+    await super.connect(
+      host: host,
+      port: port,
+      useTls: useTls,
+      accessToken: accessToken,
+    );
   }
 }
 

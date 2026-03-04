@@ -210,6 +210,11 @@ class LiveData {
           useTls: _mqttUseTls,
           accessToken: token,
         );
+        if (_disconnectRequested) {
+          _isConnected.value = false;
+          await _transport.disconnect();
+          return false;
+        }
         _isConnected.value = true;
         _resumeRegistrations();
         return true;
@@ -242,7 +247,7 @@ class LiveData {
   }
 
   Future<void> _cancelRegistration(int id) async {
-    final record = _registrations[id];
+    final record = _registrations.remove(id);
     if (record == null) {
       return;
     }
