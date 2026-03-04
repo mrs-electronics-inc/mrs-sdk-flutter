@@ -83,7 +83,9 @@ class LiveData {
 
     final connectCompleter = Completer<bool>();
     _pendingConnectCompleter = connectCompleter;
-    _startReconnectLoopIfNeeded();
+    _reconnectLoopFuture ??= _runReconnectLoop().whenComplete(() {
+      _reconnectLoopFuture = null;
+    });
     final connectFuture = connectCompleter.future;
     _connectFuture = connectFuture.whenComplete(() {
       _connectFuture = null;
@@ -97,7 +99,10 @@ class LiveData {
   /// Closes the MQTT connection and pauses all periodic registrations.
   Future<void> disconnect() async {
     _connectionIntent = false;
-    _pauseActiveRegistrations();
+    for (final record in _registrations.values) {
+      record.timer?.cancel();
+      record.timer = null;
+    }
     _isConnected.value = false;
     _signalDisconnected();
     await _transport.disconnect();
@@ -231,7 +236,11 @@ class LiveData {
           useTls: _mqttUseTls,
           accessToken: token,
           connectTimeout: _connectTimeout,
-          onDisconnected: _handleTransportDisconnected,
+          onDisconnected: () {
+            // Network/broker disconnects can happen after a successful connect call.
+            _isConnected.value = false;
+            _signalDisconnected();
+          },
         );
         if (!_connectionIntent) {
           _isConnected.value = false;
@@ -242,7 +251,9 @@ class LiveData {
 
         _isConnected.value = true;
         retryNumber = 0;
-        _resumeRegistrations();
+        for (final id in _registrations.keys) {
+          _startRegistration(id);
+        }
         _completePendingConnect(true);
 
         final disconnectSignal = Completer<void>();
@@ -264,49 +275,21 @@ class LiveData {
     _completePendingConnect(false);
   }
 
-  void _startReconnectLoopIfNeeded() {
-    final existing = _reconnectLoopFuture;
-    if (existing != null) {
-      return;
-    }
-    _reconnectLoopFuture = _runReconnectLoop().whenComplete(() {
-      _reconnectLoopFuture = null;
-    });
-  }
-
-  void _handleTransportDisconnected() {
-    // Network/broker disconnects can happen after a successful connect call.
-    _isConnected.value = false;
-    _signalDisconnected();
-  }
-
   void _signalDisconnected() {
-    final signal = _disconnectSignal;
-    if (signal == null || signal.isCompleted) {
+    final disconnectSignal = _disconnectSignal;
+    if (disconnectSignal == null || disconnectSignal.isCompleted) {
       return;
     }
-    signal.complete();
+    disconnectSignal.complete();
   }
 
   void _completePendingConnect(bool value) {
-    final pending = _pendingConnectCompleter;
-    if (pending == null || pending.isCompleted) {
+    final pendingConnectCompleter = _pendingConnectCompleter;
+    if (pendingConnectCompleter == null ||
+        pendingConnectCompleter.isCompleted) {
       return;
     }
-    pending.complete(value);
-  }
-
-  void _resumeRegistrations() {
-    for (final id in _registrations.keys) {
-      _startRegistration(id);
-    }
-  }
-
-  void _pauseActiveRegistrations() {
-    for (final record in _registrations.values) {
-      record.timer?.cancel();
-      record.timer = null;
-    }
+    pendingConnectCompleter.complete(value);
   }
 
   Future<void> _cancelRegistration(int id) async {
