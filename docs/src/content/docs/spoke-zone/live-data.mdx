@@ -66,4 +66,5 @@ Status behavior:
 - Connect and reconnect attempts always request the current access token from the active `SpokeZone` auth provider.
 - Device auth proactively refreshes tokens when JWT expiry is within 12 hours.
 - MQTT connect timeout defaults to 20 seconds.
-- Reconnect delay behavior uses the same SDK backoff strategy system (`BackoffStrategy`, default `FixedDelayBackoffStrategy`) used by the HTTP APIs.
+- Reconnect delay behavior is configured with `SpokeZoneConfig.liveDataBackoffStrategy`.
+  - Default sequence: `5s`, `15s`, `30s`, `60s`, `120s`, `300s`, then repeat `300s`.

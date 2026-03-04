@@ -66,15 +66,17 @@ void main() {
         final delays = <Duration>[];
         final transport = TimeoutEnforcingLiveDataTransport();
         final spokeZone = SpokeZone(
-          config: SpokeZoneConfig.device(deviceAuth: deviceCallbacks()),
+          config: SpokeZoneConfig.device(
+            deviceAuth: deviceCallbacks(),
+            liveDataBackoffStrategy: TestBackoffStrategy(
+              (retryNumber) =>
+                  retryNumber <= 2 ? const Duration(milliseconds: 250) : null,
+            ),
+          ),
           httpClient: QueuedClient(),
           authProvider: FakeAccessTokenProvider(),
           liveDataTransportFactory: () => transport,
           liveDataConnectTimeout: const Duration(seconds: 3),
-          backoffStrategy: TestBackoffStrategy(
-            (retryNumber) =>
-                retryNumber <= 2 ? const Duration(milliseconds: 250) : null,
-          ),
           delay: (duration) async => delays.add(duration),
         );
 
@@ -100,14 +102,16 @@ void main() {
           connectResults: <bool>[true, false, true],
         );
         final spokeZone = SpokeZone(
-          config: SpokeZoneConfig.device(deviceAuth: deviceCallbacks()),
+          config: SpokeZoneConfig.device(
+            deviceAuth: deviceCallbacks(),
+            liveDataBackoffStrategy: TestBackoffStrategy(
+              (retryNumber) =>
+                  retryNumber == 1 ? const Duration(milliseconds: 200) : null,
+            ),
+          ),
           httpClient: QueuedClient(),
           authProvider: FakeAccessTokenProvider(),
           liveDataTransportFactory: () => transport,
-          backoffStrategy: TestBackoffStrategy(
-            (retryNumber) =>
-                retryNumber == 1 ? const Duration(milliseconds: 200) : null,
-          ),
           delay: (duration) async => delays.add(duration),
         );
 
@@ -130,14 +134,16 @@ void main() {
         tokens: <String>['t-1', 't-2', 't-3'],
       );
       final spokeZone = SpokeZone(
-        config: SpokeZoneConfig.device(deviceAuth: deviceCallbacks()),
+        config: SpokeZoneConfig.device(
+          deviceAuth: deviceCallbacks(),
+          liveDataBackoffStrategy: TestBackoffStrategy(
+            (retryNumber) =>
+                retryNumber == 1 ? const Duration(milliseconds: 100) : null,
+          ),
+        ),
         httpClient: QueuedClient(),
         authProvider: auth,
         liveDataTransportFactory: () => transport,
-        backoffStrategy: TestBackoffStrategy(
-          (retryNumber) =>
-              retryNumber == 1 ? const Duration(milliseconds: 100) : null,
-        ),
         delay: (_) async {},
       );
 
@@ -156,14 +162,16 @@ void main() {
         connectResults: <bool>[true, false, true],
       );
       final spokeZone = SpokeZone(
-        config: SpokeZoneConfig.device(deviceAuth: deviceCallbacks()),
+        config: SpokeZoneConfig.device(
+          deviceAuth: deviceCallbacks(),
+          liveDataBackoffStrategy: TestBackoffStrategy(
+            (retryNumber) =>
+                retryNumber == 1 ? const Duration(milliseconds: 300) : null,
+          ),
+        ),
         httpClient: QueuedClient(),
         authProvider: FakeAccessTokenProvider(),
         liveDataTransportFactory: () => transport,
-        backoffStrategy: TestBackoffStrategy(
-          (retryNumber) =>
-              retryNumber == 1 ? const Duration(milliseconds: 300) : null,
-        ),
         delay: (duration) async {
           delays.add(duration);
           await releaseDelay.future;
@@ -193,14 +201,16 @@ void main() {
         final delays = <Duration>[];
 
         final spokeZone = SpokeZone(
-          config: SpokeZoneConfig.device(deviceAuth: deviceCallbacks()),
+          config: SpokeZoneConfig.device(
+            deviceAuth: deviceCallbacks(),
+            liveDataBackoffStrategy: TestBackoffStrategy(
+              (retryNumber) =>
+                  retryNumber == 1 ? const Duration(seconds: 1) : null,
+            ),
+          ),
           httpClient: QueuedClient(),
           authProvider: auth,
           liveDataTransportFactory: () => transport,
-          backoffStrategy: TestBackoffStrategy(
-            (retryNumber) =>
-                retryNumber == 1 ? const Duration(seconds: 1) : null,
-          ),
           delay: (duration) async => delays.add(duration),
         );
 
@@ -210,23 +220,32 @@ void main() {
       },
     );
 
-    test('reconnect uses shared custom BackoffStrategy', () async {
-      final delays = <Duration>[];
-      final spokeZone = SpokeZone(
-        config: SpokeZoneConfig.device(deviceAuth: deviceCallbacks()),
-        httpClient: QueuedClient(),
-        authProvider: FakeAccessTokenProvider(),
-        liveDataTransportFactory: () =>
-            FakeLiveDataTransport(connectFailuresBeforeSuccess: 1),
-        backoffStrategy: TestBackoffStrategy(
-          (retryNumber) => retryNumber == 1 ? const Duration(seconds: 2) : null,
-        ),
-        delay: (duration) async => delays.add(duration),
-      );
+    test(
+      'reconnect uses live-data strategy independent from API strategy',
+      () async {
+        final delays = <Duration>[];
+        final spokeZone = SpokeZone(
+          config: SpokeZoneConfig.device(
+            deviceAuth: deviceCallbacks(),
+            apiBackoffStrategy: const FixedDelayBackoffStrategy(
+              delays: [Duration(seconds: 9)],
+            ),
+            liveDataBackoffStrategy: TestBackoffStrategy(
+              (retryNumber) =>
+                  retryNumber == 1 ? const Duration(seconds: 2) : null,
+            ),
+          ),
+          httpClient: QueuedClient(),
+          authProvider: FakeAccessTokenProvider(),
+          liveDataTransportFactory: () =>
+              FakeLiveDataTransport(connectFailuresBeforeSuccess: 1),
+          delay: (duration) async => delays.add(duration),
+        );
 
-      expect(await spokeZone.liveData.connect(), isTrue);
-      expect(delays, <Duration>[const Duration(seconds: 2)]);
-    });
+        expect(await spokeZone.liveData.connect(), isTrue);
+        expect(delays, <Duration>[const Duration(seconds: 2)]);
+      },
+    );
 
     test('reconnect uses FixedDelayBackoffStrategy by default', () async {
       final delays = <Duration>[];
@@ -235,15 +254,20 @@ void main() {
         httpClient: QueuedClient(),
         authProvider: FakeAccessTokenProvider(),
         liveDataTransportFactory: () =>
-            FakeLiveDataTransport(connectFailuresBeforeSuccess: 10),
+            FakeLiveDataTransport(connectFailuresBeforeSuccess: 8),
         delay: (duration) async => delays.add(duration),
       );
 
-      expect(await spokeZone.liveData.connect(), isFalse);
+      expect(await spokeZone.liveData.connect(), isTrue);
       expect(delays, <Duration>[
+        const Duration(seconds: 5),
         const Duration(seconds: 15),
         const Duration(seconds: 30),
         const Duration(seconds: 60),
+        const Duration(seconds: 120),
+        const Duration(seconds: 300),
+        const Duration(seconds: 300),
+        const Duration(seconds: 300),
       ]);
     });
 

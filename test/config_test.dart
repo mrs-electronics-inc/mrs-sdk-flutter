@@ -12,6 +12,24 @@ void main() {
       expect(config.deviceAuth, isNotNull);
       expect(config.userAuth, isNull);
       expect(config.baseUri.toString(), 'https://api.spoke.zone');
+      expect(_delaySeconds(config.apiBackoffStrategy, retries: 5), <int?>[
+        15,
+        30,
+        60,
+        null,
+        null,
+      ]);
+      expect(_delaySeconds(config.liveDataBackoffStrategy, retries: 9), <int?>[
+        5,
+        15,
+        30,
+        60,
+        120,
+        300,
+        300,
+        300,
+        300,
+      ]);
     });
 
     test('user mode constructor sets single auth mode', () {
@@ -77,4 +95,11 @@ void main() {
       },
     );
   });
+}
+
+List<int?> _delaySeconds(BackoffStrategy strategy, {required int retries}) {
+  return List<int?>.generate(
+    retries,
+    (index) => strategy.delayForRetry(index + 1)?.inSeconds,
+  );
 }

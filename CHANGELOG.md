@@ -1,3 +1,7 @@
+## 0.4.2
+
+- Split retry/backoff config into `apiBackoffStrategy` and `liveDataBackoffStrategy`.
+
 ## 0.4.1
 
 - Add heading and speed to retained MQTT location broadcasts.
