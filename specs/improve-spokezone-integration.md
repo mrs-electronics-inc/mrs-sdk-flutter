@@ -77,11 +77,11 @@ Invoke this callback whenever the active token is updated after login/refresh.
 
 ## Task List
 
-- [ ] Add tests for OTA query mapping with `module` and `isActive` options.
-- [ ] Add tests verifying OTA list behavior remains unchanged when new filters are not provided.
-- [ ] Add tests for `OtaFile` typed date parsing (`releaseDate`, `createdAt`) including invalid/missing date handling.
-- [ ] Implement `module` and `isActive` in `OtaFilesListOptions` and query forwarding in `OtaFilesClient.list(...)`.
-- [ ] Implement additive typed date fields in `OtaFile` with safe parsing and backward compatibility.
+- [x] Add tests for OTA query mapping with `module` and `isActive` options.
+- [x] Add tests verifying OTA list behavior remains unchanged when new filters are not provided.
+- [x] Add tests for `OtaFile` typed date parsing (`releaseDate`, `createdAt`) including invalid/missing date handling.
+- [x] Implement `module` and `isActive` in `OtaFilesListOptions` and query forwarding in `OtaFilesClient.list(...)`.
+- [x] Implement additive typed date fields in `OtaFile` with safe parsing and backward compatibility.
 - [ ] Add tests for proactive token refresh behavior using JWT expiry with a 12-hour window.
 - [ ] Add tests for optional `onTokenUpdated` callback invocation when token changes.
 - [ ] Add tests for `401` invalidation and exactly one retry per request.

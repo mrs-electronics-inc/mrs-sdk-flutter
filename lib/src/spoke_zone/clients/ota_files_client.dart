@@ -46,6 +46,12 @@ class OtaFilesClient {
     if (options.sortOrder != null) {
       query['sortOrder'] = options.sortOrder!;
     }
+    if (options.module != null) {
+      query['module'] = options.module!;
+    }
+    if (options.isActive != null) {
+      query['isActive'] = '${options.isActive!}';
+    }
 
     final uri = baseUri.replace(
       path: '/api/v2/ota-files',
@@ -75,6 +81,8 @@ class OtaFilesClient {
             fileLocation: map['fileLocation'] as String,
             isActive: map['isActive'] as bool,
             createdDate: map['createdDate'] as String,
+            createdAt: DateTime.tryParse(map['createdDate'] as String),
+            releaseDate: _parseOptionalDate(map['releaseDate']),
             releaseNotes: map['releaseNotes'] as String,
           );
         })
@@ -98,5 +106,12 @@ class OtaFilesClient {
       delay: _delay,
     );
     return Uint8List.fromList(response.bodyBytes);
+  }
+
+  DateTime? _parseOptionalDate(Object? value) {
+    if (value is! String || value.isEmpty) {
+      return null;
+    }
+    return DateTime.tryParse(value);
   }
 }
