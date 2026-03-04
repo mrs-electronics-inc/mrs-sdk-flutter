@@ -4,7 +4,6 @@ import 'package:http/http.dart' as http;
 
 import '../access_token_provider.dart';
 import '../http_helpers.dart';
-import '../models/coordinates.dart';
 import '../models/device_details.dart';
 import '../retry.dart';
 
@@ -51,13 +50,8 @@ class DevicesClient {
 
     final latRaw = body['lastLatitude'];
     final lonRaw = body['lastLongitude'];
-    Coordinates? lastLocation;
-    if (latRaw is num && lonRaw is num) {
-      lastLocation = Coordinates(
-        latitude: latRaw.toDouble(),
-        longitude: lonRaw.toDouble(),
-      );
-    }
+    final lastLatitude = latRaw is num ? latRaw.toDouble() : null;
+    final lastLongitude = lonRaw is num ? lonRaw.toDouble() : null;
 
     final softwareVersionsRaw = body['softwareVersions'];
     final softwareVersions = <String, String>{};
@@ -76,7 +70,8 @@ class DevicesClient {
       modelId: body['modelId'] as int,
       modelName: body['name'] as String,
       lastOnline: lastOnline,
-      lastLocation: lastLocation,
+      lastLatitude: lastLatitude,
+      lastLongitude: lastLongitude,
       softwareVersions: softwareVersions,
     );
   }

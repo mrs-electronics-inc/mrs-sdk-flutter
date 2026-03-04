@@ -1,3 +1,7 @@
+## 0.4.1
+
+- Add heading and speed to retained MQTT location broadcasts.
+
 ## 0.4.0
 
 - Improved Spoke.Zone integration.

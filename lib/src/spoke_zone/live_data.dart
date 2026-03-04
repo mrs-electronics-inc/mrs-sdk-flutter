@@ -7,7 +7,7 @@ import 'package:mqtt_client/mqtt_server_client.dart';
 
 import 'access_token_provider.dart';
 import 'errors.dart';
-import 'models/coordinates.dart';
+import 'models/location_data.dart';
 import 'retry.dart';
 
 part 'live_data/live_data_registration.dart';
@@ -176,32 +176,34 @@ class LiveData {
     );
   }
 
-  /// Registers periodic location broadcasts using the fixed SDK topic.
+  /// Registers periodic location broadcasts with retained MQTT messages.
   LiveDataRegistration registerLocationBroadcast({
     required String deviceId,
-    required Future<Coordinates?> Function() coordinatesProvider,
+    required Future<LocationData?> Function() locationProvider,
     Duration interval = const Duration(seconds: 15),
-    bool retained = false,
   }) {
     _validateDeviceId(deviceId);
     return registerJsonBroadcast(
       topic: 'mrs/d/$deviceId/mon/location',
       interval: interval,
-      retained: retained,
+      retained: true,
       payloadProvider: () async {
-        final coordinates = await coordinatesProvider();
-        if (coordinates == null) {
+        final location = await locationProvider();
+        if (location == null) {
           return null;
         }
         return <String, dynamic>{
-          'lat': coordinates.latitude,
-          'lon': coordinates.longitude,
+          'lat': location.latitude,
+          'lon': location.longitude,
+          'heading': location.heading,
+          'speed': location.speed,
         };
       },
     );
   }
 
-  /// Registers periodic software-version broadcasts using the fixed SDK topic.
+  /// Registers periodic software version broadcasts.
+  /// See https://docs.spoke.zone/developers/device-integration/software-version-system/
   LiveDataRegistration registerSoftwareVersionsBroadcast({
     required String deviceId,
     required Future<Map<String, String>?> Function() versionsProvider,

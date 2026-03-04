@@ -15,7 +15,7 @@ library;
 export 'src/spoke_zone/config.dart';
 export 'src/spoke_zone/errors.dart';
 export 'src/spoke_zone/models/callbacks.dart';
-export 'src/spoke_zone/models/coordinates.dart';
+export 'src/spoke_zone/models/location_data.dart';
 export 'src/spoke_zone/models/device_details.dart';
 export 'src/spoke_zone/models/ota_file.dart';
 export 'src/spoke_zone/models/ota_files_list_options.dart';
