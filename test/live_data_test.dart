@@ -624,7 +624,7 @@ void main() {
     );
 
     test(
-      'registerLocationBroadcast uses fixed topic, default interval, and lat/lon payload',
+      'registerLocationBroadcast uses fixed topic, default interval, retained publish, and location payload',
       () async {
         final timerFactory = ManualTimerFactory();
         final transport = FakeLiveDataTransport();
@@ -639,8 +639,12 @@ void main() {
 
         liveData.registerLocationBroadcast(
           deviceId: 'dev-1',
-          coordinatesProvider: () async =>
-              const Coordinates(latitude: 1.2, longitude: 3.4),
+          locationProvider: () async => const LocationData(
+            latitude: 1.2,
+            longitude: 3.4,
+            heading: 45.0,
+            speed: 12.5,
+          ),
         );
 
         await liveData.connect();
@@ -652,8 +656,14 @@ void main() {
         expect(transport.publishCalls.single.topic, 'mrs/d/dev-1/mon/location');
         expect(
           transport.publishCalls.single.payload,
-          jsonEncode(<String, dynamic>{'lat': 1.2, 'lon': 3.4}),
+          jsonEncode(<String, dynamic>{
+            'lat': 1.2,
+            'lon': 3.4,
+            'heading': 45.0,
+            'speed': 12.5,
+          }),
         );
+        expect(transport.publishCalls.single.retained, isTrue);
       },
     );
 

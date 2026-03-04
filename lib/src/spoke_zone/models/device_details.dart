@@ -1,5 +1,3 @@
-import 'coordinates.dart';
-
 /// Device details returned by `devices.get`.
 class DeviceDetails {
   /// Creates a device details model.
@@ -10,7 +8,8 @@ class DeviceDetails {
     required this.modelId,
     required this.modelName,
     required this.lastOnline,
-    required this.lastLocation,
+    required this.lastLatitude,
+    required this.lastLongitude,
     required this.softwareVersions,
   });
 
@@ -32,8 +31,11 @@ class DeviceDetails {
   /// Last online timestamp, or `null` when missing/invalid.
   final DateTime? lastOnline;
 
-  /// Last known location, or `null` when unavailable.
-  final Coordinates? lastLocation;
+  /// Last known latitude, or `null` when unavailable.
+  final double? lastLatitude;
+
+  /// Last known longitude, or `null` when unavailable.
+  final double? lastLongitude;
 
   /// Module-to-version map, empty when unavailable.
   final Map<String, String> softwareVersions;

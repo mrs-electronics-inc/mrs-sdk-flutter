@@ -29,12 +29,13 @@ void main() {
       final device = await spokeZone.devices.get(8);
       expect(device.modelName, 'Model Nine');
       expect(device.lastOnline, isNull);
-      expect(device.lastLocation, isNull);
+      expect(device.lastLatitude, isNull);
+      expect(device.lastLongitude, isNull);
       expect(device.softwareVersions, isEmpty);
     });
 
     test(
-      'devices.get maps shared Coordinates when both coordinates are present',
+      'devices.get maps lastLatitude and lastLongitude when present',
       () async {
         final client = QueuedClient();
         client.enqueueJson(201, {'token': 'device-token'});
@@ -54,9 +55,8 @@ void main() {
         );
 
         final device = await spokeZone.devices.get(1);
-        expect(device.lastLocation, isA<Coordinates>());
-        expect(device.lastLocation!.latitude, 41.1);
-        expect(device.lastLocation!.longitude, -71.2);
+        expect(device.lastLatitude, 41.1);
+        expect(device.lastLongitude, -71.2);
       },
     );
 
