@@ -25,6 +25,10 @@ sidebar:
 - `apiBackoffStrategy` default: `15s`, `30s`, `60s`, then stop.
 - `liveDataBackoffStrategy` default: `5s`, `15s`, `30s`, `60s`, `120s`, `300s`, then repeat `300s`.
 
+If you do not set either field, these defaults are used automatically.
+
+The example below is an optional override for custom retry/backoff behavior:
+
 ```dart
 final config = SpokeZoneConfig.device(
   deviceAuth: DeviceAuthCallbacks(
