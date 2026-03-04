@@ -39,7 +39,7 @@ Each registration can be canceled independently by calling `cancel()` on its ret
 
 The SDK provides helper registrations for common telemetry topics:
 
-- `registerLocationBroadcast(...)` publishes to `mrs/d/<device-id>/mon/location` with payload `{lat, lon}`.
+- `registerLocationBroadcast(...)` publishes to `mrs/d/<device-id>/mon/location` with retained MQTT messages and payload `{lat, lon, heading, speed}`.
 - `registerSoftwareVersionsBroadcast(...)` publishes to `mrs/d/<device-id>/mon/versions` with payload `Map<String, String>`.
 
 Default intervals:
