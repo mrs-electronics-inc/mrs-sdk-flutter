@@ -18,6 +18,9 @@ part 'live_data/live_data_types.dart';
 /// MQTT live-data service for publish and periodic telemetry workflows.
 class LiveData {
   /// Creates a live-data service.
+  ///
+  /// [connectTimeout] bounds each transport connect attempt. When a connect
+  /// attempt times out, normal reconnect backoff and retry rules apply.
   LiveData({
     required String mqttHost,
     required int mqttPort,
@@ -25,6 +28,7 @@ class LiveData {
     required AccessTokenProvider authProvider,
     BackoffStrategy? backoffStrategy,
     DelayFn? delay,
+    Duration connectTimeout = const Duration(seconds: 20),
     LiveDataTransportFactory? transportFactory,
     DateTime Function()? now,
     PeriodicTimerFactory? timerFactory,
@@ -34,6 +38,7 @@ class LiveData {
        _authProvider = authProvider,
        _backoffStrategy = backoffStrategy ?? const FixedDelayBackoffStrategy(),
        _delay = delay ?? Future<void>.delayed,
+       _connectTimeout = connectTimeout,
        _now = now ?? DateTime.now,
        _timerFactory = timerFactory ?? _systemPeriodicTimerFactory,
        _transport = (transportFactory ?? _DefaultLiveDataTransport.new)();
@@ -44,12 +49,16 @@ class LiveData {
   final AccessTokenProvider _authProvider;
   final BackoffStrategy _backoffStrategy;
   final DelayFn _delay;
+  final Duration _connectTimeout;
   final DateTime Function() _now;
   final PeriodicTimerFactory _timerFactory;
   final LiveDataTransport _transport;
 
   Future<bool>? _connectFuture;
-  bool _disconnectRequested = false;
+  bool _connectionIntent = false;
+  Future<void>? _reconnectLoopFuture;
+  Completer<void>? _disconnectSignal;
+  Completer<bool>? _pendingConnectCompleter;
   final ValueNotifier<bool> _isConnected = ValueNotifier<bool>(false);
 
   int _nextRegistrationId = 0;
@@ -66,24 +75,31 @@ class LiveData {
       return Future<bool>.value(true);
     }
 
-    _disconnectRequested = false;
+    _connectionIntent = true;
     final existing = _connectFuture;
     if (existing != null) {
       return existing;
     }
 
-    final connectFuture = _connectWithRetry();
+    final connectCompleter = Completer<bool>();
+    _pendingConnectCompleter = connectCompleter;
+    _startReconnectLoopIfNeeded();
+    final connectFuture = connectCompleter.future;
     _connectFuture = connectFuture.whenComplete(() {
       _connectFuture = null;
+      if (identical(_pendingConnectCompleter, connectCompleter)) {
+        _pendingConnectCompleter = null;
+      }
     });
     return _connectFuture!;
   }
 
   /// Closes the MQTT connection and pauses all periodic registrations.
   Future<void> disconnect() async {
-    _disconnectRequested = true;
+    _connectionIntent = false;
     _pauseActiveRegistrations();
     _isConnected.value = false;
+    _signalDisconnected();
     await _transport.disconnect();
   }
 
@@ -202,10 +218,10 @@ class LiveData {
     );
   }
 
-  Future<bool> _connectWithRetry() async {
+  Future<void> _runReconnectLoop() async {
     var retryNumber = 0;
 
-    while (!_disconnectRequested) {
+    while (_connectionIntent) {
       final token = await _authProvider.getAccessToken();
 
       try {
@@ -214,34 +230,70 @@ class LiveData {
           port: _mqttPort,
           useTls: _mqttUseTls,
           accessToken: token,
+          connectTimeout: _connectTimeout,
           onDisconnected: _handleTransportDisconnected,
         );
-        if (_disconnectRequested) {
+        if (!_connectionIntent) {
           _isConnected.value = false;
           await _transport.disconnect();
-          return false;
+          _completePendingConnect(false);
+          return;
         }
+
         _isConnected.value = true;
+        retryNumber = 0;
         _resumeRegistrations();
-        return true;
+        _completePendingConnect(true);
+
+        final disconnectSignal = Completer<void>();
+        _disconnectSignal = disconnectSignal;
+        await disconnectSignal.future;
       } catch (_) {
         _isConnected.value = false;
         retryNumber += 1;
         final wait = _backoffStrategy.delayForRetry(retryNumber);
         if (wait == null) {
-          return false;
+          _completePendingConnect(false);
+          return;
         }
         await _delay(wait);
       }
     }
 
     _isConnected.value = false;
-    return false;
+    _completePendingConnect(false);
+  }
+
+  void _startReconnectLoopIfNeeded() {
+    final existing = _reconnectLoopFuture;
+    if (existing != null) {
+      return;
+    }
+    _reconnectLoopFuture = _runReconnectLoop().whenComplete(() {
+      _reconnectLoopFuture = null;
+    });
   }
 
   void _handleTransportDisconnected() {
     // Network/broker disconnects can happen after a successful connect call.
     _isConnected.value = false;
+    _signalDisconnected();
+  }
+
+  void _signalDisconnected() {
+    final signal = _disconnectSignal;
+    if (signal == null || signal.isCompleted) {
+      return;
+    }
+    signal.complete();
+  }
+
+  void _completePendingConnect(bool value) {
+    final pending = _pendingConnectCompleter;
+    if (pending == null || pending.isCompleted) {
+      return;
+    }
+    pending.complete(value);
   }
 
   void _resumeRegistrations() {

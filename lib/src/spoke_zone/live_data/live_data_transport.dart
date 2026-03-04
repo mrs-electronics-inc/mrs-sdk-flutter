@@ -8,6 +8,7 @@ abstract interface class LiveDataTransport {
     required int port,
     required bool useTls,
     required String accessToken,
+    required Duration connectTimeout,
     required void Function() onDisconnected,
   });
 
@@ -35,6 +36,7 @@ class _DefaultLiveDataTransport implements LiveDataTransport {
     required int port,
     required bool useTls,
     required String accessToken,
+    required Duration connectTimeout,
     required void Function() onDisconnected,
   }) async {
     await disconnect();
@@ -50,7 +52,20 @@ class _DefaultLiveDataTransport implements LiveDataTransport {
     client.onDisconnected = onDisconnected;
 
     // Spoke.Zone broker expects the access token as the username
-    final status = await client.connect(accessToken, 'gibberish');
+    mqtt.MqttClientConnectionStatus? status;
+    try {
+      status = await client
+          .connect(accessToken, 'gibberish')
+          .timeout(connectTimeout);
+    } on TimeoutException {
+      client.disconnect();
+      _connected = false;
+      throw TimeoutException(
+        'MQTT connection timed out after ${connectTimeout.inMilliseconds}ms',
+        connectTimeout,
+      );
+    }
+
     if (status?.state != mqtt.MqttConnectionState.connected) {
       client.disconnect();
       _connected = false;

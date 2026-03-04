@@ -25,13 +25,13 @@ void main() {
           'name': 'm2',
         });
 
-        final zone = SpokeZone(
+        final spokeZone = SpokeZone(
           config: SpokeZoneConfig.device(deviceAuth: deviceCallbacks()),
           httpClient: client,
           delay: (duration) async => delays.add(duration),
         );
 
-        await zone.devices.get(2);
+        await spokeZone.devices.get(2);
         expect(delays, [
           const Duration(seconds: 15),
           const Duration(seconds: 30),
@@ -102,13 +102,13 @@ void main() {
         client.enqueueJson(201, {'token': 'device-token'});
         client.enqueueJson(404, {'message': 'missing resource'});
 
-        final zone = SpokeZone(
+        final spokeZone = SpokeZone(
           config: SpokeZoneConfig.device(deviceAuth: deviceCallbacks()),
           httpClient: client,
         );
 
         await expectLater(
-          zone.devices.get(99),
+          spokeZone.devices.get(99),
           throwsA(
             isA<SpokeZoneException>()
                 .having((e) => e.code, 'code', SpokeZoneErrorCode.notFound)
@@ -158,26 +158,26 @@ void main() {
       client.enqueueJson(201, {'token': 'device-token'});
       client.enqueueException(http.ClientException('socket closed'));
 
-      final zone = SpokeZone(
+      final spokeZone = SpokeZone(
         config: SpokeZoneConfig.device(deviceAuth: deviceCallbacks()),
         httpClient: client,
       );
 
       await expectLater(
-        zone.dataFiles.upload(1, Uint8List.fromList([1, 2, 3])),
+        spokeZone.dataFiles.upload(1, Uint8List.fromList([1, 2, 3])),
         throwsA(isA<SpokeZoneException>()),
       );
     });
 
     test('maps validationError before request dispatch', () async {
       final client = QueuedClient();
-      final zone = SpokeZone(
+      final spokeZone = SpokeZone(
         config: SpokeZoneConfig.device(deviceAuth: deviceCallbacks()),
         httpClient: client,
       );
 
       await expectLater(
-        zone.dataFiles.create('invalid'),
+        spokeZone.dataFiles.create('invalid'),
         throwsA(
           isA<SpokeZoneException>().having(
             (e) => e.code,
@@ -187,6 +187,69 @@ void main() {
         ),
       );
       expect(client.requests, isEmpty);
+    });
+
+    test('401 invalidates token and retries request exactly once', () async {
+      final client = QueuedClient();
+      client.enqueueJson(201, {'token': 'device-token-1'});
+      client.enqueueJson(401, {'error': 'unauthorized'});
+      client.enqueueJson(201, {'token': 'device-token-2'});
+      client.enqueueJson(200, {
+        'id': 2,
+        'identifier': 'd2',
+        'serialNumber': 's2',
+        'modelId': 2,
+        'name': 'm2',
+      });
+
+      final spokeZone = SpokeZone(
+        config: SpokeZoneConfig.device(deviceAuth: deviceCallbacks()),
+        httpClient: client,
+      );
+
+      final device = await spokeZone.devices.get(2);
+      expect(device.id, 2);
+
+      final apiRequests = client.requests
+          .where(
+            (request) => request.url.path == '/api/v2/devices/2',
+          )
+          .cast<http.Request>()
+          .toList(growable: false);
+      expect(apiRequests, hasLength(2));
+      expect(apiRequests.first.headers['x-access-token'], 'device-token-1');
+      expect(apiRequests.last.headers['x-access-token'], 'device-token-2');
+      expect(client.requests, hasLength(4));
+    });
+
+    test('repeated 401 does not create retry loops', () async {
+      final client = QueuedClient();
+      client.enqueueJson(201, {'token': 'device-token-1'});
+      client.enqueueJson(401, {'error': 'unauthorized'});
+      client.enqueueJson(201, {'token': 'device-token-2'});
+      client.enqueueJson(401, {'error': 'unauthorized'});
+
+      final spokeZone = SpokeZone(
+        config: SpokeZoneConfig.device(deviceAuth: deviceCallbacks()),
+        httpClient: client,
+      );
+
+      await expectLater(
+        spokeZone.devices.get(2),
+        throwsA(
+          isA<SpokeZoneException>().having(
+            (e) => e.code,
+            'code',
+            SpokeZoneErrorCode.unauthorized,
+          ),
+        ),
+      );
+
+      final apiRequests = client.requests.where(
+        (request) => request.url.path == '/api/v2/devices/2',
+      );
+      expect(apiRequests, hasLength(2));
+      expect(client.requests, hasLength(4));
     });
   });
 }

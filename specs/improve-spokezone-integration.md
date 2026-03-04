@@ -1,6 +1,6 @@
 ---
 number: 4
-status: in-progress
+status: completed
 author: Addison Emig
 creation_date: 2026-03-04
 approved_by: Addison Emig
@@ -81,20 +81,20 @@ Invoke this callback whenever the active token is updated after login/refresh.
 - [x] Add tests for `OtaFile` typed date parsing (`releaseDate`, `createdDate`) including invalid/missing date handling.
 - [x] Implement `module` and `isActive` in `OtaFilesListOptions` and query forwarding in `OtaFilesClient.list(...)`.
 - [x] Implement additive typed date fields in `OtaFile` with safe parsing and backward compatibility.
-- [ ] Add tests for proactive token refresh behavior using JWT expiry with a 12-hour window.
-- [ ] Add tests for optional `onTokenUpdated` callback invocation when token changes.
-- [ ] Add tests for `401` invalidation and exactly one retry per request.
-- [ ] Add tests proving repeated `401` does not create retry loops.
-- [ ] Add `InvalidatableAccessTokenProvider` and implement invalidation in `DeviceAuth`.
-- [ ] Add optional `onTokenUpdated` callback to `DeviceAuthCallbacks` and wire invocation into token update paths.
-- [ ] Implement authorized-request `401` invalidation + single retry behavior in shared HTTP helpers.
-- [ ] Add tests for LiveData connect timeout behavior and timeout enforcement.
-- [ ] Add tests for automatic reconnect on unexpected disconnect.
-- [ ] Add tests verifying reconnect attempts resolve current token each attempt.
-- [ ] Add tests verifying explicit `disconnect()` disables reconnect intent.
-- [ ] Implement `connectTimeout` support in LiveData transport connection flow.
-- [ ] Implement LiveData reconnect loop using shared backoff strategy and explicit stop semantics.
-- [ ] Run `just test` and confirm all new and existing tests pass.
-- [ ] Run `just lint` and confirm analyzer/lint checks pass.
-- [ ] Add/update DartDoc comments for all newly introduced public fields, callbacks, and interfaces.
-- [ ] Verify no breaking changes to existing public API usage patterns.
+- [x] Add tests for proactive token refresh behavior using JWT expiry with a 12-hour window.
+- [x] Add tests for optional `onTokenUpdated` callback invocation when token changes.
+- [x] Add tests for `401` invalidation and exactly one retry per request.
+- [x] Add tests proving repeated `401` does not create retry loops.
+- [x] Add `InvalidatableAccessTokenProvider` and implement invalidation in `DeviceAuth`.
+- [x] Add optional `onTokenUpdated` callback to `DeviceAuthCallbacks` and wire invocation into token update paths.
+- [x] Implement authorized-request `401` invalidation + single retry behavior in shared HTTP helpers.
+- [x] Add tests for LiveData connect timeout behavior and timeout enforcement.
+- [x] Add tests for automatic reconnect on unexpected disconnect.
+- [x] Add tests verifying reconnect attempts resolve current token each attempt.
+- [x] Add tests verifying explicit `disconnect()` disables reconnect intent.
+- [x] Implement `connectTimeout` support in LiveData transport connection flow.
+- [x] Implement LiveData reconnect loop using shared backoff strategy and explicit stop semantics.
+- [x] Run `just test` and confirm all new and existing tests pass.
+- [x] Run `just lint` and confirm analyzer/lint checks pass.
+- [x] Add/update DartDoc comments for all newly introduced public fields, callbacks, and interfaces.
+- [x] Verify no breaking changes to existing public API usage patterns.

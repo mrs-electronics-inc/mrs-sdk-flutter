@@ -4,12 +4,13 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:mrs_sdk_flutter/mrs_sdk_flutter.dart';
 
-DeviceAuthCallbacks deviceCallbacks() {
+DeviceAuthCallbacks deviceCallbacks({TokenUpdatedCallback? onTokenUpdated}) {
   return DeviceAuthCallbacks(
     cpuId: () async => 'cpu-1',
     uuid: () async => 'uuid-1',
     deviceId: () async => 'device-1',
     initialDeviceToken: () async => 'initial-device-token',
+    onTokenUpdated: onTokenUpdated,
   );
 }
 

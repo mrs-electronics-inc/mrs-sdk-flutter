@@ -132,5 +132,76 @@ void main() {
         ),
       );
     });
+
+    test(
+      'DeviceAuth proactively refreshes JWT expiring within 12-hour window',
+      () async {
+        final client = QueuedClient();
+        final expiringSoon = _jwtWithExp(
+          DateTime.now().add(const Duration(hours: 11)),
+        );
+        final renewed = _jwtWithExp(DateTime.now().add(const Duration(days: 2)));
+        client.enqueueJson(201, {'token': expiringSoon});
+        client.enqueueJson(201, {'token': renewed});
+
+        final auth = DeviceAuth(
+          baseUri: Uri.parse('https://api.spoke.zone'),
+          callbacks: deviceCallbacks(),
+          httpClient: client,
+        );
+
+        expect(await auth.getAccessToken(), renewed);
+        expect(await auth.getAccessToken(), renewed);
+        final loginRequests = client.requests.where(
+          (request) => request.url.path == '/loginDevice',
+        );
+        expect(loginRequests, hasLength(2));
+      },
+    );
+
+    test('DeviceAuth invalidation forces next token refresh', () async {
+      final client = QueuedClient();
+      client.enqueueJson(201, {'token': 'token-1'});
+      client.enqueueJson(201, {'token': 'token-2'});
+      final auth = DeviceAuth(
+        baseUri: Uri.parse('https://api.spoke.zone'),
+        callbacks: deviceCallbacks(),
+        httpClient: client,
+      );
+
+      expect(await auth.getAccessToken(), 'token-1');
+      (auth as InvalidatableAccessTokenProvider).invalidateAccessToken();
+      expect(await auth.getAccessToken(), 'token-2');
+    });
+
+    test('DeviceAuth invokes onTokenUpdated only when token changes', () async {
+      final updatedTokens = <String>[];
+      final client = QueuedClient();
+      client.enqueueJson(201, {'token': 'token-1'});
+      client.enqueueJson(201, {'token': 'token-1'});
+      client.enqueueJson(201, {'token': 'token-2'});
+
+      final auth = DeviceAuth(
+        baseUri: Uri.parse('https://api.spoke.zone'),
+        callbacks: deviceCallbacks(
+          onTokenUpdated: (token) => updatedTokens.add(token),
+        ),
+        httpClient: client,
+      );
+
+      await auth.login();
+      await auth.login();
+      await auth.login();
+
+      expect(updatedTokens, ['token-1', 'token-2']);
+    });
   });
+}
+
+String _jwtWithExp(DateTime expiresAt) {
+  final header = base64Url.encode(utf8.encode('{"alg":"HS256","typ":"JWT"}'));
+  final payload = base64Url.encode(
+    utf8.encode('{"exp":${expiresAt.millisecondsSinceEpoch ~/ 1000}}'),
+  );
+  return '${header.replaceAll('=', '')}.${payload.replaceAll('=', '')}.sig';
 }

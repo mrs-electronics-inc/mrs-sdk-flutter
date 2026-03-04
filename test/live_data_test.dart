@@ -9,12 +9,12 @@ import 'helpers.dart';
 void main() {
   group('LiveData service shape and config', () {
     test('SpokeZone exposes liveData namespace with LiveData type', () {
-      final zone = SpokeZone(
+      final spokeZone = SpokeZone(
         config: SpokeZoneConfig.device(deviceAuth: deviceCallbacks()),
         httpClient: QueuedClient(),
       );
 
-      expect(zone.liveData, isA<LiveData>());
+      expect(spokeZone.liveData, isA<LiveData>());
     });
 
     test(
@@ -60,6 +60,133 @@ void main() {
   });
 
   group('LiveData auth and reconnect behavior', () {
+    test('connect retries on timeout failures and enforces connect timeout', () async {
+      final delays = <Duration>[];
+      final transport = TimeoutEnforcingLiveDataTransport();
+      final spokeZone = SpokeZone(
+        config: SpokeZoneConfig.device(deviceAuth: deviceCallbacks()),
+        httpClient: QueuedClient(),
+        authProvider: FakeAccessTokenProvider(),
+        liveDataTransportFactory: () => transport,
+        liveDataConnectTimeout: const Duration(seconds: 3),
+        backoffStrategy: TestBackoffStrategy(
+          (retryNumber) =>
+              retryNumber <= 2 ? const Duration(milliseconds: 250) : null,
+        ),
+        delay: (duration) async => delays.add(duration),
+      );
+
+      expect(await spokeZone.liveData.connect(), isFalse);
+      expect(transport.timeoutFailures, 3);
+      expect(
+        transport.connectTimeouts,
+        <Duration>[
+          const Duration(seconds: 3),
+          const Duration(seconds: 3),
+          const Duration(seconds: 3),
+        ],
+      );
+      expect(
+        delays,
+        <Duration>[
+          const Duration(milliseconds: 250),
+          const Duration(milliseconds: 250),
+        ],
+      );
+    });
+
+    test('automatic reconnect resumes connection after unexpected disconnect', () async {
+      final delays = <Duration>[];
+      final transport = FakeLiveDataTransport(connectResults: <bool>[
+        true,
+        false,
+        true,
+      ]);
+      final spokeZone = SpokeZone(
+        config: SpokeZoneConfig.device(deviceAuth: deviceCallbacks()),
+        httpClient: QueuedClient(),
+        authProvider: FakeAccessTokenProvider(),
+        liveDataTransportFactory: () => transport,
+        backoffStrategy: TestBackoffStrategy(
+          (retryNumber) =>
+              retryNumber == 1 ? const Duration(milliseconds: 200) : null,
+        ),
+        delay: (duration) async => delays.add(duration),
+      );
+
+      await spokeZone.liveData.connect();
+      expect(spokeZone.liveData.isConnected.value, isTrue);
+
+      transport.simulateUnexpectedDisconnect();
+      await _waitForConnectAttempts(transport, 3);
+
+      expect(spokeZone.liveData.isConnected.value, isTrue);
+      expect(delays, <Duration>[const Duration(milliseconds: 200)]);
+    });
+
+    test('reconnect attempts resolve the current token each attempt', () async {
+      final transport = FakeLiveDataTransport(connectResults: <bool>[
+        true,
+        false,
+        true,
+      ]);
+      final auth = FakeAccessTokenProvider(tokens: <String>['t-1', 't-2', 't-3']);
+      final spokeZone = SpokeZone(
+        config: SpokeZoneConfig.device(deviceAuth: deviceCallbacks()),
+        httpClient: QueuedClient(),
+        authProvider: auth,
+        liveDataTransportFactory: () => transport,
+        backoffStrategy: TestBackoffStrategy(
+          (retryNumber) =>
+              retryNumber == 1 ? const Duration(milliseconds: 100) : null,
+        ),
+        delay: (_) async {},
+      );
+
+      await spokeZone.liveData.connect();
+      transport.simulateUnexpectedDisconnect();
+      await _waitForConnectAttempts(transport, 3);
+
+      expect(auth.getAccessTokenCallCount, 3);
+      expect(transport.connectTokens, <String>['t-1', 't-2', 't-3']);
+    });
+
+    test('explicit disconnect disables reconnect intent', () async {
+      final delays = <Duration>[];
+      final releaseDelay = Completer<void>();
+      final transport = FakeLiveDataTransport(connectResults: <bool>[
+        true,
+        false,
+        true,
+      ]);
+      final spokeZone = SpokeZone(
+        config: SpokeZoneConfig.device(deviceAuth: deviceCallbacks()),
+        httpClient: QueuedClient(),
+        authProvider: FakeAccessTokenProvider(),
+        liveDataTransportFactory: () => transport,
+        backoffStrategy: TestBackoffStrategy(
+          (retryNumber) =>
+              retryNumber == 1 ? const Duration(milliseconds: 300) : null,
+        ),
+        delay: (duration) async {
+          delays.add(duration);
+          await releaseDelay.future;
+        },
+      );
+
+      await spokeZone.liveData.connect();
+      transport.simulateUnexpectedDisconnect();
+      await _waitForConnectAttempts(transport, 2);
+
+      await spokeZone.liveData.disconnect();
+      releaseDelay.complete();
+      await Future<void>.delayed(Duration.zero);
+
+      expect(spokeZone.liveData.isConnected.value, isFalse);
+      expect(transport.connectAttemptCount, 2);
+      expect(delays, <Duration>[const Duration(milliseconds: 300)]);
+    });
+
     test(
       'connect/reconnect asks active auth provider for the current token',
       () async {
@@ -69,7 +196,7 @@ void main() {
         );
         final delays = <Duration>[];
 
-        final zone = SpokeZone(
+        final spokeZone = SpokeZone(
           config: SpokeZoneConfig.device(deviceAuth: deviceCallbacks()),
           httpClient: QueuedClient(),
           authProvider: auth,
@@ -81,7 +208,7 @@ void main() {
           delay: (duration) async => delays.add(duration),
         );
 
-        expect(await zone.liveData.connect(), isTrue);
+        expect(await spokeZone.liveData.connect(), isTrue);
         expect(auth.getAccessTokenCallCount, 2);
         expect(delays, <Duration>[const Duration(seconds: 1)]);
       },
@@ -89,7 +216,7 @@ void main() {
 
     test('reconnect uses shared custom BackoffStrategy', () async {
       final delays = <Duration>[];
-      final zone = SpokeZone(
+      final spokeZone = SpokeZone(
         config: SpokeZoneConfig.device(deviceAuth: deviceCallbacks()),
         httpClient: QueuedClient(),
         authProvider: FakeAccessTokenProvider(),
@@ -101,13 +228,13 @@ void main() {
         delay: (duration) async => delays.add(duration),
       );
 
-      expect(await zone.liveData.connect(), isTrue);
+      expect(await spokeZone.liveData.connect(), isTrue);
       expect(delays, <Duration>[const Duration(seconds: 2)]);
     });
 
     test('reconnect uses FixedDelayBackoffStrategy by default', () async {
       final delays = <Duration>[];
-      final zone = SpokeZone(
+      final spokeZone = SpokeZone(
         config: SpokeZoneConfig.device(deviceAuth: deviceCallbacks()),
         httpClient: QueuedClient(),
         authProvider: FakeAccessTokenProvider(),
@@ -116,7 +243,7 @@ void main() {
         delay: (duration) async => delays.add(duration),
       );
 
-      expect(await zone.liveData.connect(), isFalse);
+      expect(await spokeZone.liveData.connect(), isFalse);
       expect(delays, <Duration>[
         const Duration(seconds: 15),
         const Duration(seconds: 30),
@@ -623,6 +750,22 @@ void main() {
   });
 }
 
+Future<void> _waitForConnectAttempts(
+  FakeLiveDataTransport transport,
+  int attempts,
+) async {
+  for (var i = 0; i < 1000; i += 1) {
+    if (transport.connectAttemptCount >= attempts) {
+      return;
+    }
+    await Future<void>.delayed(Duration.zero);
+  }
+
+  fail(
+    'Timed out waiting for $attempts connect attempts; saw ${transport.connectAttemptCount}.',
+  );
+}
+
 class FakeAccessTokenProvider implements AccessTokenProvider {
   FakeAccessTokenProvider({List<String>? tokens})
     : _tokens = tokens ?? <String>['token'];
@@ -648,13 +791,18 @@ class FakeLiveDataTransport implements LiveDataTransport {
   FakeLiveDataTransport({
     this.connectFailuresBeforeSuccess = 0,
     this.throwOnPublish = false,
+    List<bool>? connectResults,
     List<bool>? publishResults,
-  }) : _publishResults = publishResults ?? <bool>[];
+  }) : _connectResults = connectResults ?? <bool>[],
+       _publishResults = publishResults ?? <bool>[];
 
   int connectFailuresBeforeSuccess;
   final bool throwOnPublish;
+  final List<bool> _connectResults;
   final List<bool> _publishResults;
   final List<PublishCall> publishCalls = <PublishCall>[];
+  final List<String> connectTokens = <String>[];
+  final List<Duration> connectTimeouts = <Duration>[];
 
   bool _connected = false;
   int disconnectCallCount = 0;
@@ -669,13 +817,21 @@ class FakeLiveDataTransport implements LiveDataTransport {
     required int port,
     required bool useTls,
     required String accessToken,
+    required Duration connectTimeout,
     required void Function() onDisconnected,
   }) async {
     _connectAttempts += 1;
+    connectTokens.add(accessToken);
+    connectTimeouts.add(connectTimeout);
     _onDisconnected = onDisconnected;
     if (_connectAttempts <= connectFailuresBeforeSuccess) {
       throw StateError('connect failed');
     }
+
+    if (_connectResults.isNotEmpty && !_connectResults.removeAt(0)) {
+      throw StateError('connect failed');
+    }
+
     _connected = true;
   }
 
@@ -731,6 +887,7 @@ class BlockingConnectLiveDataTransport extends FakeLiveDataTransport {
     required int port,
     required bool useTls,
     required String accessToken,
+    required Duration connectTimeout,
     required void Function() onDisconnected,
   }) async {
     connectCallCount += 1;
@@ -743,8 +900,35 @@ class BlockingConnectLiveDataTransport extends FakeLiveDataTransport {
       port: port,
       useTls: useTls,
       accessToken: accessToken,
+      connectTimeout: connectTimeout,
       onDisconnected: onDisconnected,
     );
+  }
+}
+
+class TimeoutEnforcingLiveDataTransport extends FakeLiveDataTransport {
+  int timeoutFailures = 0;
+
+  @override
+  Future<void> connect({
+    required String host,
+    required int port,
+    required bool useTls,
+    required String accessToken,
+    required Duration connectTimeout,
+    required void Function() onDisconnected,
+  }) async {
+    await super.connect(
+      host: host,
+      port: port,
+      useTls: useTls,
+      accessToken: accessToken,
+      connectTimeout: connectTimeout,
+      onDisconnected: onDisconnected,
+    );
+
+    timeoutFailures += 1;
+    throw TimeoutException('connect timed out', connectTimeout);
   }
 }
 
