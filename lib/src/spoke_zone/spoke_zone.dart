@@ -23,6 +23,9 @@ export 'live_data.dart';
 /// Use [SpokeZoneConfig.device] or [SpokeZoneConfig.user] to select auth mode.
 class SpokeZone {
   /// Creates a Spoke.Zone client.
+  ///
+  /// [liveDataConnectTimeout] controls how long each MQTT connect attempt can
+  /// run before timing out.
   SpokeZone({
     required this.config,
     http.Client? httpClient,
@@ -30,6 +33,7 @@ class SpokeZone {
     DelayFn? delay,
     AccessTokenProvider? authProvider,
     LiveDataTransportFactory? liveDataTransportFactory,
+    Duration liveDataConnectTimeout = const Duration(seconds: 20),
     DateTime Function()? liveDataNow,
     PeriodicTimerFactory? liveDataTimerFactory,
   }) : httpClient = httpClient ?? http.Client(),
@@ -72,6 +76,7 @@ class SpokeZone {
       authProvider: auth,
       backoffStrategy: _backoffStrategy,
       delay: _delay,
+      connectTimeout: liveDataConnectTimeout,
       transportFactory: liveDataTransportFactory,
       now: liveDataNow,
       timerFactory: liveDataTimerFactory,

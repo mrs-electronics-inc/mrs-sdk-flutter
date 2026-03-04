@@ -1,5 +1,10 @@
+import 'dart:async';
+
 /// Async string callback used by auth providers.
 typedef AsyncStringCallback = Future<String> Function();
+
+/// Callback invoked when device auth updates the active token.
+typedef TokenUpdatedCallback = FutureOr<void> Function(String token);
 
 /// Callback set required for device authentication.
 class DeviceAuthCallbacks {
@@ -9,6 +14,7 @@ class DeviceAuthCallbacks {
     required this.uuid,
     required this.deviceId,
     required this.initialDeviceToken,
+    this.onTokenUpdated,
   });
 
   /// Resolves the device CPU identifier.
@@ -22,6 +28,9 @@ class DeviceAuthCallbacks {
 
   /// Resolves the initial device token used by `/loginDevice`.
   final AsyncStringCallback initialDeviceToken;
+
+  /// Called when the active token changes.
+  final TokenUpdatedCallback? onTokenUpdated;
 }
 
 /// Callback set required for user authentication.

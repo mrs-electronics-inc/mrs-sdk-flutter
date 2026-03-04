@@ -10,6 +10,7 @@ class OtaFile {
     required this.fileLocation,
     required this.isActive,
     required this.createdDate,
+    required this.releaseDate,
     required this.releaseNotes,
   });
 
@@ -34,8 +35,11 @@ class OtaFile {
   /// Active status flag.
   final bool isActive;
 
-  /// Creation date string from API.
-  final String createdDate;
+  /// Creation date parsed from API payload, or `null` when missing/invalid.
+  final DateTime? createdDate;
+
+  /// Release date parsed from API payload, or `null` when missing/invalid.
+  final DateTime? releaseDate;
 
   /// Release notes text.
   final String releaseNotes;

@@ -6,25 +6,33 @@ class OtaFilesListOptions {
     this.searchFields,
     this.sort,
     this.sortOrder,
+    this.module,
+    this.isActive,
     this.limit = 50,
     this.offset = 0,
   });
 
-  /// Search term.
+  /// Search term filter.
   final String? searchTerm;
 
-  /// Comma-separated searchable fields.
+  /// Comma-separated fields to search.
   final String? searchFields;
 
-  /// Sort field.
+  /// Field used for sorting.
   final String? sort;
 
-  /// Sort order (for example `asc` or `desc`).
+  /// Sort direction (for example `asc` or `desc`).
   final String? sortOrder;
 
-  /// Page size. Defaults to `50`.
+  /// Module filter.
+  final String? module;
+
+  /// Active-status filter.
+  final bool? isActive;
+
+  /// Maximum number of results returned. Defaults to `50`.
   final int limit;
 
-  /// Row offset. Defaults to `0`.
+  /// Result offset. Defaults to `0`.
   final int offset;
 }

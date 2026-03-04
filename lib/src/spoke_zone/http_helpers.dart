@@ -62,8 +62,9 @@ Future<http.Response> sendAuthorizedJsonWithRetry({
   required BackoffStrategy backoffStrategy,
   required DelayFn delay,
 }) async {
-  final token = await auth.getAccessToken();
+  var token = await auth.getAccessToken();
   var retryNumber = 0;
+  var retriedAfterUnauthorized = false;
 
   while (true) {
     try {
@@ -74,6 +75,14 @@ Future<http.Response> sendAuthorizedJsonWithRetry({
       final endpoint = request.url.path;
       if (response.statusCode < 400) {
         return response;
+      }
+      if (response.statusCode == 401 &&
+          !retriedAfterUnauthorized &&
+          auth is InvalidatableAccessTokenProvider) {
+        retriedAfterUnauthorized = true;
+        auth.invalidateAccessToken();
+        token = await auth.getAccessToken();
+        continue;
       }
       if (isRetryable(response.statusCode)) {
         retryNumber += 1;
