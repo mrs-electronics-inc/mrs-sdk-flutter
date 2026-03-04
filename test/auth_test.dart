@@ -140,7 +140,9 @@ void main() {
         final expiringSoon = _jwtWithExp(
           DateTime.now().add(const Duration(hours: 11)),
         );
-        final renewed = _jwtWithExp(DateTime.now().add(const Duration(days: 2)));
+        final renewed = _jwtWithExp(
+          DateTime.now().add(const Duration(days: 2)),
+        );
         client.enqueueJson(201, {'token': expiringSoon});
         client.enqueueJson(201, {'token': renewed});
 

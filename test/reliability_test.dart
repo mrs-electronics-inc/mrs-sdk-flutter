@@ -211,9 +211,7 @@ void main() {
       expect(device.id, 2);
 
       final apiRequests = client.requests
-          .where(
-            (request) => request.url.path == '/api/v2/devices/2',
-          )
+          .where((request) => request.url.path == '/api/v2/devices/2')
           .cast<http.Request>()
           .toList(growable: false);
       expect(apiRequests, hasLength(2));
