@@ -10,7 +10,7 @@ class OtaFile {
     required this.fileLocation,
     required this.isActive,
     required this.createdDate,
-    this.releaseDate,
+    required this.releaseDate,
     required this.releaseNotes,
   });
 
