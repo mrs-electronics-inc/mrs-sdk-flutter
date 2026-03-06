@@ -8,7 +8,7 @@ DeviceAuthCallbacks deviceCallbacks({TokenUpdatedCallback? onTokenUpdated}) {
   return DeviceAuthCallbacks(
     cpuId: () async => 'cpu-1',
     uuid: () async => 'uuid-1',
-    deviceId: () async => 'device-1',
+    deviceId: () async => 1,
     initialDeviceToken: () async => 'initial-device-token',
     onTokenUpdated: onTokenUpdated,
   );

@@ -34,7 +34,7 @@ final config = SpokeZoneConfig.device(
   deviceAuth: DeviceAuthCallbacks(
     cpuId: () async => 'cpu-id',
     uuid: () async => 'uuid',
-    deviceId: () async => 'device-id',
+    deviceId: () async => 123,
     initialDeviceToken: () async => 'token',
   ),
   apiBackoffStrategy: const FixedDelayBackoffStrategy(
