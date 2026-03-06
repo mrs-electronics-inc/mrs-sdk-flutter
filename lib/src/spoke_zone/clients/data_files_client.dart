@@ -44,8 +44,10 @@ class DataFilesClient {
   /// Creates a server-side data-file record and returns its ID.
   ///
   /// Supported [type] values: `log`, `event`, `gps`, `debug`, `journal`,
-  /// `dmesg`, `txt`.
-  Future<int> create(String type) async {
+  /// `dmesg`, `txt`. Optionally associate the file with a module via
+  /// [module], where the value should be the module key that identifies the
+  /// target module.
+  Future<int> create(String type, {String? module}) async {
     if (!_allowedTypes.contains(type)) {
       throw SpokeZoneException(
         code: SpokeZoneErrorCode.validationError,
@@ -63,7 +65,11 @@ class DataFilesClient {
         );
         req.headers['x-access-token'] = token;
         req.headers['content-type'] = 'application/json';
-        req.body = jsonEncode({'type': type});
+        final body = <String, Object?>{'type': type};
+        if (module != null) {
+          body['module'] = module;
+        }
+        req.body = jsonEncode(body);
         return req;
       },
       backoffStrategy: _backoffStrategy,

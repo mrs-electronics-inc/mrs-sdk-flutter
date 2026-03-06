@@ -78,6 +78,23 @@ void main() {
       expect(jsonDecode(request.body), {'type': 'log'});
     });
 
+    test('dataFiles.create sends module when supplied', () async {
+      final client = QueuedClient();
+      client.enqueueJson(201, {'token': 'device-token'});
+      client.enqueueJson(200, {'id': 101});
+
+      final spokeZone = SpokeZone(
+        config: SpokeZoneConfig.device(deviceAuth: deviceCallbacks()),
+        httpClient: client,
+      );
+
+      final id = await spokeZone.dataFiles.create('log', module: 'ECU');
+      expect(id, 101);
+
+      final request = client.requests[1] as http.Request;
+      expect(jsonDecode(request.body), {'type': 'log', 'module': 'ECU'});
+    });
+
     test('dataFiles.upload sends multipart bytes in files field', () async {
       final client = QueuedClient();
       client.enqueueJson(201, {'token': 'device-token'});
