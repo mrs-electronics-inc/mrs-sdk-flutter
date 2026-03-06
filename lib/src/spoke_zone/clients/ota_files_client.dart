@@ -50,7 +50,7 @@ class OtaFilesClient {
       query['module'] = options.module!;
     }
     if (options.isActive != null) {
-      query['isActive'] = '${options.isActive!}';
+      query['isActive'] = options.isActive! ? '1' : '0';
     }
 
     final uri = baseUri.replace(

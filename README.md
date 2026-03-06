@@ -8,7 +8,7 @@ Add the package to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  mrs_sdk_flutter: ^0.5.0
+  mrs_sdk_flutter: ^0.5.1
 ```
 
 Then fetch dependencies:

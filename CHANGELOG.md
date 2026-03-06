@@ -1,3 +1,7 @@
+## 0.5.1
+
+- Fix OTA `isActive` filtering.
+
 ## 0.5.0
 
 - Allow specifying module key for new data files.
