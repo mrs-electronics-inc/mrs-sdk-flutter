@@ -202,7 +202,7 @@ void main() {
       expect(request.url.queryParameters['sort'], 'createdDate');
       expect(request.url.queryParameters['sortOrder'], 'desc');
       expect(request.url.queryParameters['module'], 'ECU');
-      expect(request.url.queryParameters['isActive'], 'false');
+      expect(request.url.queryParameters['isActive'], '0');
       expect(request.url.queryParameters['limit'], '25');
       expect(request.url.queryParameters['offset'], '10');
     });
