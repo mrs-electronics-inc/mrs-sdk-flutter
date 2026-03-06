@@ -1,3 +1,8 @@
+## 0.5.0
+
+- Allow specifying module key for new data files.
+- Require integer device IDs.
+
 ## 0.4.2
 
 - Split retry/backoff config into `apiBackoffStrategy` and `liveDataBackoffStrategy`.
