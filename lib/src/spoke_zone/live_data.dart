@@ -178,7 +178,7 @@ class LiveData {
 
   /// Registers periodic location broadcasts with retained MQTT messages.
   LiveDataRegistration registerLocationBroadcast({
-    required String deviceId,
+    required int deviceId,
     required Future<LocationData?> Function() locationProvider,
     Duration interval = const Duration(seconds: 15),
   }) {
@@ -205,7 +205,7 @@ class LiveData {
   /// Registers periodic software version broadcasts.
   /// See https://docs.spoke.zone/developers/device-integration/software-version-system/
   LiveDataRegistration registerSoftwareVersionsBroadcast({
-    required String deviceId,
+    required int deviceId,
     required Future<Map<String, String>?> Function() versionsProvider,
     Duration interval = const Duration(seconds: 60),
     bool retained = false,
@@ -384,11 +384,11 @@ class LiveData {
     }
   }
 
-  void _validateDeviceId(String deviceId) {
-    if (deviceId.trim().isEmpty) {
+  void _validateDeviceId(int deviceId) {
+    if (deviceId <= 0) {
       throw SpokeZoneException(
         code: SpokeZoneErrorCode.validationError,
-        message: 'Device id must not be empty',
+        message: 'Device id must be a positive integer',
       );
     }
   }

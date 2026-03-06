@@ -42,6 +42,8 @@ The SDK provides helper registrations for common telemetry topics:
 - `registerLocationBroadcast(...)` publishes to `mrs/d/<device-id>/mon/location` with retained MQTT messages and payload `{lat, lon, heading, speed}`.
 - `registerSoftwareVersionsBroadcast(...)` publishes to `mrs/d/<device-id>/mon/versions` with payload `Map<String, String>`.
 
+Device IDs in these topics must be the positive integers your `DeviceAuthCallbacks.deviceId` implementation resolves, ensuring the numeric identifier is embedded into the MQTT topic path.
+
 Default intervals:
 
 - Location: every 15 seconds.

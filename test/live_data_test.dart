@@ -662,7 +662,7 @@ void main() {
         );
 
         liveData.registerLocationBroadcast(
-          deviceId: 'dev-1',
+          deviceId: 1,
           locationProvider: () async => const LocationData(
             latitude: 1.2,
             longitude: 3.4,
@@ -677,7 +677,7 @@ void main() {
         timerFactory.timers.single.tick();
         await Future<void>.delayed(Duration.zero);
 
-        expect(transport.publishCalls.single.topic, 'mrs/d/dev-1/mon/location');
+        expect(transport.publishCalls.single.topic, 'mrs/d/1/mon/location');
         expect(
           transport.publishCalls.single.payload,
           jsonEncode(<String, dynamic>{
@@ -706,7 +706,7 @@ void main() {
         );
 
         liveData.registerSoftwareVersionsBroadcast(
-          deviceId: 'dev-1',
+          deviceId: 1,
           versionsProvider: () async => <String, String>{
             'module-a': '1.0.0',
             'module-b': '2.0.0',
@@ -719,13 +719,64 @@ void main() {
         timerFactory.timers.single.tick();
         await Future<void>.delayed(Duration.zero);
 
-        expect(transport.publishCalls.single.topic, 'mrs/d/dev-1/mon/versions');
+        expect(transport.publishCalls.single.topic, 'mrs/d/1/mon/versions');
         expect(
           transport.publishCalls.single.payload,
           jsonEncode(<String, dynamic>{
             'module-a': '1.0.0',
             'module-b': '2.0.0',
           }),
+        );
+      },
+    );
+
+    test('registerLocationBroadcast rejects non-positive device IDs', () {
+      final liveData = LiveData(
+        mqttHost: 'io.spoke.zone',
+        mqttPort: 8883,
+        mqttUseTls: true,
+        authProvider: FakeAccessTokenProvider(),
+        transportFactory: () => FakeLiveDataTransport(),
+      );
+
+      expect(
+        () => liveData.registerLocationBroadcast(
+          deviceId: 0,
+          locationProvider: () async => null,
+        ),
+        throwsA(
+          isA<SpokeZoneException>().having(
+            (e) => e.code,
+            'code',
+            SpokeZoneErrorCode.validationError,
+          ),
+        ),
+      );
+    });
+
+    test(
+      'registerSoftwareVersionsBroadcast rejects non-positive device IDs',
+      () {
+        final liveData = LiveData(
+          mqttHost: 'io.spoke.zone',
+          mqttPort: 8883,
+          mqttUseTls: true,
+          authProvider: FakeAccessTokenProvider(),
+          transportFactory: () => FakeLiveDataTransport(),
+        );
+
+        expect(
+          () => liveData.registerSoftwareVersionsBroadcast(
+            deviceId: -1,
+            versionsProvider: () async => <String, String>{},
+          ),
+          throwsA(
+            isA<SpokeZoneException>().having(
+              (e) => e.code,
+              'code',
+              SpokeZoneErrorCode.validationError,
+            ),
+          ),
         );
       },
     );
