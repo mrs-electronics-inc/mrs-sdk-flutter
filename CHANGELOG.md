@@ -1,3 +1,7 @@
+## 0.5.2
+
+- Fix data file create request sending `module` instead of `moduleKey`.
+
 ## 0.5.1
 
 - Fix OTA `isActive` filtering.

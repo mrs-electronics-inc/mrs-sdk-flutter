@@ -67,7 +67,7 @@ class DataFilesClient {
         req.headers['content-type'] = 'application/json';
         final body = <String, Object?>{'type': type};
         if (module != null) {
-          body['module'] = module;
+          body['moduleKey'] = module;
         }
         req.body = jsonEncode(body);
         return req;

@@ -92,7 +92,7 @@ void main() {
       expect(id, 101);
 
       final request = client.requests[1] as http.Request;
-      expect(jsonDecode(request.body), {'type': 'log', 'module': 'ECU'});
+      expect(jsonDecode(request.body), {'type': 'log', 'moduleKey': 'ECU'});
     });
 
     test('dataFiles.create omits module when not supplied', () async {
