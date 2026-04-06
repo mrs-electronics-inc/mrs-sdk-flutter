@@ -5,6 +5,7 @@ default:
 # Install Flutter and docs dependencies.
 deps:
     flutter pub get
+    cd packages/mrs_sdk_flutter_lints && dart pub get
     cd docs && npm install
 
 # Set up local development environment and git hooks.
@@ -14,11 +15,13 @@ setup: deps
 # Run Flutter analysis and docs build checks.
 lint:
     flutter analyze
+    cd packages/mrs_sdk_flutter_lints && dart analyze
     cd docs && npm run build
 
 # Run tests.
 test:
     flutter test
+    cd packages/mrs_sdk_flutter_lints && dart test
 
 # Format Flutter and docs code.
 format:
