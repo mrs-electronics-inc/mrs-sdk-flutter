@@ -3,9 +3,9 @@ import 'package:analysis_server_plugin/registry.dart';
 
 import 'rules/widget_member_order.dart';
 
-class MrsSdkFlutterLintsPlugin extends Plugin {
+class MrsFlutterLintsPlugin extends Plugin {
   @override
-  String get name => 'mrs_sdk_flutter_lints';
+  String get name => 'mrs_flutter_lints';
 
   @override
   void register(PluginRegistry registry) {

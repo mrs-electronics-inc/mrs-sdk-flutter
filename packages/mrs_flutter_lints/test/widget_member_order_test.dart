@@ -1,7 +1,7 @@
 // ignore_for_file: non_constant_identifier_names
 
 import 'package:analyzer_testing/analysis_rule/analysis_rule.dart';
-import 'package:mrs_sdk_flutter_lints/mrs_sdk_flutter_lints.dart';
+import 'package:mrs_flutter_lints/mrs_flutter_lints.dart';
 import 'package:test_reflective_loader/test_reflective_loader.dart';
 
 @reflectiveTest
@@ -32,9 +32,9 @@ abstract class State<T extends StatefulWidget> {}
     super.setUp();
   }
 
-  void test_fields_getters_constructor_lifecycle_and_methods_are_allowed() async {
-    await assertNoDiagnostics(
-      r'''
+  void
+  test_fields_getters_constructor_lifecycle_and_methods_are_allowed() async {
+    await assertNoDiagnostics(r'''
 import 'package:flutter/widgets.dart';
 
 class Example extends StatefulWidget {
@@ -68,8 +68,7 @@ class _ExampleState extends State<Example> {
 
   void _privateHelper() {}
 }
-''',
-    );
+''');
   }
 
   void test_reports_field_after_accessor() async {

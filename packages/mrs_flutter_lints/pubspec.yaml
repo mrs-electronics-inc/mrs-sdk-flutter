@@ -1,6 +1,6 @@
-name: mrs_sdk_flutter_lints
+name: mrs_flutter_lints
 description: Analyzer plugin rules for the MRS SDK Flutter package.
-version: 0.1.0
+version: 0.5.2
 homepage: https://mrs-electronics.dev
 repository: https://github.com/mrs-electronics-inc/mrs-sdk-flutter
 

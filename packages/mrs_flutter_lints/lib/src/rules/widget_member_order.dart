@@ -25,7 +25,10 @@ class WidgetMemberOrderRule extends AnalysisRule {
   );
 
   @override
-  void registerNodeProcessors(RuleVisitorRegistry registry, RuleContext context) {
+  void registerNodeProcessors(
+    RuleVisitorRegistry registry,
+    RuleContext context,
+  ) {
     registry.addClassDeclaration(this, _WidgetMemberOrderVisitor(this));
   }
 }
