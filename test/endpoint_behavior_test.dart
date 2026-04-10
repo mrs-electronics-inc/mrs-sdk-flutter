@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:mrs_sdk_flutter/mrs_sdk_flutter.dart';
+import 'package:test/test.dart';
 
 import 'helpers.dart';
 
