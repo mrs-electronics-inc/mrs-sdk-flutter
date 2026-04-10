@@ -1,3 +1,7 @@
+## 0.6.0
+
+- Add lint rule to enforce widget member ordering.
+
 ## 0.5.2
 
 - Fix data file create request sending `module` instead of `moduleKey`.
