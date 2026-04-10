@@ -26,9 +26,9 @@ Automated by CI/CD in `.github/workflows/publish-sdk.yml` after tag push:
 
 ## `mrs_sdk_flutter_lints`
 
-1. Update `mrs_sdk_flutter_lints/pubspec.yaml` version to the intended release version (`X.Y.Z`).
-2. Update `mrs_sdk_flutter_lints/CHANGELOG.md` with release notes for `X.Y.Z`.
-3. Update `mrs_sdk_flutter_lints/README.md` dependency example to the latest release version (`mrs_sdk_flutter_lints: ^X.Y.Z`).
+1. Update `lints/pubspec.yaml` version to the intended release version (`X.Y.Z`).
+2. Update `lints/CHANGELOG.md` with release notes for `X.Y.Z`.
+3. Update `lints/README.md` dependency example to the latest release version (`mrs_sdk_flutter_lints: ^X.Y.Z`).
 4. Commit release changes and push the release branch.
 5. Open a pull request for the release branch.
 6. Merge the pull request into the default branch.

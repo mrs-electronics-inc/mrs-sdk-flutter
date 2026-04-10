@@ -69,7 +69,7 @@ This spec covers package metadata, repository/package structure expectations, pu
   - Deployment requires successful quality gates and publish dry-run checks
   - Deployment publishes to `pub.dev` using GitHub OIDC automated publishing
 - Chosen: Implement deployment as a dedicated publish workflow with explicit gates
-  - Workflow file: `.github/workflows/publish-sdk.yml`
+  - Workflow file: `.github/workflows/publish-pubdev.yml`
   - Triggers:
     - `push` tags matching `vX.Y.Z` only (no prerelease suffixes)
   - Job order:
@@ -143,7 +143,7 @@ This spec covers package metadata, repository/package structure expectations, pu
 
 ### Release Workflows
 
-- [x] Add and implement `.github/workflows/publish-sdk.yml` for tag-triggered (`push` tags `vX.Y.Z`) `pub.dev` deployment, with inline comments documenting trigger constraints
+- [x] Add and implement `.github/workflows/publish-pubdev.yml` for tag-triggered (`push` tags `vX.Y.Z`) `pub.dev` deployment, with inline comments documenting trigger constraints
 - [x] Configure release workflow to run the reusable quality-gates workflow before any publish steps, with inline comments on gate ordering
 - [x] Add a `tag_version_check` gate that compares git tag version to `pubspec.yaml` version, with inline comments on mismatch failure behavior
 - [x] Configure dependencies so tag/version mismatch fails before `dry_run_publish` and `publish`

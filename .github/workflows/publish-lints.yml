@@ -28,10 +28,10 @@ jobs:
           fi
 
           TAG_VERSION="${TAG#lints-v}"
-          PUBSPEC_VERSION="$(sed -nE 's/^version:[[:space:]]*([^+[:space:]]+).*$/\1/p' mrs_sdk_flutter_lints/pubspec.yaml | head -n1)"
+          PUBSPEC_VERSION="$(sed -nE 's/^version:[[:space:]]*([^+[:space:]]+).*$/\1/p' lints/pubspec.yaml | head -n1)"
 
           if [[ -z "$PUBSPEC_VERSION" ]]; then
-            echo "Could not determine version from mrs_sdk_flutter_lints/pubspec.yaml." >&2
+            echo "Could not determine version from lints/pubspec.yaml." >&2
             exit 1
           fi
 
@@ -40,10 +40,10 @@ jobs:
             exit 1
           fi
 
-          README_VERSION="$(sed -nE 's/^[[:space:]]*mrs_sdk_flutter_lints:[[:space:]]*\^?([0-9]+\.[0-9]+\.[0-9]+).*$/\1/p' mrs_sdk_flutter_lints/README.md | head -n1)"
+          README_VERSION="$(sed -nE 's/^[[:space:]]*mrs_sdk_flutter_lints:[[:space:]]*\^?([0-9]+\.[0-9]+\.[0-9]+).*$/\1/p' lints/README.md | head -n1)"
 
           if [[ -z "$README_VERSION" ]]; then
-            echo "Could not determine package version example from mrs_sdk_flutter_lints/README.md." >&2
+            echo "Could not determine package version example from lints/README.md." >&2
             exit 1
           fi
 
@@ -66,12 +66,12 @@ jobs:
 
       - name: Install dependencies
         run: dart pub get
-        working-directory: mrs_sdk_flutter_lints
+        working-directory: lints
 
       - name: Verify publish readiness with dry-run
         # Failure condition: any pub.dev packaging or validation issue blocks real publish.
         run: dart pub publish --dry-run
-        working-directory: mrs_sdk_flutter_lints
+        working-directory: lints
 
   publish:
     name: publish
@@ -86,4 +86,4 @@ jobs:
       # Environment protection: configure this GitHub Environment with one required reviewer.
       # This environment name must also be required in pub.dev automated publishing settings.
       environment: pubdev-release
-      working-directory: mrs_sdk_flutter_lints
+      working-directory: lints
