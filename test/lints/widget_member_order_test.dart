@@ -76,9 +76,17 @@ class _ExampleState extends State<Example> {
 
   void initState() {}
 
-  void dispose() {}
+  void didChangeDependencies() {}
 
   Widget build() => const Widget();
+
+  void didUpdateWidget(Object oldWidget) {}
+
+  void reassemble() {}
+
+  void deactivate() {}
+
+  void dispose() {}
 
   void publicHelper() {}
 
@@ -108,7 +116,7 @@ class Example extends StatefulWidget {
       });
     });
 
-    test('reports dispose before build', () async {
+    test('reports build before didChangeDependencies', () async {
       await _withHarness((harness) async {
         await harness.assertDiagnostics(
           r'''
@@ -117,7 +125,7 @@ import 'package:flutter/widgets.dart';
 class ExampleState extends State<Example> {
   Widget build() => const Widget();
 
-  void dispose() {}
+  void didChangeDependencies() {}
 }
 
 class Example extends StatefulWidget {
@@ -126,7 +134,30 @@ class Example extends StatefulWidget {
   State<Example> createState() => ExampleState();
 }
 ''',
-          [harness.lint(123, 17)],
+          [harness.lint(123, 31)],
+        );
+      });
+    });
+
+    test('reports dispose before deactivate', () async {
+      await _withHarness((harness) async {
+        await harness.assertDiagnostics(
+          r'''
+import 'package:flutter/widgets.dart';
+
+class ExampleState extends State<Example> {
+  void dispose() {}
+
+  void deactivate() {}
+}
+
+class Example extends StatefulWidget {
+  const Example({super.key});
+
+  State<Example> createState() => ExampleState();
+}
+''',
+          [harness.lint(107, 20)],
         );
       });
     });

@@ -6,6 +6,15 @@ import 'package:analyzer/dart/ast/visitor.dart';
 import 'package:analyzer/dart/element/element.dart';
 import 'package:analyzer/error/error.dart';
 
+/// Enforces the current Flutter widget member order.
+///
+/// The lifecycle portion follows the Flutter
+/// [State](https://api.flutter.dev/flutter/widgets/State-class.html) docs.
+///
+/// The expected order is:
+/// fields and constants, getters and setters, constructor, `initState`,
+/// `didChangeDependencies`, `build`, `didUpdateWidget`, `reassemble`,
+/// `deactivate`, `dispose`, public methods, private methods.
 class WidgetMemberOrderRule extends AnalysisRule {
   WidgetMemberOrderRule()
     : super(
@@ -46,17 +55,18 @@ class _WidgetMemberOrderVisitor extends SimpleAstVisitor<void> {
     }
 
     var highestOrder = -1;
-    final members = (node.body as dynamic).members as Iterable<ClassMember>;
-    for (final member in members) {
-      final order = _orderFor(member);
-      if (order == null) {
-        continue;
-      }
+    if (node.body case BlockClassBody body) {
+      for (final member in body.members) {
+        final order = _orderFor(member);
+        if (order == null) {
+          continue;
+        }
 
-      if (order < highestOrder) {
-        rule.reportAtNode(member);
-      } else {
-        highestOrder = order;
+        if (order < highestOrder) {
+          rule.reportAtNode(member);
+        } else {
+          highestOrder = order;
+        }
       }
     }
   }
@@ -99,13 +109,25 @@ class _WidgetMemberOrderVisitor extends SimpleAstVisitor<void> {
       if (name == 'initState') {
         return 3;
       }
-      if (name == 'dispose') {
+      if (name == 'didChangeDependencies') {
         return 4;
       }
       if (name == 'build') {
         return 5;
       }
-      return name.startsWith('_') ? 7 : 6;
+      if (name == 'didUpdateWidget') {
+        return 6;
+      }
+      if (name == 'reassemble') {
+        return 7;
+      }
+      if (name == 'deactivate') {
+        return 8;
+      }
+      if (name == 'dispose') {
+        return 9;
+      }
+      return name.startsWith('_') ? 11 : 10;
     }
 
     return null;
