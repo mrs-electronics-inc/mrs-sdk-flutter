@@ -6,15 +6,25 @@ import 'package:analyzer/dart/ast/visitor.dart';
 import 'package:analyzer/dart/element/element.dart';
 import 'package:analyzer/error/error.dart';
 
-/// Enforces the current Flutter widget member order.
+/// Enforces Flutter widget member order.
+///
+/// The expected order is:
+/// - fields and constants
+/// - getters and setters
+/// - constructor
+/// - lifecycle hooks (for `State` only)
+///     - `initState`
+///     - `didChangeDependencies`
+///     - `build`
+///     - `didUpdateWidget`
+///     - `reassemble`
+///     - `deactivate`
+///     - `dispose`
+/// - public methods
+/// - private methods
 ///
 /// The lifecycle portion follows the Flutter
 /// [State](https://api.flutter.dev/flutter/widgets/State-class.html) docs.
-///
-/// The expected order is:
-/// fields and constants, getters and setters, constructor, `initState`,
-/// `didChangeDependencies`, `build`, `didUpdateWidget`, `reassemble`,
-/// `deactivate`, `dispose`, public methods, private methods.
 class WidgetMemberOrderRule extends AnalysisRule {
   WidgetMemberOrderRule()
     : super(
