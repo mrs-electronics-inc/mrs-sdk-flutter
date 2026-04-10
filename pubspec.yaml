@@ -16,7 +16,7 @@ dependencies:
   analysis_server_plugin: ^0.3.7
   analyzer: ^10.0.1
   http: ^1.6.0
-  mqtt_client: ^10.11.9
+  mqtt_client: ^10.11.10
 
 dev_dependencies:
   analyzer_testing: ^0.1.9
