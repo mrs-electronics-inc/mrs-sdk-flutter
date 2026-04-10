@@ -1,7 +1,7 @@
 // ignore_for_file: non_constant_identifier_names
 
 import 'package:analyzer_testing/analysis_rule/analysis_rule.dart';
-import 'package:mrs_sdk_flutter/lints.dart';
+import 'package:mrs_sdk_flutter_lints/lints.dart';
 import 'package:test/test.dart';
 
 class _WidgetMemberOrderHarness extends AnalysisRuleTest {
