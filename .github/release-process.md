@@ -15,6 +15,9 @@ Use this checklist before package publish work:
 11. Verify the package version appears on `https://pub.dev/packages/mrs_sdk_flutter/versions`.
 12. Record deployment traceability links in release notes or issue tracker: pushed tag (`vX.Y.Z`), successful GitHub Actions run, and published `pub.dev` version page.
 
-Automated by CI/CD after tag push:
+Automated by CI/CD in `.github/workflows/publish-pubdev.yml` after tag push:
 
-- `.github/workflows/publish-pubdev.yml` for `mrs_sdk_flutter`: `quality_gates`, `tag_version_check`, `dry_run_publish`, and `publish`
+- `quality_gates` (format, analyze, tests, docs checks)
+- `tag_version_check` (tag format and tag-to-`pubspec.yaml` version match)
+- `dry_run_publish` (`dart pub publish --dry-run`)
+- `publish` (`dart pub publish --force`, protected by `pubdev-release` environment approval)
