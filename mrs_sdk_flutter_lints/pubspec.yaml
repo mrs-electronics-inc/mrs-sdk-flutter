@@ -1,5 +1,5 @@
-name: mrs_sdk_flutter
-description: Official Flutter package for integrating mobile apps with MRS Electronic products and services.
+name: mrs_sdk_flutter_lints
+description: Analyzer plugin providing lint rules for MRS SDK Flutter projects.
 version: 0.6.0
 homepage: https://mrs-electronics.dev
 repository: https://github.com/mrs-electronics-inc/mrs-sdk-flutter
@@ -8,15 +8,12 @@ issue_tracker: https://github.com/mrs-electronics-inc/mrs-sdk-flutter/issues
 
 environment:
   sdk: ^3.11.0
-  flutter: ">=1.17.0"
 
 dependencies:
-  flutter:
-    sdk: flutter
-  http: ^1.6.0
-  mqtt_client: ^10.11.10
+  analysis_server_plugin: ^0.3.7
+  analyzer: ^10.0.1
 
 dev_dependencies:
-  flutter_lints: ^6.0.0
+  analyzer_testing: ^0.1.9
+  lints: ^6.0.0
   test: ^1.31.0
-flutter:
