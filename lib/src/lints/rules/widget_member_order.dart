@@ -46,7 +46,8 @@ class _WidgetMemberOrderVisitor extends SimpleAstVisitor<void> {
     }
 
     var highestOrder = -1;
-    for (final member in node.body.members) {
+    final members = (node.body as dynamic).members as Iterable<ClassMember>;
+    for (final member in members) {
       final order = _orderFor(member);
       if (order == null) {
         continue;

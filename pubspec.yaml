@@ -13,11 +13,13 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  analysis_server_plugin: ^0.3.7
+  analyzer: ^10.0.1
   http: ^1.6.0
   mqtt_client: ^10.11.9
 
 dev_dependencies:
-  flutter_test:
-    sdk: flutter
+  analyzer_testing: ^0.1.9
   flutter_lints: ^6.0.0
+  test: ^1.31.0
 flutter:

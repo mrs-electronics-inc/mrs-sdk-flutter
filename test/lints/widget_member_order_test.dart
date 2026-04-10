@@ -1,11 +1,10 @@
 // ignore_for_file: non_constant_identifier_names
 
 import 'package:analyzer_testing/analysis_rule/analysis_rule.dart';
-import 'package:mrs_flutter_lints/mrs_flutter_lints.dart';
-import 'package:test_reflective_loader/test_reflective_loader.dart';
+import 'package:mrs_sdk_flutter/lints.dart';
+import 'package:test/test.dart';
 
-@reflectiveTest
-class WidgetMemberOrderTest extends AnalysisRuleTest {
+class _WidgetMemberOrderHarness extends AnalysisRuleTest {
   @override
   void setUp() {
     final flutterPackage = newPackage('flutter');
@@ -31,10 +30,27 @@ abstract class State<T extends StatefulWidget> {}
     rule = WidgetMemberOrderRule();
     super.setUp();
   }
+}
 
-  void
-  test_fields_getters_constructor_lifecycle_and_methods_are_allowed() async {
-    await assertNoDiagnostics(r'''
+Future<void> _withHarness(
+  Future<void> Function(_WidgetMemberOrderHarness harness) body,
+) async {
+  final harness = _WidgetMemberOrderHarness();
+  harness.setUp();
+  try {
+    await body(harness);
+  } finally {
+    await harness.tearDown();
+  }
+}
+
+void main() {
+  group('WidgetMemberOrder', () {
+    test(
+      'fields getters constructor lifecycle and methods are allowed',
+      () async {
+        await _withHarness((harness) async {
+          await harness.assertNoDiagnostics(r'''
 import 'package:flutter/widgets.dart';
 
 class Example extends StatefulWidget {
@@ -69,11 +85,14 @@ class _ExampleState extends State<Example> {
   void _privateHelper() {}
 }
 ''');
-  }
+        });
+      },
+    );
 
-  void test_reports_field_after_accessor() async {
-    await assertDiagnostics(
-      r'''
+    test('reports field after accessor', () async {
+      await _withHarness((harness) async {
+        await harness.assertDiagnostics(
+          r'''
 import 'package:flutter/widgets.dart';
 
 class Example extends StatefulWidget {
@@ -84,13 +103,15 @@ class Example extends StatefulWidget {
   const Example({super.key});
 }
 ''',
-      [lint(104, 20)],
-    );
-  }
+          [harness.lint(104, 20)],
+        );
+      });
+    });
 
-  void test_reports_dispose_before_build() async {
-    await assertDiagnostics(
-      r'''
+    test('reports dispose before build', () async {
+      await _withHarness((harness) async {
+        await harness.assertDiagnostics(
+          r'''
 import 'package:flutter/widgets.dart';
 
 class ExampleState extends State<Example> {
@@ -105,13 +126,15 @@ class Example extends StatefulWidget {
   State<Example> createState() => ExampleState();
 }
 ''',
-      [lint(123, 17)],
-    );
-  }
+          [harness.lint(123, 17)],
+        );
+      });
+    });
 
-  void test_reports_public_method_before_build() async {
-    await assertDiagnostics(
-      r'''
+    test('reports public method before build', () async {
+      await _withHarness((harness) async {
+        await harness.assertDiagnostics(
+          r'''
 import 'package:flutter/widgets.dart';
 
 class ExampleState extends State<Example> {
@@ -126,13 +149,15 @@ class Example extends StatefulWidget {
   State<Example> createState() => ExampleState();
 }
 ''',
-      [lint(112, 33)],
-    );
-  }
+          [harness.lint(112, 33)],
+        );
+      });
+    });
 
-  void test_reports_on_stateless_widgets_too() async {
-    await assertDiagnostics(
-      r'''
+    test('reports on stateless widgets too', () async {
+      await _withHarness((harness) async {
+        await harness.assertDiagnostics(
+          r'''
 import 'package:flutter/widgets.dart';
 
 class Example extends StatelessWidget {
@@ -143,13 +168,9 @@ class Example extends StatelessWidget {
   Widget build() => const Widget();
 }
 ''',
-      [lint(139, 33)],
-    );
-  }
-}
-
-void main() {
-  defineReflectiveSuite(() {
-    defineReflectiveTests(WidgetMemberOrderTest);
+          [harness.lint(139, 33)],
+        );
+      });
+    });
   });
 }

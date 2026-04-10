@@ -1,5 +1,5 @@
-import 'package:flutter_test/flutter_test.dart';
 import 'package:mrs_sdk_flutter/mrs_sdk_flutter.dart';
+import 'package:test/test.dart';
 
 import 'helpers.dart';
 
