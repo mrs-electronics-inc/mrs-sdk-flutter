@@ -1,5 +1,7 @@
 ## 0.7.0
 
+- Automated release flow.
+
 ## 0.6.0
 
 - Add lint rule to enforce widget member ordering.
