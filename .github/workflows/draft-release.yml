@@ -1,0 +1,132 @@
+name: Draft Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      package:
+        description: Package to prepare
+        required: true
+        type: choice
+        options:
+          - sdk
+          - lints
+        default: sdk
+      bump:
+        description: Version bump to apply
+        required: true
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+        default: patch
+
+permissions:
+  contents: read
+
+jobs:
+  draft-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Create GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.RELEASE_BOT_APP_ID }}
+          private-key: ${{ secrets.RELEASE_BOT_PRIVATE_KEY }}
+
+      - name: Prepare release pull request
+        id: prepare
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          package="${{ inputs.package }}"
+          bump="${{ inputs.bump }}"
+
+          case "$package" in
+            sdk)
+              version_file="pubspec.yaml"
+              readme_file="README.md"
+              readme_pattern='^([[:space:]]*mrs_sdk_flutter:[[:space:]]*\^)[0-9]+\.[0-9]+\.[0-9]+.*$'
+              tag_prefix="v"
+              package_name="mrs_sdk_flutter"
+              ;;
+            lints)
+              version_file="lints/pubspec.yaml"
+              readme_file="lints/README.md"
+              readme_pattern='^([[:space:]]*mrs_sdk_flutter_lints:[[:space:]]*\^)[0-9]+\.[0-9]+\.[0-9]+.*$'
+              tag_prefix="lints-v"
+              package_name="mrs_sdk_flutter_lints"
+              ;;
+            *)
+              echo "Unsupported package '$package'." >&2
+              exit 1
+              ;;
+          esac
+
+          current_version="$(tr -d '[:space:]' < "$version_file")"
+          if ! [[ "$current_version" =~ ^v?[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "$version_file must contain a semantic version like 0.6.0." >&2
+            exit 1
+          fi
+
+          current_version="${current_version#v}"
+          IFS='.' read -r major minor patch <<<"$current_version"
+
+          case "$bump" in
+            major)
+              major=$((major + 1))
+              minor=0
+              patch=0
+              ;;
+            minor)
+              minor=$((minor + 1))
+              patch=0
+              ;;
+            patch)
+              patch=$((patch + 1))
+              ;;
+          esac
+
+          next_version="${major}.${minor}.${patch}"
+          next_tag="${tag_prefix}${next_version}"
+          branch_name="release/${package}/${next_version}"
+
+          sed -i -E "s/^version:[[:space:]]*.*/version: ${next_version}/" "$version_file"
+
+          if ! grep -Eq "${readme_pattern}" "$readme_file"; then
+            echo "Could not find the install example for ${package_name} in ${readme_file}." >&2
+            exit 1
+          fi
+
+          sed -i -E "s/${readme_pattern}/\\1${next_version}/" "$readme_file"
+
+          echo "package=${package}" >> "$GITHUB_OUTPUT"
+          echo "package_name=${package_name}" >> "$GITHUB_OUTPUT"
+          echo "version_file=${version_file}" >> "$GITHUB_OUTPUT"
+          echo "readme_file=${readme_file}" >> "$GITHUB_OUTPUT"
+          echo "next_version=${next_version}" >> "$GITHUB_OUTPUT"
+          echo "next_tag=${next_tag}" >> "$GITHUB_OUTPUT"
+          echo "branch_name=${branch_name}" >> "$GITHUB_OUTPUT"
+
+      - name: Create pull request
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          branch: ${{ steps.prepare.outputs.branch_name }}
+          delete-branch: true
+          labels: release
+          title: "chore: bump ${{ steps.prepare.outputs.package_name }} to ${{ steps.prepare.outputs.next_version }}"
+          commit-message: "chore: bump ${{ steps.prepare.outputs.package_name }} to ${{ steps.prepare.outputs.next_version }}"
+          body: |
+            Bump `${{ steps.prepare.outputs.version_file }}` to `${{ steps.prepare.outputs.next_version }}`.
+
+            Update `${{ steps.prepare.outputs.readme_file }}` to keep the install example in sync.
+            Add or refresh changelog notes before merging to main.
