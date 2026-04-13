@@ -54,6 +54,8 @@ jobs:
             sdk)
               version_file="pubspec.yaml"
               readme_file="README.md"
+              changelog_file="CHANGELOG.md"
+              docs_file="docs/src/content/docs/getting-started/index.mdx"
               readme_pattern='^([[:space:]]*mrs_sdk_flutter:[[:space:]]*\^)[0-9]+\.[0-9]+\.[0-9]+.*$'
               tag_prefix="v"
               package_name="mrs_sdk_flutter"
@@ -61,6 +63,8 @@ jobs:
             lints)
               version_file="lints/pubspec.yaml"
               readme_file="lints/README.md"
+              changelog_file="lints/CHANGELOG.md"
+              docs_file=""
               readme_pattern='^([[:space:]]*mrs_sdk_flutter_lints:[[:space:]]*\^)[0-9]+\.[0-9]+\.[0-9]+.*$'
               tag_prefix="lints-v"
               package_name="mrs_sdk_flutter_lints"
@@ -108,10 +112,40 @@ jobs:
 
           sed -i -E "s/${readme_pattern}/\\1${next_version}/" "$readme_file"
 
+          prepend_changelog_section() {
+            local changelog_path="$1"
+            local version="$2"
+            local tmp_file
+
+            if grep -Eq "^##[[:space:]]+${version}$" "$changelog_path"; then
+              return 0
+            fi
+
+            tmp_file="$(mktemp)"
+            {
+              printf '## %s\n\n' "$version"
+              cat "$changelog_path"
+            } > "$tmp_file"
+            mv "$tmp_file" "$changelog_path"
+          }
+
+          prepend_changelog_section "$changelog_file" "$next_version"
+
+          if [[ -n "$docs_file" ]]; then
+            if ! grep -Eq "${readme_pattern}" "$docs_file"; then
+              echo "Could not find the install example in ${docs_file}." >&2
+              exit 1
+            fi
+
+            sed -i -E "s/${readme_pattern}/\\1${next_version}/" "$docs_file"
+          fi
+
           echo "package=${package}" >> "$GITHUB_OUTPUT"
           echo "package_name=${package_name}" >> "$GITHUB_OUTPUT"
           echo "version_file=${version_file}" >> "$GITHUB_OUTPUT"
           echo "readme_file=${readme_file}" >> "$GITHUB_OUTPUT"
+          echo "changelog_file=${changelog_file}" >> "$GITHUB_OUTPUT"
+          echo "docs_file=${docs_file}" >> "$GITHUB_OUTPUT"
           echo "next_version=${next_version}" >> "$GITHUB_OUTPUT"
           echo "next_tag=${next_tag}" >> "$GITHUB_OUTPUT"
           echo "branch_name=${branch_name}" >> "$GITHUB_OUTPUT"
@@ -129,4 +163,5 @@ jobs:
             Bump `${{ steps.prepare.outputs.version_file }}` to `${{ steps.prepare.outputs.next_version }}`.
 
             Update `${{ steps.prepare.outputs.readme_file }}` to keep the install example in sync.
+            Update `${{ steps.prepare.outputs.changelog_file }}` and the getting-started docs version references for SDK releases.
             Add or refresh changelog notes before merging to main.

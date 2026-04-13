@@ -16,7 +16,7 @@ The draft-release and release-tag workflows both use a GitHub App installation t
 ## `mrs_sdk_flutter`
 
 1. Run the `Draft Release` workflow and choose `sdk` plus the desired version bump.
-2. Review the generated pull request, add or refresh `CHANGELOG.md` notes, and confirm the README install example still matches the version bump.
+2. Review the generated pull request, add or refresh `CHANGELOG.md` notes, and confirm the README install example and getting-started docs version references still match the version bump.
 3. Merge the pull request into `main`.
 4. Let the `Release` workflow create and push tag `vX.Y.Z` from the merged commit.
 5. Monitor `.github/workflows/publish-sdk.yml` after the tag push.
