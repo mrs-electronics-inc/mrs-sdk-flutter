@@ -17,7 +17,7 @@ The `Draft Release` workflow uses a GitHub App installation token to open releas
 1. Run the `Draft Release` workflow and choose `sdk` plus the desired version bump.
 2. Review the generated pull request, add or refresh `CHANGELOG.md` notes, and confirm the README install example and getting-started docs version references still match the version bump.
 3. Merge the pull request into `main`.
-4. Let [`.github/workflows/release-sdk.yml`](.github/workflows/release-sdk.yml) create and push tag `vX.Y.Z` from the merged commit.
+4. Let [`.github/workflows/release-sdk.yml`](.github/workflows/release-sdk.yml) create and push tag `vX.Y.Z` from the merged commit using the release bot GitHub App token so the tag push can trigger the publish workflow.
 5. Let [`.github/workflows/publish-sdk.yml`](.github/workflows/publish-sdk.yml) run from the tag push, complete `flutter pub publish --dry-run`, and publish to `pub.dev`.
 6. Approve the `pubdev-release` environment when prompted.
 7. Verify the `publish` job succeeds.
@@ -37,7 +37,7 @@ Automated by CI/CD in [`.github/workflows/release-sdk.yml`](.github/workflows/re
 1. Run the `Draft Release` workflow and choose `lints` plus the desired version bump.
 2. Review the generated pull request, add or refresh `lints/CHANGELOG.md` notes, and confirm the README install example still matches the version bump.
 3. Merge the pull request into `main`.
-4. Let [`.github/workflows/release-lints.yml`](.github/workflows/release-lints.yml) create and push tag `lints-vX.Y.Z` from the merged commit.
+4. Let [`.github/workflows/release-lints.yml`](.github/workflows/release-lints.yml) create and push tag `lints-vX.Y.Z` from the merged commit using the release bot GitHub App token so the tag push can trigger the publish workflow.
 5. Let [`.github/workflows/publish-lints.yml`](.github/workflows/publish-lints.yml) run from the tag push, complete `dart pub publish --dry-run`, and publish to `pub.dev`.
 6. Approve the `pubdev-release` environment when prompted.
 7. Verify the `publish` job succeeds.
