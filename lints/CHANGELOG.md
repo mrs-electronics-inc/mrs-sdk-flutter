@@ -1,3 +1,7 @@
+## 0.6.3
+
+- Use the release bot app token when pushing release tags.
+
 ## 0.6.2
 
 - Split lints publishing into a tag-triggered workflow.

@@ -1,3 +1,7 @@
+## 0.7.2
+
+- Use the release bot app token when pushing release tags.
+
 ## 0.7.1
 
 - Split SDK publishing into a tag-triggered workflow.
