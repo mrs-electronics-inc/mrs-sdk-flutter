@@ -1,3 +1,7 @@
+## 0.7.1
+
+- Split SDK publishing into a tag-triggered workflow.
+
 ## 0.7.0
 
 - Automated release flow.

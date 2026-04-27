@@ -1,3 +1,7 @@
+## 0.6.2
+
+- Split lints publishing into a tag-triggered workflow.
+
 ## 0.6.1
 
 - Clarify that workspace apps need their own `dev_dependencies` entry for the lint package.

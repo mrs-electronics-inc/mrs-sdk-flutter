@@ -1,0 +1,45 @@
+name: Publish Lints
+
+on:
+  push:
+    tags:
+      - lints-v*
+
+permissions:
+  contents: read
+
+jobs:
+  dry_run_publish:
+    name: dry_run_publish
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Dart
+        uses: dart-lang/setup-dart@v1
+
+      - name: Install dependencies
+        run: dart pub get
+        working-directory: lints
+
+      - name: Verify publish readiness with dry-run
+        # Failure condition: any pub.dev packaging or validation issue blocks real publish.
+        run: dart pub publish --dry-run
+        working-directory: lints
+
+  publish:
+    name: publish
+    needs: dry_run_publish
+    # OIDC permission required for pub.dev automated publishing from GitHub Actions.
+    permissions:
+      id-token: write
+      contents: read
+    # Use Dart's maintained reusable workflow for pub.dev automated publishing.
+    uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1
+    with:
+      # Environment protection: configure this GitHub Environment with one required reviewer.
+      # This environment name must also be required in pub.dev automated publishing settings.
+      environment: pubdev-release
+      working-directory: lints

@@ -114,18 +114,3 @@ jobs:
 
           git tag -a "$tag_name" -m "Release $tag_name"
           git push origin "$tag_name"
-
-  publish:
-    name: publish
-    needs: create_release_tag
-    # OIDC permission required for pub.dev automated publishing from GitHub Actions.
-    permissions:
-      id-token: write
-      contents: read
-    # Use Dart's maintained reusable workflow for pub.dev automated publishing.
-    uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1
-    with:
-      # Environment protection: configure this GitHub Environment with one required reviewer.
-      # This environment name must also be required in pub.dev automated publishing settings.
-      environment: pubdev-release
-      working-directory: lints
