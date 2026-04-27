@@ -1,6 +1,6 @@
 name: mrs_sdk_flutter_lints
 description: Analyzer plugin providing lint rules for MRS SDK Flutter projects.
-version: 0.6.0
+version: 0.6.1
 homepage: https://mrs-electronics.dev
 repository: https://github.com/mrs-electronics-inc/mrs-sdk-flutter
 documentation: https://flutter.mrs-electronics.dev
