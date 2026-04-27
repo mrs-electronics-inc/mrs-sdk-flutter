@@ -4,18 +4,21 @@
 
 ## Install
 
-Add the plugin to the top-level `plugins` section of your root `analysis_options.yaml`:
+Add the plugin to the `dev_dependencies` of the package you want analyzed:
 
 ```yaml
-plugins:
+dev_dependencies:
   mrs_sdk_flutter_lints: ^0.6.0
 ```
 
-Enable the lint rule you want under `diagnostics`:
+If you are using a pub workspace with multiple apps, add it to each app package that should report the lint.
+
+Then enable the plugin in the root `analysis_options.yaml` for that package or workspace:
 
 ```yaml
 plugins:
   mrs_sdk_flutter_lints:
+    version: ^0.6.0
     diagnostics:
       widget_member_order: true
 ```
