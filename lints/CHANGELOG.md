@@ -1,3 +1,7 @@
+## 0.6.1
+
+- Clarify that workspace apps need their own `dev_dependencies` entry for the lint package.
+
 ## 0.6.0
 
 - Split the widget member order lint into a standalone analyzer plugin package.
