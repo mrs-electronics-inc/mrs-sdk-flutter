@@ -22,5 +22,3 @@ plugins:
     diagnostics:
       widget_member_order: true
 ```
-
-Restart the Dart analysis server after changing plugin configuration.
