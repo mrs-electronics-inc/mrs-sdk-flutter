@@ -18,7 +18,7 @@ The `Draft Release` workflow uses a GitHub App installation token to open releas
 2. Review the generated pull request, add or refresh `CHANGELOG.md` notes, and confirm the README install example and getting-started docs version references still match the version bump.
 3. Merge the pull request into `main`.
 4. Let [`.github/workflows/release-sdk.yml`](.github/workflows/release-sdk.yml) create and push tag `vX.Y.Z` from the merged commit.
-5. Let the same workflow run `flutter pub publish --dry-run` and then publish to `pub.dev`.
+5. Let [`.github/workflows/publish-sdk.yml`](.github/workflows/publish-sdk.yml) run from the tag push, complete `flutter pub publish --dry-run`, and publish to `pub.dev`.
 6. Approve the `pubdev-release` environment when prompted.
 7. Verify the `publish` job succeeds.
 8. Verify the package version appears on `https://pub.dev/packages/mrs_sdk_flutter/versions`.
@@ -38,15 +38,15 @@ Automated by CI/CD in [`.github/workflows/release-sdk.yml`](.github/workflows/re
 2. Review the generated pull request, add or refresh `lints/CHANGELOG.md` notes, and confirm the README install example still matches the version bump.
 3. Merge the pull request into `main`.
 4. Let [`.github/workflows/release-lints.yml`](.github/workflows/release-lints.yml) create and push tag `lints-vX.Y.Z` from the merged commit.
-5. Let the same workflow run `dart pub publish --dry-run` and then publish to `pub.dev`.
+5. Let [`.github/workflows/publish-lints.yml`](.github/workflows/publish-lints.yml) run from the tag push, complete `dart pub publish --dry-run`, and publish to `pub.dev`.
 6. Approve the `pubdev-release` environment when prompted.
 7. Verify the `publish` job succeeds.
 8. Verify the package version appears on `https://pub.dev/packages/mrs_sdk_flutter_lints/versions`.
 9. Record deployment traceability links in release notes or issue tracker: merged release PR, pushed tag (`lints-vX.Y.Z`), successful GitHub Actions run, and published `pub.dev` version page.
 
-Automated by CI/CD in [`.github/workflows/release-lints.yml`](.github/workflows/release-lints.yml):
+Automated by CI/CD in [`.github/workflows/release-lints.yml`](.github/workflows/release-lints.yml) and [`.github/workflows/publish-lints.yml`](.github/workflows/publish-lints.yml):
 
 - `tag_version_check` (version-file, README, and changelog verification)
 - `dry_run_publish` (`dart pub publish --dry-run` from `lints/`)
 - `create_release_tag` (annotated `lints-vX.Y.Z` tag push)
-- `publish` (`pub.dev` publishing, protected by `pubdev-release` environment approval)
+- `publish` (`pub.dev` publishing, protected by `pubdev-release` environment approval, from tag-triggered workflow)
