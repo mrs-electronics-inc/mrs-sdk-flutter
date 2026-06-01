@@ -1,3 +1,5 @@
+## 0.7.0
+
 ## 0.6.3
 
 - Use the release bot app token when pushing release tags.

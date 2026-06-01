@@ -8,7 +8,7 @@ Add the plugin to the `dev_dependencies` of the package you want analyzed:
 
 ```yaml
 dev_dependencies:
-  mrs_sdk_flutter_lints: ^0.6.3
+  mrs_sdk_flutter_lints: ^0.7.0
 ```
 
 If you are using a pub workspace with multiple apps, add it to each app package that should report the lint.
