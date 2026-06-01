@@ -1,5 +1,7 @@
 ## 0.7.0
 
+- `widget_member_order`: move constructors to the top of the order
+
 ## 0.6.3
 
 - Use the release bot app token when pushing release tags.
