@@ -9,9 +9,9 @@ import 'package:analyzer/error/error.dart';
 /// Enforces Flutter widget member order.
 ///
 /// The expected order is:
+/// - constructor
 /// - fields and constants
 /// - getters and setters
-/// - constructor
 /// - lifecycle hooks (for `State` only)
 ///     - `initState`
 ///     - `didChangeDependencies`
@@ -102,17 +102,17 @@ class _WidgetMemberOrderVisitor extends SimpleAstVisitor<void> {
   }
 
   int? _orderFor(ClassMember member) {
-    if (member is FieldDeclaration) {
+    if (member is ConstructorDeclaration) {
       return 0;
     }
 
-    if (member is ConstructorDeclaration) {
-      return 2;
+    if (member is FieldDeclaration) {
+      return 1;
     }
 
     if (member is MethodDeclaration) {
       if (member.isGetter || member.isSetter) {
-        return 1;
+        return 2;
       }
 
       final name = member.name.lexeme;
