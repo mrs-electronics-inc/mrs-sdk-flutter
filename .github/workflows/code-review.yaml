@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
 
     container:
-      image: ghcr.io/mrs-electronics-inc/bots/code-review:latest
+      image: registry.gitlab.com/mrs-electronics/ci/components/ai-code-reviewer:latest
 
     permissions:
       pull-requests: write
